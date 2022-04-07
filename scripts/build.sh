@@ -2,33 +2,75 @@
 
 set -e
 
-cd "$(dirname ${BASH_SOURCE[0]})/.."
+PACK_FILE="workspaces-bar@fthx.shell-extension.zip"
 
-rm -r target
+function clear() (
+	if [ -d target ]; then
+		rm -r target
+	fi
+)
 
-tsc || true
+function compile() (
+	tsc || true
+)
 
-for file in $(find target -name '*.js'); do
-	sed -i \
-		-e 's#export function#function#g' \
-		-e 's#export var#var#g' \
-		-e 's#export const#var#g' \
-		-e 's#Object.defineProperty(exports, "__esModule", { value: true });#var exports = {};#g' \
-		"${file}"
-	sed -i -E 's/export class (\w+)/var \1 = class \1/g' "${file}"
-	sed -i -E "s/import \* as (\w+) from '(\w+)'/const \1 = Me.imports.\2/g" "${file}"
-done
-
-mkdir target/schemas
-glib-compile-schemas src/schemas --targetdir target/schemas
-
-for file in metadata.json README.md; do
-	cp "$file" "target/$file"
-done
-
-(
-	cd src
-	for file in stylesheet.css; do
-		cp "$file" "../target/$file"
+function fixupJavaScript() (
+	for file in $(find target -name '*.js'); do
+		sed -i \
+			-e 's#export function#function#g' \
+			-e 's#export var#var#g' \
+			-e 's#export const#var#g' \
+			-e 's#Object.defineProperty(exports, "__esModule", { value: true });#var exports = {};#g' \
+			"${file}"
+		sed -i -E 's/export class (\w+)/var \1 = class \1/g' "${file}"
+		sed -i -E "s/import \* as (\w+) from '(\w+)'/const \1 = Me.imports.\2/g" "${file}"
 	done
 )
+
+function compileSchemas() (
+	cp -r src/schemas target/schemas
+	glib-compile-schemas src/schemas --targetdir target/schemas
+)
+
+function copyAdditionalFiles() (
+	for file in metadata.json README.md; do
+		cp "$file" "target/$file"
+	done
+
+	(
+		cd src
+		for file in stylesheet.css; do
+			cp "$file" "../target/$file"
+		done
+	)
+)
+
+function pack() (
+	gnome-extensions pack target --force $(
+		cd target
+		for file in *; do echo "--extra-source=$file"; done
+	)
+	echo "Packed $PACK_FILE"
+)
+
+function install() (
+	gnome-extensions install --force "$PACK_FILE"
+	echo "Installed $PACK_FILE"
+)
+
+function main() (
+	cd "$(dirname ${BASH_SOURCE[0]})/.."
+	clear
+	compile
+	fixupJavaScript
+	compileSchemas
+	copyAdditionalFiles
+	pack
+	while getopts i flag; do
+		case $flag in
+		i) install ;;
+		esac
+	done
+)
+
+main "$@"
