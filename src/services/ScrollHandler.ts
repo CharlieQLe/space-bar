@@ -1,16 +1,15 @@
-'use strict';
-
 const { Clutter } = imports.gi;
-
 const Main = imports.ui.main;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const { WorkspacesState } = Me.imports.services.WorkspacesState;
+
+import { WorkspacesState } from 'services/WorkspacesState';
 
 export class ScrollHandler {
+    private _ws!: WorkspacesState;
+    private scroll_binding: any;
+
     init() {
         this._ws = WorkspacesState.getInstance();
-        this.scroll_binding = Main.panel.connect('scroll-event', (actor, event) =>
+        this.scroll_binding = Main.panel.connect('scroll-event', (actor: any, event: any) =>
             this._handle_scroll(actor, event),
         );
     }
@@ -20,7 +19,7 @@ export class ScrollHandler {
         this.scroll_binding = null;
     }
 
-    _handle_scroll(actor, event) {
+    _handle_scroll(actor: any, event: any) {
         // Adapted from https://github.com/timbertson/gnome-shell-scroll-workspaces
         const source = event.get_source();
         if (source !== actor) {
@@ -48,7 +47,7 @@ export class ScrollHandler {
         return Clutter.EVENT_STOP;
     }
 
-    _findNonEmptyWorkspace(index, step) {
+    _findNonEmptyWorkspace(index: number, step: number) {
         while (true) {
             index += step;
             if (index < 0 || index >= this._ws.count) {

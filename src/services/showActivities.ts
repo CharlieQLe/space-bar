@@ -1,8 +1,6 @@
-'use strict';
-
 const Main = imports.ui.main;
 
-export function showActivities(show) {
+export function showActivities(show: boolean) {
     const activities_button = Main.panel.statusArea['activities'];
     if (activities_button) {
         if (show && !Main.sessionMode.isLocked) {

@@ -1,13 +1,10 @@
-'use strict';
-
 const { Adw, Gio, Gtk } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
 
 function init() {}
 
-function fillPreferencesWindow(window) {
+function fillPreferencesWindow(window: any) {
     // Use the same GSettings schema as in `extension.js`
     const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.workspaces-bar');
 

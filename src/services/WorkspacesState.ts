@@ -1,16 +1,16 @@
-'use strict';
-
 const { Shell } = imports.gi;
 const Main = imports.ui.main;
 const AltTab = imports.ui.altTab;
 
-class WorkspaceState {
-    /** @type boolean */
-    hasWindows;
+interface WorkspaceState {
+    hasWindows: boolean;
 }
 
+type Workspace = any;
+type Window = any;
+
 export class WorkspacesState {
-    static _instance;
+    static _instance: WorkspacesState;
 
     static getInstance() {
         if (!WorkspacesState._instance) {
@@ -20,14 +20,18 @@ export class WorkspacesState {
     }
 
     /** Number of workspaces. */
-    count;
+    count = 0;
     /** Index of active workspace. */
-    active_index;
+    active_index = 0;
     /** @type Workspace[] */
-    workspaces;
+    workspaces: WorkspaceState[] = [];
 
-    _onUpdateCallbacks = [];
-    _previousWorkspace;
+    private readonly _onUpdateCallbacks: Array<() => void> = [];
+    private _previousWorkspace = 0;
+    private _ws_active_changed: any;
+    private _ws_number_changed: any;
+    private _restacked: any;
+    private _windows_changed: any;
 
     init() {
         this._ws_active_changed = global.workspace_manager.connect(
@@ -64,11 +68,11 @@ export class WorkspacesState {
         }
     }
 
-    onUpdate(callback) {
+    onUpdate(callback: () => void) {
         this._onUpdateCallbacks.push(callback);
     }
 
-    activate(index) {
+    activate(index: number) {
         if (global.workspace_manager.get_active_workspace_index() === index) {
             Main.overview.toggle();
         } else {
@@ -92,9 +96,9 @@ export class WorkspacesState {
         this._onUpdateCallbacks.forEach((cb) => cb());
     }
 
-    _focusMostRecentWindowOnWorkspace(workspace) {
+    _focusMostRecentWindowOnWorkspace(workspace: Workspace) {
         const mostRecentWindowOnWorkspace = AltTab.getWindows(workspace).find(
-            (window) => !window.is_on_all_workspaces(),
+            (window: Window) => !window.is_on_all_workspaces(),
         );
         if (mostRecentWindowOnWorkspace) {
             workspace.activate_with_focus(mostRecentWindowOnWorkspace, global.get_current_time());
@@ -102,7 +106,7 @@ export class WorkspacesState {
     }
 }
 
-function getWorkspaceState(index) {
+function getWorkspaceState(index: number) {
     const workspace = global.workspace_manager.get_workspace_by_index(index);
     return {
         hasWindows: getNumberOfWindows(workspace) > 0,
@@ -113,7 +117,7 @@ function getWorkspaceState(index) {
  * Returns the number of windows on the given workspace, excluding windows on all workspaces, e.g.,
  * windows on a secondary screen when workspaces do not span all screens.
  */
-function getNumberOfWindows(workspace) {
-    const windows = workspace.list_windows();
+function getNumberOfWindows(workspace: Workspace) {
+    const windows: Window[] = workspace.list_windows();
     return windows.filter((window) => !window.is_on_all_workspaces()).length;
 }

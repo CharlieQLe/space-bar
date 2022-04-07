@@ -1,5 +1,3 @@
-'use strict';
-
 const ExtensionUtils = imports.misc.extensionUtils;
 
 export function getSettings() {

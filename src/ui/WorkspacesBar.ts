@@ -1,15 +1,10 @@
-'use strict';
-
-const { Clutter, Gio, GObject, Shell, St } = imports.gi;
-
-const Main = imports.ui.main;
+const { Clutter, Gio, GObject, St } = imports.gi;
 const PanelMenu = imports.ui.panelMenu;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const { WorkspacesState } = Me.imports.services.WorkspacesState;
 
-var WORKSPACES_SCHEMA = 'org.gnome.desktop.wm.preferences';
-var WORKSPACES_KEY = 'workspace-names';
+import { WorkspacesState } from 'services/WorkspacesState';
+
+const WORKSPACES_SCHEMA = 'org.gnome.desktop.wm.preferences';
+const WORKSPACES_KEY = 'workspace-names';
 
 export const WorkspacesBar = GObject.registerClass(
     class WorkspacesBar extends PanelMenu.Button {
@@ -53,18 +48,18 @@ export const WorkspacesBar = GObject.registerClass(
             super.destroy();
         }
 
-        _update_workspaces_names() {
+        private _update_workspaces_names() {
             this.workspaces_names = this.workspaces_settings.get_strv(WORKSPACES_KEY);
             this._update_ws();
         }
 
-        _update_dynamic_workspaces() {
+        private _update_dynamic_workspaces() {
             this.dynamic_workspaces = this.mutter_settings.get_boolean('dynamic-workspaces');
             this._update_ws();
         }
 
         // update the workspaces bar
-        _update_ws() {
+        private _update_ws() {
             // destroy old workspaces bar buttons
             this.ws_bar.destroy_all_children();
 
@@ -103,7 +98,9 @@ export const WorkspacesBar = GObject.registerClass(
                     ws_box.label.set_text((ws_index + 1).toString());
                 }
                 ws_box.set_child(ws_box.label);
-                ws_box.connect('button-press-event', (actor, event) => this._ws.activate(ws_index));
+                ws_box.connect('button-press-event', (actor: any, event: any) =>
+                    this._ws.activate(ws_index),
+                );
                 this.ws_bar.add_actor(ws_box);
             }
         }
