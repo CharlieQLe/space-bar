@@ -24,10 +24,14 @@ function fixupJavaScript() (
 			"${file}"
 		sed -i -E 's/export class (\w+)/var \1 = class \1/g' "${file}"
 		sed -i -E "s/import \* as (\w+) from '(.+)'/const \1 = Me.imports.\2/g" "${file}"
-		# Replace import statements of the style "import { Foo } from 'foo';"
+		# Replace import statements of the style "import { Foo } from 'foo';".
 		sed -i -E "s/^import \{(.*)\} from '(.*)';$/const {\1} = Me.imports.\2;/g" "${file}"
-		# Replace slashes with dots in lines containing "Me.imports."
+		# Replace slashes with dots in lines containing "Me.imports.".
 		sed -i -E "/^const .* = Me\.imports\..*;/ s/(\w)\/(\w)/\1.\2/g" "${file}"
+		# Prepend import for `Me` if not already there.
+		if ! grep -qe "^const Me =" ${file}; then
+			echo -e "const Me = imports.misc.extensionUtils.getCurrentExtension();\n$(cat ${file})" >${file}
+		fi
 	done
 )
 

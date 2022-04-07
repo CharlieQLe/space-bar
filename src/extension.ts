@@ -1,5 +1,3 @@
-// @ts-ignore
-const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 
 import { WorkspacesBar } from 'ui/WorkspacesBar';
