@@ -1,11 +1,12 @@
+// @ts-ignore
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const { WorkspacesBar } = Me.imports.ui.WorkspacesBar;
-const { WorkspacesState } = Me.imports.services.WorkspacesState;
-const { ScrollHandler } = Me.imports.services.ScrollHandler;
-const { KeyBindings } = Me.imports.services.KeyBindings;
-const { showActivities } = Me.imports.services.showActivities;
+
+import { WorkspacesBar } from 'ui/WorkspacesBar';
+import { WorkspacesState } from 'services/WorkspacesState';
+import { ScrollHandler } from 'services/ScrollHandler';
+import { KeyBindings } from 'services/KeyBindings';
+import { showActivities } from 'services/showActivities';
 
 class Extension {
   constructor() {}

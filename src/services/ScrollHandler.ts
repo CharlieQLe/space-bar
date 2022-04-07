@@ -7,7 +7,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const { WorkspacesState } = Me.imports.services.WorkspacesState;
 
-var ScrollHandler = class ScrollHandler {
+export class ScrollHandler {
   init() {
     this._ws = WorkspacesState.getInstance();
     this.scroll_binding = Main.panel.connect('scroll-event', (actor, event) =>

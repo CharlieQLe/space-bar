@@ -11,7 +11,7 @@ const { WorkspacesState } = Me.imports.services.WorkspacesState;
 var WORKSPACES_SCHEMA = 'org.gnome.desktop.wm.preferences';
 var WORKSPACES_KEY = 'workspace-names';
 
-var WorkspacesBar = GObject.registerClass(
+export const WorkspacesBar = GObject.registerClass(
   class WorkspacesBar extends PanelMenu.Button {
     _init() {
       super._init(0.0, 'Workspaces bar');

@@ -9,7 +9,7 @@ class WorkspaceState {
   hasWindows;
 }
 
-var WorkspacesState = class WorkspacesState {
+export class WorkspacesState {
   static _instance;
 
   static getInstance() {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { Shell, Meta} = imports.gi;
+const { Shell, Meta } = imports.gi;
 const Main = imports.ui.main;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -8,7 +8,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const { getSettings } = Me.imports.services.Settings;
 const { WorkspacesState } = Me.imports.services.WorkspacesState;
 
-var KeyBindings = class KeyBindings {
+export class KeyBindings {
   _settings = getSettings();
   _ws = WorkspacesState.getInstance();
   _addedKeyBindings = [];
@@ -50,4 +50,4 @@ var KeyBindings = class KeyBindings {
       this._ws.activatePrevious();
     });
   }
-};
+}
