@@ -7,35 +7,41 @@ import { KeyBindings } from 'services/KeyBindings';
 import { showActivities } from 'services/showActivities';
 
 class Extension {
-  constructor() {}
+    private workspacesState: WorkspacesState | null = null;
+    private workspacesBar: typeof WorkspacesBar | null = null;
+    private scrollHandler: ScrollHandler | null = null;
+    private keyBindings: KeyBindings | null = null;
 
-  enable() {
-    console.log('-------------------------------------------------------');
-    console.log('-------------------------------------------------------');
-    console.log('-------------------------------------------------------');
-    console.log('-------------------------------------------------------');
-    console.log('-------------------------------------------------------');
-    console.log('-------------------------------------------------------');
-    showActivities(false);
-    this.workspaces_state = WorkspacesState.getInstance();
-    this.workspaces_state.init();
-    this.workspaces_bar = new WorkspacesBar();
-    Main.panel.addToStatusArea('workspaces-bar', this.workspaces_bar, 0, 'left');
-    this.scroll_handler = new ScrollHandler();
-    this.scroll_handler.init();
-    this.key_bindings = new KeyBindings();
-    this.key_bindings.init();
-  }
+    constructor() {}
 
-  disable() {
-    this.key_bindings.destroy();
-    this.scroll_handler.destroy();
-    this.workspaces_bar._destroy();
-    this.workspaces_state.destroy();
-    showActivities(true);
-  }
+    enable() {
+        console.log('-------------------------------------------------------');
+        console.log('-------------------------------------------------------');
+        console.log('-------------------------------------------------------');
+        console.log('-------------------------------------------------------');
+        console.log('-------------------------------------------------------');
+        console.log('-------------------------------------------------------');
+        showActivities(false);
+        this.workspacesState = WorkspacesState.getInstance();
+        this.workspacesState!.init();
+        this.workspacesBar = new WorkspacesBar();
+        Main.panel.addToStatusArea('workspaces-bar', this.workspacesBar, 0, 'left');
+        this.scrollHandler = new ScrollHandler();
+        this.scrollHandler.init();
+        this.keyBindings = new KeyBindings();
+        this.keyBindings.init();
+    }
+
+    disable() {
+        this.keyBindings?.destroy();
+        this.scrollHandler?.destroy();
+        this.workspacesBar?._destroy();
+        this.workspacesState?.destroy();
+        showActivities(true);
+    }
 }
 
+// @ts-ignore
 function init() {
-  return new Extension();
+    return new Extension();
 }
