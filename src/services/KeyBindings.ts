@@ -1,17 +1,13 @@
-'use strict';
-
 const { Shell, Meta } = imports.gi;
 const Main = imports.ui.main;
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const { getSettings } = Me.imports.services.Settings;
-const { WorkspacesState } = Me.imports.services.WorkspacesState;
+import { getSettings } from 'services/Settings';
+import { WorkspacesState } from 'services/WorkspacesState';
 
 export class KeyBindings {
-    _settings = getSettings();
-    _ws = WorkspacesState.getInstance();
-    _addedKeyBindings = [];
+    private readonly _settings = getSettings();
+    private readonly _ws = WorkspacesState.getInstance();
+    private _addedKeyBindings: string[] = [];
 
     init() {
         this._addActivateKeys();
@@ -24,7 +20,7 @@ export class KeyBindings {
         this._addedKeyBindings = [];
     }
 
-    _addKeyBinding(name, handler) {
+    private _addKeyBinding(name: string, handler: () => void) {
         Shell.ActionMode;
         Main.wm.addKeybinding(
             name,
@@ -36,11 +32,11 @@ export class KeyBindings {
         this._addedKeyBindings.push(name);
     }
 
-    _removeKeybinding(name) {
+    private _removeKeybinding(name: string) {
         Main.wm.removeKeybinding(name);
     }
 
-    _addActivateKeys() {
+    private _addActivateKeys() {
         for (let i = 0; i < 10; i++) {
             this._addKeyBinding(`activate-${i + 1}-key`, () => {
                 this._ws.activate(i);
