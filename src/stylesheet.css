@@ -1,0 +1,15 @@
+.desktop-label {
+  margin-left: 0px;
+  margin-right: 8px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.desktop-label-active {
+  color: white;
+  background-color: rgba(96, 96, 96, 0.7);
+}
+
+.desktop-label-empty.desktop-label-inactive {
+  color:rgba(255, 255, 255, 0.5)
+}

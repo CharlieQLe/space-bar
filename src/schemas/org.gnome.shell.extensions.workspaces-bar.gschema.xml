@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <schema id="org.gnome.shell.extensions.workspaces-bar" path="/org/gnome/shell/extensions/workspaces-bar/">
+        <!-- See also: https://docs.gtk.org/glib/gvariant-format-strings.html -->
+        <key name="show-indicator" type="b">
+            <default>true</default>
+        </key>
+
+
+        <key name="activate-1-key" type="as">
+            <default><![CDATA[['<Super>1']]]></default>
+            <summary>Keybinding to activate workspace 1.</summary>
+        </key>
+        <key name="activate-2-key" type="as">
+            <default><![CDATA[['<Super>2']]]></default>
+            <summary>Keybinding to activate workspace 2.</summary>
+        </key>
+        <key name="activate-3-key" type="as">
+            <default><![CDATA[['<Super>3']]]></default>
+            <summary>Keybinding to activate workspace 3.</summary>
+        </key>
+        <key name="activate-4-key" type="as">
+            <default><![CDATA[['<Super>4']]]></default>
+            <summary>Keybinding to activate workspace 4.</summary>
+        </key>
+        <key name="activate-5-key" type="as">
+            <default><![CDATA[['<Super>5']]]></default>
+            <summary>Keybinding to activate workspace 5.</summary>
+        </key>
+        <key name="activate-6-key" type="as">
+            <default><![CDATA[['<Super>6']]]></default>
+            <summary>Keybinding to activate workspace 6.</summary>
+        </key>
+        <key name="activate-7-key" type="as">
+            <default><![CDATA[['<Super>7']]]></default>
+            <summary>Keybinding to activate workspace 7.</summary>
+        </key>
+        <key name="activate-8-key" type="as">
+            <default><![CDATA[['<Super>8']]]></default>
+            <summary>Keybinding to activate workspace 8.</summary>
+        </key>
+        <key name="activate-9-key" type="as">
+            <default><![CDATA[['<Super>9']]]></default>
+            <summary>Keybinding to activate workspace 9.</summary>
+        </key>
+        <key name="activate-10-key" type="as">
+            <default><![CDATA[['<Super>0']]]></default>
+            <summary>Keybinding to activate workspace 10.</summary>
+        </key>
+        <key name="activate-previous-key" type="as">
+            <default><![CDATA[['<Super>Above_Tab']]]></default>
+            <summary>Keybinding to activate the previously active workspace.</summary>
+        </key>
+    </schema>
+</schemalist>
