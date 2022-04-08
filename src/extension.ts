@@ -24,7 +24,7 @@ class Extension {
         console.log('-------------------------------------------------------');
         showActivities(false);
         this.workspacesState = WorkspacesState.getInstance();
-        this.workspacesState!.init();
+        this.workspacesState.init();
         this.workspacesBar = new WorkspacesBar();
         Main.panel.addToStatusArea('workspaces-bar', this.workspacesBar, 0, 'left');
         this.scrollHandler = new ScrollHandler();
