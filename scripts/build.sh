@@ -11,7 +11,7 @@ function clear() (
 )
 
 function compile() (
-	tsc
+	tsc --project tsconfig.build.json
 )
 
 function fixupJavaScript() (

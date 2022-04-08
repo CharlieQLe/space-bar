@@ -8,7 +8,7 @@ import { showActivities } from 'services/showActivities';
 
 class Extension {
     private workspacesState: WorkspacesState | null = null;
-    private workspacesBar: typeof WorkspacesBar | null = null;
+    private workspacesBar: any | null = null;
     private scrollHandler: ScrollHandler | null = null;
     private keyBindings: KeyBindings | null = null;
 

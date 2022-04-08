@@ -7,7 +7,7 @@ const WORKSPACES_SCHEMA = 'org.gnome.desktop.wm.preferences';
 const WORKSPACES_KEY = 'workspace-names';
 
 export const WorkspacesBar = GObject.registerClass(
-    class WorkspacesBar extends PanelMenu.Button {
+    class WorkspacesBarClass extends PanelMenu.Button {
         _init() {
             super._init(0.0, 'Workspaces bar');
             this.track_hover = false;
@@ -71,19 +71,19 @@ export const WorkspacesBar = GObject.registerClass(
                     can_focus: true,
                     track_hover: true,
                 });
-                ws_box.label = new St.Label({
+                const label = new St.Label({
                     y_align: Clutter.ActorAlign.CENTER,
                     style_class: 'desktop-label',
                 });
                 if (ws_index == this._ws.active_index) {
-                    ws_box.label.style_class += ' desktop-label-active';
+                    label.style_class += ' desktop-label-active';
                 } else {
-                    ws_box.label.style_class += ' desktop-label-inactive';
+                    label.style_class += ' desktop-label-inactive';
                 }
                 if (this._ws.workspaces[ws_index].hasWindows) {
-                    ws_box.label.style_class += ' desktop-label-nonempty';
+                    label.style_class += ' desktop-label-nonempty';
                 } else {
-                    ws_box.label.style_class += ' desktop-label-empty';
+                    label.style_class += ' desktop-label-empty';
                 }
 
                 if (
@@ -91,13 +91,13 @@ export const WorkspacesBar = GObject.registerClass(
                     ws_index === this._ws.count - 1 &&
                     ws_index !== this._ws.active_index
                 ) {
-                    ws_box.label.set_text('+');
+                    label.set_text('+');
                 } else if (this.workspaces_names[ws_index]) {
-                    ws_box.label.set_text(this.workspaces_names[ws_index]);
+                    label.set_text(this.workspaces_names[ws_index]);
                 } else {
-                    ws_box.label.set_text((ws_index + 1).toString());
+                    label.set_text((ws_index + 1).toString());
                 }
-                ws_box.set_child(ws_box.label);
+                ws_box.set_child(label);
                 ws_box.connect('button-press-event', (actor: any, event: any) =>
                     this._ws.activate(ws_index),
                 );
