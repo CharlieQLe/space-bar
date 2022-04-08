@@ -1,14 +1,15 @@
 const Main = imports.ui.main;
 
-import { WorkspacesBar } from 'ui/WorkspacesBar';
-import { WorkspacesState } from 'services/WorkspacesState';
-import { ScrollHandler } from 'services/ScrollHandler';
 import { KeyBindings } from 'services/KeyBindings';
+import { ScrollHandler } from 'services/ScrollHandler';
 import { showActivities } from 'services/showActivities';
+import { WorkspacesState } from 'services/WorkspacesState';
+import type { WorkspacesBarClass } from 'ui/WorkspacesBar';
+import { WorkspacesBar } from 'ui/WorkspacesBar';
 
 class Extension {
     private workspacesState: WorkspacesState | null = null;
-    private workspacesBar: any | null = null;
+    private workspacesBar: WorkspacesBarClass | null = null;
     private scrollHandler: ScrollHandler | null = null;
     private keyBindings: KeyBindings | null = null;
 
