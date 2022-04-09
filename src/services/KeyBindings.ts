@@ -1,11 +1,11 @@
 const { Shell, Meta } = imports.gi;
 const Main = imports.ui.main;
 
-import { getSettings } from 'services/Settings';
+import { Settings } from 'services/Settings';
 import { WorkspacesState } from 'services/WorkspacesState';
 
 export class KeyBindings {
-    private readonly _settings = getSettings();
+    private readonly _settings = Settings.getInstance().extensionSettings;
     private readonly _ws = WorkspacesState.getInstance();
     private _addedKeyBindings: string[] = [];
 
