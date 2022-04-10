@@ -26,7 +26,7 @@ export class WorkspacesState {
     /** @type Workspace[] */
     workspaces: WorkspaceState[] = [];
 
-    private readonly _onUpdateCallbacks: Array<() => void> = [];
+    private _onUpdateCallbacks: Array<() => void> = [];
     private _previousWorkspace = 0;
     private _ws_active_changed: any;
     private _ws_number_changed: any;
@@ -66,6 +66,7 @@ export class WorkspacesState {
         if (this._windows_changed) {
             Shell.WindowTracker.get_default().disconnect(this._windows_changed);
         }
+        this._onUpdateCallbacks = [];
     }
 
     onUpdate(callback: () => void) {
@@ -77,16 +78,30 @@ export class WorkspacesState {
             Main.overview.toggle();
         } else {
             const workspace = global.workspace_manager.get_workspace_by_index(index);
-            workspace.activate(global.get_current_time());
-            this._focusMostRecentWindowOnWorkspace(workspace);
-            if (!Main.overview.visible && !this.workspaces[index].hasWindows) {
-                Main.overview.show();
+            if (workspace) {
+                workspace.activate(global.get_current_time());
+                this._focusMostRecentWindowOnWorkspace(workspace);
+                if (!Main.overview.visible && !this.workspaces[index].hasWindows) {
+                    Main.overview.show();
+                }
             }
         }
     }
 
     activatePrevious() {
         this.activate(this._previousWorkspace);
+    }
+
+    addWorkspace() {
+        global.workspace_manager.append_new_workspace(true, global.get_current_time());
+        Main.overview.show();
+    }
+
+    removeWorkspace(index: number) {
+        const workspace = global.workspace_manager.get_workspace_by_index(index);
+        if (workspace) {
+            global.workspace_manager.remove_workspace(workspace, global.get_current_time());
+        }
     }
 
     _update() {

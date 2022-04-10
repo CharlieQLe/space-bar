@@ -1,6 +1,8 @@
+.panel-button.workspaces-bar {
+    -natural-hpadding: 0px;
+}
 .desktop-label {
-    margin-left: 0px;
-    margin-right: 8px;
+    margin: 0 4px;
     padding: 3px 8px;
     border-radius: 4px;
 }
@@ -11,5 +13,11 @@
 }
 
 .desktop-label-empty.desktop-label-inactive {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.new-workspace-button {
+    /* -natural-hpadding: 0px; */
+    /* -minimum-hpadding: 0px; */
     color: rgba(255, 255, 255, 0.5);
 }

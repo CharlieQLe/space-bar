@@ -2,13 +2,8 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-
+        "noImplicitAny": false
     },
-    "include": [
-      "src/**/*.ts",
-      "src/types/dummy-types.d.ts",
-    ],
-    "exclude": [
-      "src/types/types.d.ts",
-    ]
-  }
+    "include": ["src/**/*.ts", "src/types/dummy-types.d.ts"],
+    "exclude": ["src/types/types.d.ts"]
+}

@@ -28,10 +28,9 @@ declare global {
     const global: Global;
 }
 
-
 interface Global {
     log(msg: string): void;
     display: Meta.Display;
-    workspace_manager: any;
+    workspace_manager: Meta.WorkspaceManager;
     get_current_time: () => number;
 }
