@@ -1,6 +1,7 @@
 const { Clutter, Gio, GObject, St } = imports.gi;
 const PanelMenu = imports.ui.panelMenu;
 
+import type { Clutter as ClutterType } from "types"
 import { WorkspacesState } from 'services/WorkspacesState';
 import { Settings } from 'services/Settings';
 
@@ -125,7 +126,7 @@ export class WorkspacesBarClass extends PanelMenu.Button {
                 label.set_text((ws_index + 1).toString());
             }
             ws_box.set_child(label);
-            ws_box.connect('button-press-event', (actor, event: any) => {
+            ws_box.connect('button-press-event', (actor, event: ClutterType.Event) => {
                 switch (event.get_button()) {
                     case 1:
                         return this._ws.activate(ws_index);

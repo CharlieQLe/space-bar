@@ -1,8 +1,6 @@
-const { Clutter, Gio, GObject, St } = imports.gi;
+const { Clutter, GObject, St } = imports.gi;
 const PanelMenu = imports.ui.panelMenu;
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
 
 import { Settings } from 'services/Settings';
 import { WorkspacesState } from 'services/WorkspacesState';

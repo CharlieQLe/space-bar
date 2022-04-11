@@ -5,7 +5,8 @@
         "outDir": "./target",
         "lib": ["es2015", "dom"],
         "paths": {
-            "@imports/*": ["./@types/Gjs/*"]
+            "@imports/*": ["./@types/Gjs/*"],
+            "types": ["./src/types/types.d"]
         }
     },
     "include": [

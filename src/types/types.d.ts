@@ -8,6 +8,9 @@ import type * as Meta10 from '@imports/Meta-10';
 import type * as Shell01 from '@imports/Shell-0.1';
 import type * as St10 from '@imports/St-1.0';
 
+export { Clutter10 as Clutter };
+export { Gio20 as Gio };
+
 declare global {
     const imports: {
         ui: any;

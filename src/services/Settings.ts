@@ -1,6 +1,8 @@
 const ExtensionUtils = imports.misc.extensionUtils;
 const { Gio } = imports.gi;
 
+import { Gio as GioType } from 'types';
+
 export class Settings {
     private static _instance: Settings | null;
     static init() {
@@ -18,9 +20,10 @@ export class Settings {
     readonly extensionSettings = ExtensionUtils.getSettings(
         'org.gnome.shell.extensions.workspaces-bar',
     );
+    readonly mutterSettings = new Gio.Settings({ schema: 'org.gnome.mutter' });
 
     dynamicWorkspaces = SettingsSubject.createBooleanSubject(
-        'org.gnome.mutter',
+        this.mutterSettings,
         'dynamic-workspaces',
     );
 
@@ -44,8 +47,11 @@ export class Settings {
 
 class SettingsSubject<T> {
     private static _subjects: SettingsSubject<any>[] = [];
-    static createBooleanSubject(schema: string, name: string): SettingsSubject<boolean> {
-        return new SettingsSubject<boolean>(schema, name, 'boolean');
+    static createBooleanSubject(
+        settings: GioType.Settings,
+        name: string,
+    ): SettingsSubject<boolean> {
+        return new SettingsSubject<boolean>(settings, name, 'boolean');
     }
     static initAll() {
         for (const subject of SettingsSubject._subjects) {
@@ -69,9 +75,9 @@ class SettingsSubject<T> {
     private _disconnect!: () => void;
 
     private constructor(
-        private schema: string,
-        private name: string,
-        private type: 'boolean' | 'string',
+        private readonly _settings: GioType.Settings,
+        private readonly _name: string,
+        private readonly _type: 'boolean' | 'string',
     ) {
         SettingsSubject._subjects.push(this);
     }
@@ -84,20 +90,19 @@ class SettingsSubject<T> {
     }
 
     private _init(): void {
-        const settings = new Gio.Settings({ schema: this.schema });
         this._getValue = () => {
-            switch (this.type) {
+            switch (this._type) {
                 case 'boolean':
-                    return settings.get_boolean(this.name) as unknown as T;
+                    return this._settings.get_boolean(this._name) as unknown as T;
                 default:
-                    throw new Error('unknown type ' + this.type);
+                    throw new Error('unknown type ' + this._type);
             }
         };
         this._value = this._getValue();
-        const changed = settings.connect(`changed::${this.name}`, () =>
+        const changed = this._settings.connect(`changed::${this._name}`, () =>
             this._setValue(this._getValue()),
         );
-        this._disconnect = () => settings.disconnect(changed);
+        this._disconnect = () => this._settings.disconnect(changed);
     }
 
     private _destroy(): void {

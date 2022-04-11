@@ -3,4 +3,10 @@ declare global {
     const global: any;
 }
 
-export {};
+export namespace Clutter {
+    type Event = any;
+}
+
+export namespace Gio {
+    type Settings = any;
+}
