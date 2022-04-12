@@ -1,7 +1,6 @@
 import { Clutter } from 'imports/gi';
-const Main = imports.ui.main;
-
 import { WorkspacesState } from 'services/WorkspacesState';
+const Main = imports.ui.main;
 
 export class ScrollHandler {
     private _ws!: WorkspacesState;
@@ -28,21 +27,22 @@ export class ScrollHandler {
                 return Clutter.EVENT_PROPAGATE;
             }
         }
-        let index = global.workspace_manager.get_active_workspace_index();
+        const currentIndex = global.workspace_manager.get_active_workspace_index();
+        let newIndex
         switch (event.get_scroll_direction()) {
             case Clutter.ScrollDirection.UP:
-                index = this._findNonEmptyWorkspace(index, -1);
+                newIndex = this._findNonEmptyWorkspace(currentIndex, -1);
                 break;
             case Clutter.ScrollDirection.DOWN:
-                index = this._findNonEmptyWorkspace(index, 1);
+                newIndex = this._findNonEmptyWorkspace(currentIndex, 1);
                 break;
             default:
                 return Clutter.EVENT_PROPAGATE;
         }
-        if (index !== null) {
+        if (newIndex !== null) {
             global.workspace_manager
-                .get_workspace_by_index(index)
-                .activate(global.get_current_time());
+                .get_workspace_by_index(newIndex)
+                ?.activate(global.get_current_time());
         }
         return Clutter.EVENT_STOP;
     }
