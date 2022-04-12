@@ -6,3 +6,11 @@ export const Shell: any;
 export const Meta: any;
 export const Gtk: any;
 export const Clutter: any;
+
+export namespace Clutter {
+    type Event = any;
+}
+
+export namespace Gio {
+    type Settings = any;
+}
