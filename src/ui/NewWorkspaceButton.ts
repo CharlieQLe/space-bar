@@ -66,7 +66,7 @@ export class NewWorkspaceButton {
 
     private _onClick() {
         if (this._settings.dynamicWorkspaces.value) {
-            this._ws.activate(this._ws.count - 1);
+            this._ws.activate(this._ws.numberOfEnabledWorkspaces - 1);
         } else {
             this._ws.addWorkspace();
         }
@@ -76,7 +76,7 @@ export class NewWorkspaceButton {
         if (this._settings.showNewWorkspaceButton.value) {
             if (
                 this._settings.dynamicWorkspaces.value &&
-                this._ws.active_index === this._ws.count - 1
+                this._ws.currentIndex === this._ws.numberOfEnabledWorkspaces - 1
             ) {
                 this._button.visible = false;
             } else {

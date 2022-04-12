@@ -50,7 +50,7 @@ export class ScrollHandler {
     _findNonEmptyWorkspace(index: number, step: number) {
         while (true) {
             index += step;
-            if (index < 0 || index >= this._ws.count) {
+            if (index < 0 || index >= this._ws.numberOfEnabledWorkspaces) {
                 break;
             }
             if (this._ws.workspaces[index].hasWindows) {

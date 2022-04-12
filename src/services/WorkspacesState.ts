@@ -1,8 +1,12 @@
 import { Shell } from 'imports/gi';
 const Main = imports.ui.main;
 const AltTab = imports.ui.altTab;
+import { Settings } from 'services/Settings';
 
 interface WorkspaceState {
+    isEnabled: boolean;
+    index: number;
+    name?: string;
     hasWindows: boolean;
 }
 
@@ -19,11 +23,8 @@ export class WorkspacesState {
         return WorkspacesState._instance;
     }
 
-    /** Number of workspaces. */
-    count = 0;
-    /** Index of active workspace. */
-    active_index = 0;
-    /** @type Workspace[] */
+    numberOfEnabledWorkspaces = 0;
+    currentIndex = 0;
     workspaces: WorkspaceState[] = [];
 
     private _onUpdateCallbacks: Array<() => void> = [];
@@ -32,24 +33,25 @@ export class WorkspacesState {
     private _ws_number_changed: any;
     private _restacked: any;
     private _windows_changed: any;
+    private _settings = Settings.getInstance();
 
     init() {
         this._ws_active_changed = global.workspace_manager.connect(
             'active-workspace-changed',
             () => {
-                this._previousWorkspace = this.active_index;
+                this._previousWorkspace = this.currentIndex;
                 this._update();
             },
         );
-        this._ws_number_changed = global.workspace_manager.connect(
-            'notify::n-workspaces',
-            this._update.bind(this),
+        this._ws_number_changed = global.workspace_manager.connect('notify::n-workspaces', () =>
+            this._update(),
         );
         this._restacked = global.display.connect('restacked', this._update.bind(this));
         this._windows_changed = Shell.WindowTracker.get_default().connect(
             'tracked-windows-changed',
-            this._update.bind(this),
+            () => this._update(),
         );
+        this._settings.workspaceNames.subscribe(() => this._update());
         this._update();
     }
 
@@ -105,9 +107,15 @@ export class WorkspacesState {
     }
 
     _update() {
-        this.count = global.workspace_manager.get_n_workspaces();
-        this.active_index = global.workspace_manager.get_active_workspace_index();
-        this.workspaces = [...Array(this.count)].map((_, index) => getWorkspaceState(index));
+        this.numberOfEnabledWorkspaces = global.workspace_manager.get_n_workspaces();
+        this.currentIndex = global.workspace_manager.get_active_workspace_index();
+        const numberOfTrackedWorkspaces = Math.max(
+            this.numberOfEnabledWorkspaces,
+            this._settings.workspaceNames.value.length,
+        );
+        this.workspaces = [...Array(numberOfTrackedWorkspaces)].map((_, index) =>
+            this._getWorkspaceState(index),
+        );
         this._onUpdateCallbacks.forEach((cb) => cb());
     }
 
@@ -119,13 +127,25 @@ export class WorkspacesState {
             workspace.activate_with_focus(mostRecentWindowOnWorkspace, global.get_current_time());
         }
     }
-}
 
-function getWorkspaceState(index: number) {
-    const workspace = global.workspace_manager.get_workspace_by_index(index);
-    return {
-        hasWindows: getNumberOfWindows(workspace) > 0,
-    };
+    private _getWorkspaceState(index: number): WorkspaceState {
+        if (index < this.numberOfEnabledWorkspaces) {
+            const workspace = global.workspace_manager.get_workspace_by_index(index);
+            return {
+                isEnabled: true,
+                hasWindows: getNumberOfWindows(workspace) > 0,
+                index,
+                name: this._settings.workspaceNames.value[index],
+            };
+        } else {
+            return {
+                isEnabled: false,
+                hasWindows: false,
+                index,
+                name: this._settings.workspaceNames.value[index],
+            };
+        }
+    }
 }
 
 /**

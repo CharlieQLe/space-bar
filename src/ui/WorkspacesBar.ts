@@ -1,4 +1,4 @@
-import { Clutter, Gio, GObject, St } from 'imports/gi';
+import { Clutter, GObject, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import { WorkspacesState } from 'services/WorkspacesState';
 const PanelMenu = imports.ui.panelMenu;
@@ -16,7 +16,6 @@ export class WorkspacesBarClass extends PanelMenu.Button {
         this._settings.showEmptyWorkspaces.subscribe(() => this._update_ws());
         this._settings.showNewWorkspaceButton.subscribe(() => this._update_ws());
         this._settings.dynamicWorkspaces.subscribe(() => this._update_ws());
-        this._settings.workspaceNames.subscribe(() => this._update_ws());
 
         // bar creation
         this.ws_bar = new St.BoxLayout({});
@@ -35,12 +34,13 @@ export class WorkspacesBarClass extends PanelMenu.Button {
         this.ws_bar.destroy_all_children();
 
         // display all current workspaces buttons
-        for (let ws_index = 0; ws_index < this._ws.count; ++ws_index) {
+        for (let ws_index = 0; ws_index < this._ws.numberOfEnabledWorkspaces; ++ws_index) {
+            const workspace = this._ws.workspaces[ws_index];
             // Skip empty workspaces when _showEmptyWorkspaces is false.
             if (
                 !this._settings.showEmptyWorkspaces.value &&
-                !this._ws.workspaces[ws_index].hasWindows &&
-                ws_index !== this._ws.active_index
+                !workspace.hasWindows &&
+                ws_index !== this._ws.currentIndex
             ) {
                 continue;
             }
@@ -49,8 +49,8 @@ export class WorkspacesBarClass extends PanelMenu.Button {
             if (
                 this._settings.showNewWorkspaceButton.value &&
                 this._settings.dynamicWorkspaces.value &&
-                ws_index === this._ws.count - 1 &&
-                ws_index !== this._ws.active_index
+                ws_index === this._ws.numberOfEnabledWorkspaces - 1 &&
+                ws_index !== this._ws.currentIndex
             ) {
                 continue;
             }
@@ -65,18 +65,18 @@ export class WorkspacesBarClass extends PanelMenu.Button {
                 y_align: Clutter.ActorAlign.CENTER,
                 style_class: 'desktop-label',
             });
-            if (ws_index == this._ws.active_index) {
+            if (ws_index == this._ws.currentIndex) {
                 label.style_class += ' desktop-label-active';
             } else {
                 label.style_class += ' desktop-label-inactive';
             }
-            if (this._ws.workspaces[ws_index].hasWindows) {
+            if (workspace.hasWindows) {
                 label.style_class += ' desktop-label-nonempty';
             } else {
                 label.style_class += ' desktop-label-empty';
             }
-            if (this._settings.workspaceNames.value[ws_index]) {
-                label.set_text(this._settings.workspaceNames.value[ws_index]);
+            if (workspace.name) {
+                label.set_text(workspace.name);
             } else {
                 label.set_text((ws_index + 1).toString());
             }
