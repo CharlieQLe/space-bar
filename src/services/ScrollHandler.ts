@@ -1,4 +1,4 @@
-const { Clutter } = imports.gi;
+import { Clutter } from 'imports/gi';
 const Main = imports.ui.main;
 
 import { WorkspacesState } from 'services/WorkspacesState';

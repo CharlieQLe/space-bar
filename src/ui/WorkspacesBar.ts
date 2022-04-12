@@ -1,9 +1,7 @@
-const { Clutter, Gio, GObject, St } = imports.gi;
-const PanelMenu = imports.ui.panelMenu;
-
-import type { Clutter as ClutterType } from 'types';
-import { WorkspacesState } from 'services/WorkspacesState';
+import { Clutter, Gio, GObject, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
+import { WorkspacesState } from 'services/WorkspacesState';
+const PanelMenu = imports.ui.panelMenu;
 
 const WORKSPACES_SCHEMA = 'org.gnome.desktop.wm.preferences';
 const WORKSPACES_KEY = 'workspace-names';
@@ -113,7 +111,7 @@ export class WorkspacesBarClass extends PanelMenu.Button {
                 label.set_text((ws_index + 1).toString());
             }
             ws_box.set_child(label);
-            ws_box.connect('button-press-event', (actor, event: ClutterType.Event) => {
+            ws_box.connect('button-press-event', (actor, event: Clutter.Event) => {
                 switch (event.get_button()) {
                     case 1:
                         return this._ws.activate(ws_index);

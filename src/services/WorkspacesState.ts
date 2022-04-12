@@ -1,4 +1,4 @@
-const { Shell } = imports.gi;
+import { Shell } from 'imports/gi';
 const Main = imports.ui.main;
 const AltTab = imports.ui.altTab;
 

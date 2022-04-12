@@ -1,7 +1,5 @@
 const ExtensionUtils = imports.misc.extensionUtils;
-const { Gio } = imports.gi;
-
-import { Gio as GioType } from 'types';
+import { Gio } from 'imports/gi';
 
 export class Settings {
     private static _instance: Settings | null;
@@ -48,7 +46,7 @@ export class Settings {
 class SettingsSubject<T> {
     private static _subjects: SettingsSubject<any>[] = [];
     static createBooleanSubject(
-        settings: GioType.Settings,
+        settings: Gio.Settings,
         name: string,
     ): SettingsSubject<boolean> {
         return new SettingsSubject<boolean>(settings, name, 'boolean');
@@ -75,7 +73,7 @@ class SettingsSubject<T> {
     private _disconnect!: () => void;
 
     private constructor(
-        private readonly _settings: GioType.Settings,
+        private readonly _settings: Gio.Settings,
         private readonly _name: string,
         private readonly _type: 'boolean' | 'string',
     ) {

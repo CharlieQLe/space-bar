@@ -1,4 +1,4 @@
-const { Shell, Meta } = imports.gi;
+import { Shell, Meta } from 'imports/gi';
 const Main = imports.ui.main;
 
 import { Settings } from 'services/Settings';
