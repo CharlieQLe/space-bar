@@ -3,9 +3,6 @@ import { Settings } from 'services/Settings';
 import { WorkspacesState } from 'services/WorkspacesState';
 const PanelMenu = imports.ui.panelMenu;
 
-const WORKSPACES_SCHEMA = 'org.gnome.desktop.wm.preferences';
-const WORKSPACES_KEY = 'workspace-names';
-
 export class WorkspacesBarClass extends PanelMenu.Button {
     private readonly _settings = Settings.getInstance();
     private readonly _ws = WorkspacesState.getInstance();
@@ -16,34 +13,20 @@ export class WorkspacesBarClass extends PanelMenu.Button {
         this.style_class = 'panel-button workspaces-bar';
 
         this._ws.onUpdate(() => this._update_ws());
-
-        // define gsettings schema for workspaces names, get workspaces names, signal for settings key changed
-        this.workspaces_settings = new Gio.Settings({ schema: WORKSPACES_SCHEMA });
-        this.workspaces_names_changed = this.workspaces_settings.connect(
-            `changed::${WORKSPACES_KEY}`,
-            this._update_workspaces_names.bind(this),
-        );
         this._settings.showEmptyWorkspaces.subscribe(() => this._update_ws());
         this._settings.showNewWorkspaceButton.subscribe(() => this._update_ws());
-
         this._settings.dynamicWorkspaces.subscribe(() => this._update_ws());
+        this._settings.workspaceNames.subscribe(() => this._update_ws());
 
         // bar creation
         this.ws_bar = new St.BoxLayout({});
-        this._update_workspaces_names();
+        this._update_ws();
         this.add_child(this.ws_bar);
     }
 
     destroy() {
-        this.workspaces_settings.disconnect(this.workspaces_names_changed);
-
         this.ws_bar.destroy();
         super.destroy();
-    }
-
-    private _update_workspaces_names() {
-        this.workspaces_names = this.workspaces_settings.get_strv(WORKSPACES_KEY);
-        this._update_ws();
     }
 
     // update the workspaces bar
@@ -92,8 +75,8 @@ export class WorkspacesBarClass extends PanelMenu.Button {
             } else {
                 label.style_class += ' desktop-label-empty';
             }
-            if (this.workspaces_names[ws_index]) {
-                label.set_text(this.workspaces_names[ws_index]);
+            if (this._settings.workspaceNames.value[ws_index]) {
+                label.set_text(this._settings.workspaceNames.value[ws_index]);
             } else {
                 label.set_text((ws_index + 1).toString());
             }

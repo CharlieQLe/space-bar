@@ -19,19 +19,25 @@ export class Settings {
         'org.gnome.shell.extensions.workspaces-bar',
     );
     readonly mutterSettings = new Gio.Settings({ schema: 'org.gnome.mutter' });
+    readonly wmPreferencesSettings = new Gio.Settings({
+        schema: 'org.gnome.desktop.wm.preferences',
+    });
 
-    dynamicWorkspaces = SettingsSubject.createBooleanSubject(
+    readonly dynamicWorkspaces = SettingsSubject.createBooleanSubject(
         this.mutterSettings,
         'dynamic-workspaces',
     );
-
-    showNewWorkspaceButton = SettingsSubject.createBooleanSubject(
+    readonly showNewWorkspaceButton = SettingsSubject.createBooleanSubject(
         this.extensionSettings,
         'show-new-workspace-button',
     );
-    showEmptyWorkspaces = SettingsSubject.createBooleanSubject(
+    readonly showEmptyWorkspaces = SettingsSubject.createBooleanSubject(
         this.extensionSettings,
         'show-empty-workspaces',
+    );
+    readonly workspaceNames = SettingsSubject.createStringArraySubject(
+        this.wmPreferencesSettings,
+        'workspace-names',
     );
 
     private init() {
@@ -45,11 +51,14 @@ export class Settings {
 
 class SettingsSubject<T> {
     private static _subjects: SettingsSubject<any>[] = [];
-    static createBooleanSubject(
+    static createBooleanSubject(settings: Gio.Settings, name: string): SettingsSubject<boolean> {
+        return new SettingsSubject<boolean>(settings, name, 'boolean');
+    }
+    static createStringArraySubject(
         settings: Gio.Settings,
         name: string,
-    ): SettingsSubject<boolean> {
-        return new SettingsSubject<boolean>(settings, name, 'boolean');
+    ): SettingsSubject<string[]> {
+        return new SettingsSubject<string[]>(settings, name, 'string-array');
     }
     static initAll() {
         for (const subject of SettingsSubject._subjects) {
@@ -75,7 +84,7 @@ class SettingsSubject<T> {
     private constructor(
         private readonly _settings: Gio.Settings,
         private readonly _name: string,
-        private readonly _type: 'boolean' | 'string',
+        private readonly _type: 'boolean' | 'string-array',
     ) {
         SettingsSubject._subjects.push(this);
     }
@@ -92,6 +101,8 @@ class SettingsSubject<T> {
             switch (this._type) {
                 case 'boolean':
                     return this._settings.get_boolean(this._name) as unknown as T;
+                case 'string-array':
+                    return this._settings.get_strv(this._name) as unknown as T;
                 default:
                     throw new Error('unknown type ' + this._type);
             }
