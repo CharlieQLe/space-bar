@@ -9,7 +9,6 @@ const WORKSPACES_KEY = 'workspace-names';
 export class WorkspacesBarClass extends PanelMenu.Button {
     private readonly _settings = Settings.getInstance();
     private readonly _ws = WorkspacesState.getInstance();
-    private _showNewWorkspaceButton: boolean = false;
 
     constructor() {
         super(0.0);
@@ -25,18 +24,7 @@ export class WorkspacesBarClass extends PanelMenu.Button {
             this._update_workspaces_names.bind(this),
         );
         this._settings.showEmptyWorkspaces.subscribe(() => this._update_ws());
-        this._showNewWorkspaceButtonChanged = this._settings.extensionSettings.connect(
-            'changed::show-new-workspace-button',
-            () => {
-                this._showNewWorkspaceButton = this._settings.extensionSettings.get_boolean(
-                    'show-new-workspace-button',
-                );
-                this._update_ws();
-            },
-        );
-        this._showNewWorkspaceButton = this._settings.extensionSettings.get_boolean(
-            'show-new-workspace-button',
-        );
+        this._settings.showNewWorkspaceButton.subscribe(() => this._update_ws());
 
         this._settings.dynamicWorkspaces.subscribe(() => this._update_ws());
 
@@ -48,7 +36,6 @@ export class WorkspacesBarClass extends PanelMenu.Button {
 
     destroy() {
         this.workspaces_settings.disconnect(this.workspaces_names_changed);
-        this._settings.extensionSettings.disconnect(this._showNewWorkspaceButtonChanged);
 
         this.ws_bar.destroy();
         super.destroy();
@@ -77,7 +64,7 @@ export class WorkspacesBarClass extends PanelMenu.Button {
             // Don't show the last workspace when workspaces are dynamic and we already show the
             // add-workspace button.
             if (
-                this._showNewWorkspaceButton &&
+                this._settings.showNewWorkspaceButton.value &&
                 this._settings.dynamicWorkspaces.value &&
                 ws_index === this._ws.count - 1 &&
                 ws_index !== this._ws.active_index
