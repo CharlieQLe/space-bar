@@ -9,15 +9,14 @@ import { WorkspacesState } from 'services/WorkspacesState';
 import type { WorkspacesBarClass } from 'ui/WorkspacesBar';
 import { WorkspacesBar } from 'ui/WorkspacesBar';
 import { Settings } from 'services/Settings';
-import { NewWorkspaceButtonClass, NewWorkspaceButton } from 'ui/NewWorkspaceButton';
+import { NewWorkspaceButton } from 'ui/NewWorkspaceButton';
 
 class Extension {
     private workspacesState: WorkspacesState | null = null;
     private workspacesBar: WorkspacesBarClass | null = null;
-    private newWorkspaceButton: NewWorkspaceButtonClass | null = null;
+    private newWorkspaceButton: NewWorkspaceButton | null = null;
     private scrollHandler: ScrollHandler | null = null;
     private keyBindings: KeyBindings | null = null;
-    constructor() {}
 
     enable() {
         console.log('-------------------------------------------------------');
@@ -33,12 +32,7 @@ class Extension {
         this.workspacesBar = new WorkspacesBar();
         Main.panel.addToStatusArea('workspaces-bar', this.workspacesBar, 0, 'left');
         this.newWorkspaceButton = new NewWorkspaceButton();
-        Main.panel.addToStatusArea(
-            `${Me.metadata.name} New-Workspace-Button`,
-            this.newWorkspaceButton,
-            1,
-            'left',
-        );
+        this.newWorkspaceButton.init();
         this.scrollHandler = new ScrollHandler();
         this.scrollHandler.init();
         this.keyBindings = new KeyBindings();

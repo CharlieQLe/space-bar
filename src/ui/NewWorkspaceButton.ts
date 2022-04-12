@@ -1,34 +1,40 @@
-import { Clutter, GObject, St } from 'imports/gi'
-const PanelMenu = imports.ui.panelMenu;
-
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const Main = imports.ui.main;
+import { Clutter, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import { WorkspacesState } from 'services/WorkspacesState';
+const PanelMenu = imports.ui.panelMenu;
 
-export class NewWorkspaceButtonClass extends PanelMenu.Button {
+export class NewWorkspaceButton {
+    private readonly _name = `${Me.metadata.name} New-Menu-Button`;
     private readonly _settings = Settings.getInstance();
     private readonly _ws = WorkspacesState.getInstance();
+    private readonly _button = new PanelMenu.Button(0.0, this._name);
 
-    constructor() {
-        super(0.0);
-        this.style_class = 'panel-button new-workspace-button';
+    constructor() {}
+
+    init() {
+        this._button.style_class = 'panel-button new-workspace-button';
 
         const label = new St.Label({
             y_align: Clutter.ActorAlign.CENTER,
             style_class: 'new-workspace-button-label',
             text: '+',
         });
-        this.add_child(label);
-
+        this._button.add_child(label);
 
         this._settings.showNewWorkspaceButton.subscribe(() => this._updateVisibility());
         this._ws.onUpdate(() => this._updateVisibility());
         this._updateVisibility();
 
-        this.connect('button-press-event', (actor: any, event: any) => this._onClick());
+        this._button.connect('button-press-event', (actor: any, event: any) => this._onClick());
+
+        Main.panel.addToStatusArea(this._name, this._button, 1, 'left');
     }
 
     destroy() {
-        super.destroy();
+        this._button.destroy();
     }
 
     private _onClick() {
@@ -45,14 +51,12 @@ export class NewWorkspaceButtonClass extends PanelMenu.Button {
                 this._settings.dynamicWorkspaces.value &&
                 this._ws.active_index === this._ws.count - 1
             ) {
-                this.visible = false;
+                this._button.visible = false;
             } else {
-                this.visible = true;
+                this._button.visible = true;
             }
         } else {
-            this.visible = false;
+            this._button.visible = false;
         }
     }
 }
-
-export const NewWorkspaceButton = GObject.registerClass(NewWorkspaceButtonClass);
