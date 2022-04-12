@@ -27,14 +27,14 @@ export class Settings {
         'dynamic-workspaces',
     );
 
-    // showNewWorkspaceButton = SettingsSubject.createBooleanSubject(
-    //     'org.gnome.shell.extensions.workspaces-bar',
-    //     'show-new-workspace-button',
-    // );
-    // showEmptyWorkspaces = SettingsSubject.createBooleanSubject(
-    //     'org.gnome.shell.extensions.workspaces-bar',
-    //     'show-empty-workspaces',
-    // );
+    showNewWorkspaceButton = SettingsSubject.createBooleanSubject(
+        this.extensionSettings,
+        'show-new-workspace-button',
+    );
+    showEmptyWorkspaces = SettingsSubject.createBooleanSubject(
+        this.extensionSettings,
+        'show-empty-workspaces',
+    );
 
     private init() {
         SettingsSubject.initAll();
@@ -82,7 +82,7 @@ class SettingsSubject<T> {
         SettingsSubject._subjects.push(this);
     }
 
-    subscribe(subscriber: (value: T) => void, { emitCurrentValue = true } = {}) {
+    subscribe(subscriber: (value: T) => void, { emitCurrentValue = false } = {}) {
         this._subscribers.push(subscriber);
         if (emitCurrentValue) {
             subscriber(this._value);

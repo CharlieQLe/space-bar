@@ -1,7 +1,7 @@
 const { Clutter, Gio, GObject, St } = imports.gi;
 const PanelMenu = imports.ui.panelMenu;
 
-import type { Clutter as ClutterType } from "types"
+import type { Clutter as ClutterType } from 'types';
 import { WorkspacesState } from 'services/WorkspacesState';
 import { Settings } from 'services/Settings';
 
@@ -11,7 +11,6 @@ const WORKSPACES_KEY = 'workspace-names';
 export class WorkspacesBarClass extends PanelMenu.Button {
     private readonly _settings = Settings.getInstance();
     private readonly _ws = WorkspacesState.getInstance();
-    private _showEmptyWorkspaces: boolean = false;
     private _showNewWorkspaceButton: boolean = false;
 
     constructor() {
@@ -27,16 +26,7 @@ export class WorkspacesBarClass extends PanelMenu.Button {
             `changed::${WORKSPACES_KEY}`,
             this._update_workspaces_names.bind(this),
         );
-        this._showEmptyWorkspacesChanged = this._settings.extensionSettings.connect(
-            'changed::show-empty-workspaces',
-            () => {
-                this._showEmptyWorkspaces =
-                    this._settings.extensionSettings.get_boolean('show-empty-workspaces');
-                this._update_ws();
-            },
-        );
-        this._showEmptyWorkspaces =
-            this._settings.extensionSettings.get_boolean('show-empty-workspaces');
+        this._settings.showEmptyWorkspaces.subscribe(() => this._update_ws());
         this._showNewWorkspaceButtonChanged = this._settings.extensionSettings.connect(
             'changed::show-new-workspace-button',
             () => {
@@ -50,9 +40,7 @@ export class WorkspacesBarClass extends PanelMenu.Button {
             'show-new-workspace-button',
         );
 
-        this._settings.dynamicWorkspaces.subscribe(() => this._update_ws(), {
-            emitCurrentValue: false,
-        });
+        this._settings.dynamicWorkspaces.subscribe(() => this._update_ws());
 
         // bar creation
         this.ws_bar = new St.BoxLayout({});
@@ -62,7 +50,6 @@ export class WorkspacesBarClass extends PanelMenu.Button {
 
     destroy() {
         this.workspaces_settings.disconnect(this.workspaces_names_changed);
-        this._settings.extensionSettings.disconnect(this._showEmptyWorkspacesChanged);
         this._settings.extensionSettings.disconnect(this._showNewWorkspaceButtonChanged);
 
         this.ws_bar.destroy();
@@ -83,7 +70,7 @@ export class WorkspacesBarClass extends PanelMenu.Button {
         for (let ws_index = 0; ws_index < this._ws.count; ++ws_index) {
             // Skip empty workspaces when _showEmptyWorkspaces is false.
             if (
-                !this._showEmptyWorkspaces &&
+                !this._settings.showEmptyWorkspaces.value &&
                 !this._ws.workspaces[ws_index].hasWindows &&
                 ws_index !== this._ws.active_index
             ) {
