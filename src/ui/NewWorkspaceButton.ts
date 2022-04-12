@@ -1,4 +1,4 @@
-const { Clutter, GObject, St } = imports.gi;
+import { Clutter, GObject, St } from 'imports/gi'
 const PanelMenu = imports.ui.panelMenu;
 
 import { Settings } from 'services/Settings';
