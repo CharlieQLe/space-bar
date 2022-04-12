@@ -3,7 +3,7 @@ const Main = imports.ui.main;
 const AltTab = imports.ui.altTab;
 import { Settings } from 'services/Settings';
 
-interface WorkspaceState {
+export interface WorkspaceState {
     isEnabled: boolean;
     index: number;
     name?: string;

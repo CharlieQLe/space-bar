@@ -3,6 +3,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 import { Clutter, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
+import type { WorkspaceState } from 'services/WorkspacesState';
 import { WorkspacesState } from 'services/WorkspacesState';
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
@@ -19,8 +20,8 @@ export class NewWorkspaceButton {
     init() {
         this._initButton();
         this._initMenu();
+        this._ws.onUpdate(() => this._refreshMenu());
     }
-
 
     destroy() {
         this._button.destroy();
@@ -50,26 +51,44 @@ export class NewWorkspaceButton {
         this._menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
     }
 
-    private _initNewWorkspaceMenuSection(): void {
-        const section = new PopupMenu.PopupMenuSection();
-        section.box.add( new St.Label({ text: 'New Workspace', style_class: 'menu-heading' }) );
-
-        const testButton =  new PopupMenu.PopupMenuItem('Reload displays');
-        testButton.connect('activate', (item: any) => {
-            console.log('test', item)
-        });
-        
-        section.addMenuItem(testButton);
-
-        this._menu.addMenuItem(section)
+    private _refreshMenu() {
+        this._menu.box.destroy_all_children();
+        this._initMenu();
     }
 
-    private _onClick() {
+    private _initNewWorkspaceMenuSection(): void {
+        const section = new PopupMenu.PopupMenuSection();
+        section.box.add(new St.Label({ text: 'New Workspace', style_class: 'menu-heading' }));
+
+        this._ws.workspaces
+            .filter(({ isEnabled }) => !isEnabled)
+            .forEach((workspace) => {
+                const testButton = new PopupMenu.PopupMenuItem(workspace.name);
+                testButton.connect('activate', () => {
+                    this._onClick(workspace);
+                });
+                section.addMenuItem(testButton);
+            });
+
+        this._menu.addMenuItem(section);
+    }
+
+    private _onClick(workspace: WorkspaceState) {
+        const workspaceNames = [...this._settings.workspaceNames.value];
         if (this._settings.dynamicWorkspaces.value) {
+            moveArrayElement(
+                workspaceNames,
+                workspace.index,
+                this._ws.numberOfEnabledWorkspaces - 1,
+            );
+            this._settings.workspaceNames.value = workspaceNames;
             this._ws.activate(this._ws.numberOfEnabledWorkspaces - 1);
         } else {
+            moveArrayElement(workspaceNames, workspace.index, this._ws.numberOfEnabledWorkspaces);
+            this._settings.workspaceNames.value = workspaceNames;
             this._ws.addWorkspace();
         }
+        this._menu.close();
     }
 
     private _updateVisibility(): void {
@@ -86,4 +105,9 @@ export class NewWorkspaceButton {
             this._button.visible = false;
         }
     }
+}
+
+function moveArrayElement<T>(array: T[], oldIndex: number, newIndex: number): void {
+    const [element] = array.splice(oldIndex, 1);
+    array.splice(newIndex, 0, element);
 }

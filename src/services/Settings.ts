@@ -75,10 +75,14 @@ class SettingsSubject<T> {
     get value() {
         return this._value;
     }
+    set value(value: T) {
+        this._setValue(value);
+    }
 
     private _value!: T;
     private _subscribers: ((value: T) => void)[] = [];
     private _getValue!: () => T;
+    private _setValue!: (value: T) => void;
     private _disconnect!: () => void;
 
     private constructor(
@@ -107,9 +111,19 @@ class SettingsSubject<T> {
                     throw new Error('unknown type ' + this._type);
             }
         };
+        this._setValue = (value: T) => {
+            switch (this._type) {
+                case 'boolean':
+                    return this._settings.set_boolean(this._name, value as unknown as boolean);
+                case 'string-array':
+                    return this._settings.set_strv(this._name, value as unknown as string[]);
+                default:
+                    throw new Error('unknown type ' + this._type);
+            }
+        };
         this._value = this._getValue();
         const changed = this._settings.connect(`changed::${this._name}`, () =>
-            this._setValue(this._getValue()),
+            this._updateValue(this._getValue()),
         );
         this._disconnect = () => this._settings.disconnect(changed);
     }
@@ -119,7 +133,7 @@ class SettingsSubject<T> {
         this._subscribers = [];
     }
 
-    private _setValue(value: T) {
+    private _updateValue(value: T) {
         this._value = value;
         this._notifySubscriber();
     }
