@@ -61,8 +61,12 @@ export class NewWorkspaceButton {
         section.box.add(new St.Label({ text: 'New Workspace', style_class: 'menu-heading' }));
         this._menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
+        let lastVisibleWorkspace = this._ws.numberOfEnabledWorkspaces - 1;
+        if (this._settings.dynamicWorkspaces.value) {
+            lastVisibleWorkspace--;
+        }
         this._ws.workspaces
-            .filter(({ isEnabled }) => !isEnabled)
+            .filter((_, index) => index > lastVisibleWorkspace)
             .forEach((workspace) => {
                 const testButton = new PopupMenu.PopupMenuItem(workspace.name);
                 testButton.connect('activate', () => {
