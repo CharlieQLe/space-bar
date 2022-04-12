@@ -48,7 +48,7 @@ export class NewWorkspaceButton {
 
     private _initMenu() {
         this._initNewWorkspaceMenuSection();
-        this._menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        // this._menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
     }
 
     private _refreshMenu() {
@@ -59,6 +59,7 @@ export class NewWorkspaceButton {
     private _initNewWorkspaceMenuSection(): void {
         const section = new PopupMenu.PopupMenuSection();
         section.box.add(new St.Label({ text: 'New Workspace', style_class: 'menu-heading' }));
+        this._menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         this._ws.workspaces
             .filter(({ isEnabled }) => !isEnabled)
@@ -74,6 +75,7 @@ export class NewWorkspaceButton {
     }
 
     private _onClick(workspace: WorkspaceState) {
+        this._menu.close();
         const workspaceNames = [...this._settings.workspaceNames.value];
         if (this._settings.dynamicWorkspaces.value) {
             moveArrayElement(
@@ -88,7 +90,6 @@ export class NewWorkspaceButton {
             this._settings.workspaceNames.value = workspaceNames;
             this._ws.addWorkspace();
         }
-        this._menu.close();
     }
 
     private _updateVisibility(): void {
