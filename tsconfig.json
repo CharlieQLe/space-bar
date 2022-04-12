@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
-        "target": "es2015",
+        "target": "ES2021",
         "strict": true,
         "outDir": "./target",
-        "lib": ["es2015", "dom"],
+        "lib": ["ES2021", "dom"],
         "paths": {
             "@imports/*": ["./@types/Gjs/*"],
             "types": ["./src/types/types.d"],
