@@ -40,6 +40,9 @@ class Extension {
     }
 
     disable() {
+        Settings.destroy();
+        this.workspacesState?.destroy();
+        this.workspacesState = null;
         this.keyBindings?.destroy();
         this.keyBindings = null;
         this.scrollHandler?.destroy();
@@ -48,10 +51,7 @@ class Extension {
         this.workspacesBar = null;
         this.newWorkspaceButton?.destroy();
         this.newWorkspaceButton = null;
-        this.workspacesState?.destroy();
-        this.workspacesState = null;
         showActivities(true);
-        Settings.destroy();
     }
 }
 
