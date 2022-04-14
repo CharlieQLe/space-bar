@@ -1,5 +1,6 @@
 import { Shell } from 'imports/gi';
 import { Settings } from 'services/Settings';
+import { moveArrayElement } from 'utils';
 const Main = imports.ui.main;
 const AltTab = imports.ui.altTab;
 
@@ -24,18 +25,23 @@ export class Workspaces {
     }
 
     numberOfEnabledWorkspaces = 0;
+    lastVisibleWorkspace = 0;
     currentIndex = 0;
     workspaces: WorkspaceState[] = [];
 
     private _onUpdateCallbacks: Array<() => void> = [];
     private _previousWorkspace = 0;
-    private _ws_active_changed: any;
-    private _ws_number_changed: any;
+    private _ws_removed?: number;
+    private _ws_active_changed?: number;
+    private _ws_number_changed?: number;
     private _restacked: any;
     private _windows_changed: any;
     private _settings = Settings.getInstance();
 
     init() {
+        this._ws_removed = global.workspace_manager.connect('workspace-removed', (_, index) =>
+            this._onWorkspaceRemoved(index),
+        );
         this._ws_active_changed = global.workspace_manager.connect(
             'active-workspace-changed',
             () => {
@@ -56,6 +62,9 @@ export class Workspaces {
     }
 
     destroy() {
+        if (this._ws_removed) {
+            global.workspace_manager.disconnect(this._ws_removed);
+        }
         if (this._ws_active_changed) {
             global.workspace_manager.disconnect(this._ws_active_changed);
         }
@@ -114,9 +123,34 @@ export class Workspaces {
         }
     }
 
+    private _onWorkspaceRemoved(index: number) {
+        this._update();
+        const workspaceNames = [...this._settings.workspaceNames.value];
+        const removedName = this.workspaces[index].name;
+        if (removedName) {
+            if (!workspaceNames[this.lastVisibleWorkspace + 2]) {
+                workspaceNames[this.lastVisibleWorkspace + 2] = workspaceNames[index];
+                workspaceNames.splice(index, 1);
+            } else {
+                moveArrayElement(workspaceNames, index, this.lastVisibleWorkspace + 1);
+            }
+        } else {
+            workspaceNames.splice(index, 1);
+        }
+        this._settings.workspaceNames.value = workspaceNames;
+    }
+
     private _update() {
         this.numberOfEnabledWorkspaces = global.workspace_manager.get_n_workspaces();
         this.currentIndex = global.workspace_manager.get_active_workspace_index();
+        if (
+            this._settings.dynamicWorkspaces.value &&
+            this.currentIndex !== this.numberOfEnabledWorkspaces - 1
+        ) {
+            this.lastVisibleWorkspace = this.numberOfEnabledWorkspaces - 2;
+        } else {
+            this.lastVisibleWorkspace = this.numberOfEnabledWorkspaces - 1;
+        }
         const numberOfTrackedWorkspaces = Math.max(
             this.numberOfEnabledWorkspaces,
             this._settings.workspaceNames.value.length,

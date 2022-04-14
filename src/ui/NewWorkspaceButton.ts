@@ -5,6 +5,7 @@ import { Clutter, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import type { WorkspaceState } from 'services/Workspaces';
 import { Workspaces } from 'services/Workspaces';
+import { insertInArray, moveArrayElement } from 'utils';
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
@@ -48,8 +49,8 @@ export class NewWorkspaceButton {
 
     private _initMenu() {
         this._menu.box.add_style_class_name('new-workspace-menu');
+        this._initNewUnnamedWorkspaceItem();
         this._initNewWorkspaceMenuSection();
-        // this._menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
     }
 
     private _refreshMenu() {
@@ -57,44 +58,52 @@ export class NewWorkspaceButton {
         this._initMenu();
     }
 
+    private _initNewUnnamedWorkspaceItem(): void {
+        const button = new PopupMenu.PopupMenuItem('New workspace');
+        button.connect('activate', () => {
+            this._onClick();
+        });
+        this._menu.addMenuItem(button);
+    }
+
     private _initNewWorkspaceMenuSection(): void {
+        const newWorkspaces = this._ws.workspaces.filter(
+            (_, index) => index > this._ws.lastVisibleWorkspace,
+        );
+
+        if (newWorkspaces.length === 0) {
+            return;
+        }
+
         const section = new PopupMenu.PopupMenuSection();
-    
-        const separator = new PopupMenu.PopupSeparatorMenuItem('New Workspace');
-        separator.label.add_style_class_name('new-workspace-menu-heading')
+
+        const separator = new PopupMenu.PopupSeparatorMenuItem('Recent workspaces');
+        separator.label.add_style_class_name('new-workspace-menu-heading');
         section.addMenuItem(separator);
 
-        let lastVisibleWorkspace = this._ws.numberOfEnabledWorkspaces - 1;
-        if (this._settings.dynamicWorkspaces.value) {
-            lastVisibleWorkspace--;
-        }
-        this._ws.workspaces
-            .filter((_, index) => index > lastVisibleWorkspace)
-            .forEach((workspace) => {
-                const testButton = new PopupMenu.PopupMenuItem(workspace.name);
-                testButton.connect('activate', () => {
-                    this._onClick(workspace);
-                });
-                section.addMenuItem(testButton);
+        newWorkspaces.forEach((workspace) => {
+            const button = new PopupMenu.PopupMenuItem(workspace.name);
+            button.connect('activate', () => {
+                this._onClick(workspace);
             });
+            section.addMenuItem(button);
+        });
 
         this._menu.addMenuItem(section);
     }
 
-    private _onClick(workspace: WorkspaceState) {
+    private _onClick(workspace?: WorkspaceState) {
         this._menu.close();
         const workspaceNames = [...this._settings.workspaceNames.value];
+        if (workspace) {
+            moveArrayElement(workspaceNames, workspace.index, this._ws.lastVisibleWorkspace + 1);
+        } else {
+            insertInArray(workspaceNames, this._ws.lastVisibleWorkspace + 1, '');
+        }
+        this._settings.workspaceNames.value = workspaceNames;
         if (this._settings.dynamicWorkspaces.value) {
-            moveArrayElement(
-                workspaceNames,
-                workspace.index,
-                this._ws.numberOfEnabledWorkspaces - 1,
-            );
-            this._settings.workspaceNames.value = workspaceNames;
             this._ws.activate(this._ws.numberOfEnabledWorkspaces - 1);
         } else {
-            moveArrayElement(workspaceNames, workspace.index, this._ws.numberOfEnabledWorkspaces);
-            this._settings.workspaceNames.value = workspaceNames;
             this._ws.addWorkspace();
         }
     }
@@ -113,9 +122,4 @@ export class NewWorkspaceButton {
             this._button.visible = false;
         }
     }
-}
-
-function moveArrayElement<T>(array: T[], oldIndex: number, newIndex: number): void {
-    const [element] = array.splice(oldIndex, 1);
-    array.splice(newIndex, 0, element);
 }
