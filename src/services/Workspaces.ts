@@ -1,6 +1,6 @@
 import { Shell } from 'imports/gi';
 import { Settings } from 'services/Settings';
-import { moveArrayElement } from 'utils';
+import { insertInArray, moveArrayElement } from 'utils';
 const Main = imports.ui.main;
 const AltTab = imports.ui.altTab;
 
@@ -126,16 +126,13 @@ export class Workspaces {
     private _onWorkspaceRemoved(index: number) {
         this._update();
         const workspaceNames = [...this._settings.workspaceNames.value];
-        const removedName = this.workspaces[index].name;
+        const [removedName] = workspaceNames.splice(index, 1);
         if (removedName) {
-            if (!workspaceNames[this.lastVisibleWorkspace + 2]) {
-                workspaceNames[this.lastVisibleWorkspace + 2] = workspaceNames[index];
-                workspaceNames.splice(index, 1);
+            if (!workspaceNames[this.lastVisibleWorkspace + 1]) {
+                workspaceNames[this.lastVisibleWorkspace + 1] = workspaceNames[index];
             } else {
-                moveArrayElement(workspaceNames, index, this.lastVisibleWorkspace + 1);
+                insertInArray(workspaceNames, this.lastVisibleWorkspace + 1, removedName);
             }
-        } else {
-            workspaceNames.splice(index, 1);
         }
         this._settings.workspaceNames.value = workspaceNames;
     }

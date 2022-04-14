@@ -68,7 +68,7 @@ export class NewWorkspaceButton {
 
     private _initNewWorkspaceMenuSection(): void {
         const newWorkspaces = this._ws.workspaces.filter(
-            (_, index) => index > this._ws.lastVisibleWorkspace,
+            (workspace, index) => !!workspace.name && index > this._ws.lastVisibleWorkspace,
         );
 
         if (newWorkspaces.length === 0) {
