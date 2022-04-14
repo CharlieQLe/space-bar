@@ -47,6 +47,7 @@ export class NewWorkspaceButton {
     }
 
     private _initMenu() {
+        this._menu.box.add_style_class_name('new-workspace-menu');
         this._initNewWorkspaceMenuSection();
         // this._menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
     }
@@ -58,8 +59,10 @@ export class NewWorkspaceButton {
 
     private _initNewWorkspaceMenuSection(): void {
         const section = new PopupMenu.PopupMenuSection();
-        section.box.add(new St.Label({ text: 'New Workspace', style_class: 'menu-heading' }));
-        this._menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+    
+        const separator = new PopupMenu.PopupSeparatorMenuItem('New Workspace');
+        separator.label.add_style_class_name('new-workspace-menu-heading')
+        section.addMenuItem(separator);
 
         let lastVisibleWorkspace = this._ws.numberOfEnabledWorkspaces - 1;
         if (this._settings.dynamicWorkspaces.value) {

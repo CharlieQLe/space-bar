@@ -1,18 +1,19 @@
-.panel-button.workspaces-bar {
+.workspaces-bar {
     -natural-hpadding: 0px;
 }
-.desktop-label {
+
+.workspaces-bar .desktop-label {
     margin: 0 4px;
     padding: 3px 8px;
     border-radius: 4px;
 }
 
-.desktop-label-active {
+.workspaces-bar .desktop-label-active {
     color: white;
-    background-color: rgba(96, 96, 96, 0.7);
+    background-color: rgb(88, 88, 88);
 }
 
-.desktop-label-empty.desktop-label-inactive {
+.workspaces-bar .desktop-label-empty.desktop-label-inactive {
     color: rgba(255, 255, 255, 0.5);
 }
 
@@ -22,11 +23,13 @@
     color: rgba(255, 255, 255, 0.5);
 }
 
-.menu-heading {
-    margin-left: 30px;
-    margin-top: 10px;
-    margin-bottom: 5px;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: small;
-    font-weight: bold;
+.new-workspace-menu .new-workspace-menu-heading {
+    margin-left: 6px;
+    margin-right: 8px;
+    font-weight: 700;
+    font-size: 9pt;
+}
+
+.new-workspace-menu .popup-menu-ornament {
+    width: 0 !important;
 }
