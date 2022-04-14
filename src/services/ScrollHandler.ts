@@ -1,5 +1,5 @@
 import { Clutter } from 'imports/gi';
-import { Workspaces } from 'services/WorkspacesState';
+import { Workspaces } from 'services/Workspaces';
 const Main = imports.ui.main;
 
 export class ScrollHandler {

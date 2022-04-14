@@ -3,8 +3,8 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 import { Clutter, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
-import type { WorkspaceState } from 'services/WorkspacesState';
-import { Workspaces } from 'services/WorkspacesState';
+import type { WorkspaceState } from 'services/Workspaces';
+import { Workspaces } from 'services/Workspaces';
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 

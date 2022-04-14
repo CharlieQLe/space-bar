@@ -1,6 +1,6 @@
 import { Clutter, GObject, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
-import { Workspaces } from 'services/WorkspacesState';
+import { Workspaces } from 'services/Workspaces';
 const PanelMenu = imports.ui.panelMenu;
 
 export class WorkspacesBarClass extends PanelMenu.Button {

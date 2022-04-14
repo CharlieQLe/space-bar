@@ -2,7 +2,7 @@ import { Shell, Meta } from 'imports/gi';
 const Main = imports.ui.main;
 
 import { Settings } from 'services/Settings';
-import { Workspaces } from 'services/WorkspacesState';
+import { Workspaces } from 'services/Workspaces';
 
 export class KeyBindings {
     private readonly _settings = Settings.getInstance().extensionSettings;

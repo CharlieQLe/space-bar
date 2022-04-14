@@ -5,7 +5,7 @@ const Main = imports.ui.main;
 import { KeyBindings } from 'services/KeyBindings';
 import { ScrollHandler } from 'services/ScrollHandler';
 import { showActivities } from 'services/showActivities';
-import { Workspaces } from 'services/WorkspacesState';
+import { Workspaces } from 'services/Workspaces';
 import type { WorkspacesBarClass } from 'ui/WorkspacesBar';
 import { WorkspacesBar } from 'ui/WorkspacesBar';
 import { Settings } from 'services/Settings';
