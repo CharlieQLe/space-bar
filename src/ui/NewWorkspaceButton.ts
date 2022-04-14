@@ -49,8 +49,8 @@ export class NewWorkspaceButton {
 
     private _initMenu() {
         this._menu.box.add_style_class_name('new-workspace-menu');
-        this._initNewUnnamedWorkspaceItem();
-        this._initNewWorkspaceMenuSection();
+        this._initNewWorkspaceMenuItem();
+        this._initRecentWorkspacesMenuSection();
     }
 
     private _refreshMenu() {
@@ -58,7 +58,7 @@ export class NewWorkspaceButton {
         this._initMenu();
     }
 
-    private _initNewUnnamedWorkspaceItem(): void {
+    private _initNewWorkspaceMenuItem(): void {
         const button = new PopupMenu.PopupMenuItem('New workspace');
         button.connect('activate', () => {
             this._onClick();
@@ -66,12 +66,12 @@ export class NewWorkspaceButton {
         this._menu.addMenuItem(button);
     }
 
-    private _initNewWorkspaceMenuSection(): void {
-        const newWorkspaces = this._ws.workspaces.filter(
+    private _initRecentWorkspacesMenuSection(): void {
+        const recentWorkspaces = this._ws.workspaces.filter(
             (workspace, index) => !!workspace.name && index > this._ws.lastVisibleWorkspace,
         );
 
-        if (newWorkspaces.length === 0) {
+        if (recentWorkspaces.length === 0) {
             return;
         }
 
@@ -81,7 +81,7 @@ export class NewWorkspaceButton {
         separator.label.add_style_class_name('new-workspace-menu-heading');
         section.addMenuItem(separator);
 
-        newWorkspaces.forEach((workspace) => {
+        recentWorkspaces.forEach((workspace) => {
             const button = new PopupMenu.PopupMenuItem(workspace.name);
             button.connect('activate', () => {
                 this._onClick(workspace);
@@ -96,6 +96,7 @@ export class NewWorkspaceButton {
         this._menu.close();
         const workspaceNames = [...this._settings.workspaceNames.value];
         if (workspace) {
+            // FIXME: This might move existing empty array items further back.
             moveArrayElement(workspaceNames, workspace.index, this._ws.lastVisibleWorkspace + 1);
         } else {
             insertInArray(workspaceNames, this._ws.lastVisibleWorkspace + 1, '');
