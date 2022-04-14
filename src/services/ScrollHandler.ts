@@ -1,13 +1,13 @@
 import { Clutter } from 'imports/gi';
-import { WorkspacesState } from 'services/WorkspacesState';
+import { Workspaces } from 'services/WorkspacesState';
 const Main = imports.ui.main;
 
 export class ScrollHandler {
-    private _ws!: WorkspacesState;
+    private _ws!: Workspaces;
     private scroll_binding: any;
 
     init() {
-        this._ws = WorkspacesState.getInstance();
+        this._ws = Workspaces.getInstance();
         this.scroll_binding = Main.panel.connect('scroll-event', (actor: any, event: any) =>
             this._handle_scroll(actor, event),
         );

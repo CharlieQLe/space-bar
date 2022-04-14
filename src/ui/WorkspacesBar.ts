@@ -1,11 +1,11 @@
 import { Clutter, GObject, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
-import { WorkspacesState } from 'services/WorkspacesState';
+import { Workspaces } from 'services/WorkspacesState';
 const PanelMenu = imports.ui.panelMenu;
 
 export class WorkspacesBarClass extends PanelMenu.Button {
     private readonly _settings = Settings.getInstance();
-    private readonly _ws = WorkspacesState.getInstance();
+    private readonly _ws = Workspaces.getInstance();
 
     constructor() {
         super(0.0);

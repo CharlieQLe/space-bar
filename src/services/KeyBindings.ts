@@ -2,11 +2,11 @@ import { Shell, Meta } from 'imports/gi';
 const Main = imports.ui.main;
 
 import { Settings } from 'services/Settings';
-import { WorkspacesState } from 'services/WorkspacesState';
+import { Workspaces } from 'services/WorkspacesState';
 
 export class KeyBindings {
     private readonly _settings = Settings.getInstance().extensionSettings;
-    private readonly _ws = WorkspacesState.getInstance();
+    private readonly _ws = Workspaces.getInstance();
     private _addedKeyBindings: string[] = [];
 
     init() {
@@ -39,7 +39,7 @@ export class KeyBindings {
     private _addActivateKeys() {
         for (let i = 0; i < 10; i++) {
             this._addKeyBinding(`activate-${i + 1}-key`, () => {
-                this._ws.activate(i);
+                this._ws.activate(i, { focusWindowIfCurrentWorkspace: true });
             });
         }
         this._addKeyBinding('activate-previous-key', () => {

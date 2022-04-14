@@ -5,14 +5,14 @@ const Main = imports.ui.main;
 import { KeyBindings } from 'services/KeyBindings';
 import { ScrollHandler } from 'services/ScrollHandler';
 import { showActivities } from 'services/showActivities';
-import { WorkspacesState } from 'services/WorkspacesState';
+import { Workspaces } from 'services/WorkspacesState';
 import type { WorkspacesBarClass } from 'ui/WorkspacesBar';
 import { WorkspacesBar } from 'ui/WorkspacesBar';
 import { Settings } from 'services/Settings';
 import { NewWorkspaceButton } from 'ui/NewWorkspaceButton';
 
 class Extension {
-    private workspacesState: WorkspacesState | null = null;
+    private workspacesState: Workspaces | null = null;
     private workspacesBar: WorkspacesBarClass | null = null;
     private newWorkspaceButton: NewWorkspaceButton | null = null;
     private scrollHandler: ScrollHandler | null = null;
@@ -27,7 +27,7 @@ class Extension {
         console.log('-------------------------------------------------------');
         Settings.init();
         showActivities(false);
-        this.workspacesState = WorkspacesState.getInstance();
+        this.workspacesState = Workspaces.getInstance();
         this.workspacesState.init();
         this.workspacesBar = new WorkspacesBar();
         Main.panel.addToStatusArea('workspaces-bar', this.workspacesBar, 0, 'left');

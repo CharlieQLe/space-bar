@@ -4,14 +4,14 @@ const Main = imports.ui.main;
 import { Clutter, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import type { WorkspaceState } from 'services/WorkspacesState';
-import { WorkspacesState } from 'services/WorkspacesState';
+import { Workspaces } from 'services/WorkspacesState';
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
 export class NewWorkspaceButton {
     private readonly _name = `${Me.metadata.name} New-Menu-Button`;
     private readonly _settings = Settings.getInstance();
-    private readonly _ws = WorkspacesState.getInstance();
+    private readonly _ws = Workspaces.getInstance();
     private readonly _button = new PanelMenu.Button(0.0, this._name);
     private readonly _menu = this._button.menu;
 
