@@ -34,7 +34,7 @@ export class WorkspaceNames {
         const [removedName] = workspaceNames.splice(index, 1);
         if (removedName) {
             if (!workspaceNames[insertIndex]) {
-                workspaceNames[insertIndex] = workspaceNames[index];
+                workspaceNames[insertIndex] = removedName;
             } else {
                 workspaceNames.splice(insertIndex, 0, removedName);
             }
