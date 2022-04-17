@@ -22,13 +22,9 @@ export class WorkspaceNames {
         this._setNames(workspaceNames);
     }
 
-    insert(name: string, index: number): void {
+    insert(index: number, name: string): void {
         const workspaceNames = this._getNames();
-        if (workspaceNames.length > index) {
-            workspaceNames.splice(index, 0, name);
-        } else {
-            workspaceNames[index] = name;
-        }
+        this._insert(workspaceNames, index, name);
         this._setNames(workspaceNames);
     }
 
@@ -46,6 +42,24 @@ export class WorkspaceNames {
         this._setNames(workspaceNames);
     }
 
+    rename(index: number, newName: string): void {
+        let workspaceNames = this._getNames();
+        const oldName = workspaceNames[index];
+        workspaceNames[index] = newName;
+        if (!workspaceNames.some((name) => name === oldName)) {
+            this._insert(workspaceNames, this._ws.lastVisibleWorkspace + 1, oldName);
+        }
+        this._setNames(workspaceNames);
+    }
+
+    private _insert(workspaceNames: string[], index: number, name: string): void {
+        if (workspaceNames.length > index) {
+            workspaceNames.splice(index, 0, name);
+        } else {
+            workspaceNames[index] = name;
+        }
+    }
+
     private _getNames(): string[] {
         return [...this._settings.workspaceNames.value];
     }
@@ -56,9 +70,19 @@ export class WorkspaceNames {
     }
 
     private _cleanUp(workspaceNames: string[]): string[] {
-        return workspaceNames.filter(
-            // Filter empty and unused workspace names.
-            (name, index) => index <= this._ws.numberOfEnabledWorkspaces || !!name,
+        const enabledWorkspaceNames = workspaceNames.filter(
+            (_, index) => index < this._ws.numberOfEnabledWorkspaces,
+        );
+        return (
+            workspaceNames
+                // Filter empty and unused workspace names.
+                .filter((name, index) => index < this._ws.numberOfEnabledWorkspaces || !!name)
+                // Filter unused workspace names that are already used.
+                .filter(
+                    (name, index) =>
+                        index < this._ws.numberOfEnabledWorkspaces ||
+                        !enabledWorkspaceNames.includes(name),
+                )
         );
     }
 }

@@ -43,9 +43,10 @@ export class Workspaces {
     private _restacked: any;
     private _windows_changed: any;
     private _settings = Settings.getInstance();
-    private _wsNames = WorkspaceNames.init(this);
+    private _wsNames?: WorkspaceNames | null;
 
     init() {
+        this._wsNames = WorkspaceNames.init(this);
         this._ws_added = global.workspace_manager.connect('workspace-added', (_, index) =>
             this._update('number-of-workspaces-changed'),
         );
@@ -69,6 +70,7 @@ export class Workspaces {
     }
 
     destroy() {
+        this._wsNames = null;
         if (this._ws_added) {
             global.workspace_manager.disconnect(this._ws_added);
         }
@@ -136,7 +138,7 @@ export class Workspaces {
 
     private _onWorkspaceRemoved(index: number): void {
         this._update(null);
-        this._wsNames.remove(index);
+        this._wsNames!.remove(index);
         this._notify('number-of-workspaces-changed');
     }
 
@@ -145,6 +147,8 @@ export class Workspaces {
         this.currentIndex = global.workspace_manager.get_active_workspace_index();
         if (
             this._settings.dynamicWorkspaces.value &&
+            (!this._settings.showEmptyWorkspaces.value ||
+                this._settings.showNewWorkspaceButton.value) &&
             this.currentIndex !== this.numberOfEnabledWorkspaces - 1
         ) {
             this.lastVisibleWorkspace = this.numberOfEnabledWorkspaces - 2;

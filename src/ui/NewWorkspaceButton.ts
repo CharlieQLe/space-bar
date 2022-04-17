@@ -108,7 +108,7 @@ export class NewWorkspaceButton {
         if (workspace) {
             this._wsNames.moveByIndex(workspace.index, this._ws.lastVisibleWorkspace + 1);
         } else {
-            this._wsNames.insert('', this._ws.lastVisibleWorkspace + 1);
+            this._wsNames.insert(this._ws.lastVisibleWorkspace + 1, '');
         }
         if (this._settings.dynamicWorkspaces.value) {
             this._ws.activate(this._ws.numberOfEnabledWorkspaces - 1);
