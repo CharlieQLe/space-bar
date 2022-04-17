@@ -11,6 +11,7 @@ declare global {
         misc: {
             extensionUtils: any;
         };
+        mainloop: any;
     };
     const global: Global;
 }

@@ -1,7 +1,7 @@
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
-import { Clutter, St } from 'imports/gi';
+import { Clutter, GObject, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import { WorkspaceNames } from 'services/WorkspaceNames';
 import { Workspaces } from 'services/Workspaces';
@@ -16,12 +16,14 @@ export class WorkspacesBar {
     private readonly _button = new PanelMenu.Button(0.0, this._name);
     private readonly _menu = this._button.menu;
     private _wsBar!: St.BoxLayout;
+    private _onMenuOpen?: () => void;
 
     constructor() {}
 
     init(): void {
         this._initButton();
         // this._initMenu();
+        this._menu.connect('open-state-changed', () => this._onMenuOpen?.());
     }
 
     destroy(): void {
@@ -61,6 +63,29 @@ export class WorkspacesBar {
         const separator = new PopupMenu.PopupSeparatorMenuItem('Rename current workspace');
         separator.label.add_style_class_name('workspaces-bar-menu-heading');
         section.addMenuItem(separator);
+
+        const entryItem = new PopupMenuItemEntry();
+        const oldName = this._ws.workspaces[this._ws.currentIndex].name || '';
+        let newName = oldName;
+        entryItem.entry.set_text(oldName);
+        entryItem.onTextChanged = (text: string) => (newName = text);
+        entryItem.entry.connect('key-focus-in', () =>
+            entryItem.entry.get_clutter_text().set_selection(0, oldName.length),
+        );
+        entryItem.entry.get_clutter_text().connect('activate', () => this._menu.close());
+        entryItem.connect('notify::active', () => {
+            if (entryItem.active) {
+                entryItem.entry.grab_key_focus();
+            }
+        });
+        section.connect('menu-closed', () => {
+            if (newName !== oldName) {
+                this._wsNames.rename(this._ws.currentIndex, newName);
+            }
+        });
+        section.addMenuItem(entryItem);
+        this._onMenuOpen = () => (entryItem.active = true);
+
         const recentWorkspaces = this._ws.workspaces.filter(
             (workspace, index) => !!workspace.name && index > this._ws.lastVisibleWorkspace,
         );
@@ -168,3 +193,25 @@ export class WorkspacesBar {
         }
     }
 }
+
+const PopupMenuItemEntry = GObject.registerClass(
+    class PopupMenuItem extends PopupMenu.PopupBaseMenuItem {
+        _init(params: any) {
+            super._init(params);
+            this.entry = new St.Entry({
+                x_expand: true,
+                // y_expand: true,
+                y_align: Clutter.ActorAlign.CENTER,
+            });
+            this.entry.connect('button-press-event', (actor: any, event: Clutter.Event) => {
+                return Clutter.EVENT_STOP;
+            });
+            this.entry
+                .get_clutter_text()
+                .connect('text-changed', (actor: any, event: Clutter.Event) =>
+                    this.onTextChanged?.(actor.get_text()),
+                );
+            this.add_child(this.entry);
+        }
+    },
+);
