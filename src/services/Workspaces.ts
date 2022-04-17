@@ -1,6 +1,6 @@
 import { Shell } from 'imports/gi';
 import { Settings } from 'services/Settings';
-import { insertInArray, moveArrayElement } from 'utils';
+import { WorkspaceNames } from 'services/WorkspaceNames';
 const Main = imports.ui.main;
 const AltTab = imports.ui.altTab;
 
@@ -10,6 +10,12 @@ export interface WorkspaceState {
     name?: string;
     hasWindows: boolean;
 }
+
+export type updateReason =
+    | 'active-workspace-changed'
+    | 'number-of-workspaces-changed'
+    | 'workspace-names-changed'
+    | 'windows-changed';
 
 type Workspace = any;
 type Window = any;
@@ -29,16 +35,20 @@ export class Workspaces {
     currentIndex = 0;
     workspaces: WorkspaceState[] = [];
 
-    private _onUpdateCallbacks: Array<() => void> = [];
+    private _onUpdateCallbacks: Array<(reason: updateReason) => void> = [];
     private _previousWorkspace = 0;
+    private _ws_added?: number;
     private _ws_removed?: number;
     private _ws_active_changed?: number;
-    private _ws_number_changed?: number;
     private _restacked: any;
     private _windows_changed: any;
     private _settings = Settings.getInstance();
+    private _wsNames = WorkspaceNames.init(this);
 
     init() {
+        this._ws_added = global.workspace_manager.connect('workspace-added', (_, index) =>
+            this._update('number-of-workspaces-changed'),
+        );
         this._ws_removed = global.workspace_manager.connect('workspace-removed', (_, index) =>
             this._onWorkspaceRemoved(index),
         );
@@ -46,30 +56,27 @@ export class Workspaces {
             'active-workspace-changed',
             () => {
                 this._previousWorkspace = this.currentIndex;
-                this._update();
+                this._update('active-workspace-changed');
             },
-        );
-        this._ws_number_changed = global.workspace_manager.connect('notify::n-workspaces', () =>
-            this._update(),
         );
         this._restacked = global.display.connect('restacked', this._update.bind(this));
         this._windows_changed = Shell.WindowTracker.get_default().connect(
             'tracked-windows-changed',
-            () => this._update(),
+            () => this._update('windows-changed'),
         );
-        this._settings.workspaceNames.subscribe(() => this._update());
-        this._update();
+        this._settings.workspaceNames.subscribe(() => this._update('workspace-names-changed'));
+        this._update(null);
     }
 
     destroy() {
+        if (this._ws_added) {
+            global.workspace_manager.disconnect(this._ws_added);
+        }
         if (this._ws_removed) {
             global.workspace_manager.disconnect(this._ws_removed);
         }
         if (this._ws_active_changed) {
             global.workspace_manager.disconnect(this._ws_active_changed);
-        }
-        if (this._ws_number_changed) {
-            global.workspace_manager.disconnect(this._ws_number_changed);
         }
         if (this._restacked) {
             global.display.disconnect(this._restacked);
@@ -123,21 +130,13 @@ export class Workspaces {
         }
     }
 
-    private _onWorkspaceRemoved(index: number) {
-        this._update();
-        const workspaceNames = [...this._settings.workspaceNames.value];
-        const [removedName] = workspaceNames.splice(index, 1);
-        if (removedName) {
-            if (!workspaceNames[this.lastVisibleWorkspace + 1]) {
-                workspaceNames[this.lastVisibleWorkspace + 1] = workspaceNames[index];
-            } else {
-                insertInArray(workspaceNames, this.lastVisibleWorkspace + 1, removedName);
-            }
-        }
-        this._settings.workspaceNames.value = workspaceNames;
+    private _onWorkspaceRemoved(index: number): void {
+        this._update(null);
+        this._wsNames.remove(index);
+        this._notify('number-of-workspaces-changed');
     }
 
-    private _update() {
+    private _update(reason: updateReason | null): void {
         this.numberOfEnabledWorkspaces = global.workspace_manager.get_n_workspaces();
         this.currentIndex = global.workspace_manager.get_active_workspace_index();
         if (
@@ -155,7 +154,13 @@ export class Workspaces {
         this.workspaces = [...Array(numberOfTrackedWorkspaces)].map((_, index) =>
             this._getWorkspaceState(index),
         );
-        this._onUpdateCallbacks.forEach((cb) => cb());
+        if (reason !== null) {
+            this._notify(reason);
+        }
+    }
+
+    private _notify(reason: updateReason): void {
+        this._onUpdateCallbacks.forEach((cb) => cb(reason));
     }
 
     private _focusMostRecentWindowOnWorkspace(workspace: Workspace) {

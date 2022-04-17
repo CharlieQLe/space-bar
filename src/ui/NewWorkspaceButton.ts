@@ -3,9 +3,9 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 import { Clutter, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
+import { WorkspaceNames } from 'services/WorkspaceNames';
 import type { WorkspaceState } from 'services/Workspaces';
 import { Workspaces } from 'services/Workspaces';
-import { insertInArray, moveArrayElement } from 'utils';
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
@@ -13,6 +13,7 @@ export class NewWorkspaceButton {
     private readonly _name = `${Me.metadata.name} New-Menu-Button`;
     private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
+    private readonly _wsNames = WorkspaceNames.getInstance();
     private readonly _button = new PanelMenu.Button(0.0, this._name);
     private readonly _menu = this._button.menu;
 
@@ -94,14 +95,11 @@ export class NewWorkspaceButton {
 
     private _onClick(workspace?: WorkspaceState) {
         this._menu.close();
-        const workspaceNames = [...this._settings.workspaceNames.value];
         if (workspace) {
-            // FIXME: This might move existing empty array items further back.
-            moveArrayElement(workspaceNames, workspace.index, this._ws.lastVisibleWorkspace + 1);
+            this._wsNames.moveByIndex(workspace.index, this._ws.lastVisibleWorkspace + 1);
         } else {
-            insertInArray(workspaceNames, this._ws.lastVisibleWorkspace + 1, '');
+            this._wsNames.insert('', this._ws.lastVisibleWorkspace + 1);
         }
-        this._settings.workspaceNames.value = workspaceNames;
         if (this._settings.dynamicWorkspaces.value) {
             this._ws.activate(this._ws.numberOfEnabledWorkspaces - 1);
         } else {
