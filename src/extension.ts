@@ -6,14 +6,13 @@ import { KeyBindings } from 'services/KeyBindings';
 import { ScrollHandler } from 'services/ScrollHandler';
 import { showActivities } from 'services/showActivities';
 import { Workspaces } from 'services/Workspaces';
-import type { WorkspacesBarClass } from 'ui/WorkspacesBar';
 import { WorkspacesBar } from 'ui/WorkspacesBar';
 import { Settings } from 'services/Settings';
 import { NewWorkspaceButton } from 'ui/NewWorkspaceButton';
 
 class Extension {
     private workspacesState: Workspaces | null = null;
-    private workspacesBar: WorkspacesBarClass | null = null;
+    private workspacesBar: WorkspacesBar | null = null;
     private newWorkspaceButton: NewWorkspaceButton | null = null;
     private scrollHandler: ScrollHandler | null = null;
     private keyBindings: KeyBindings | null = null;
@@ -30,7 +29,7 @@ class Extension {
         this.workspacesState = Workspaces.getInstance();
         this.workspacesState.init();
         this.workspacesBar = new WorkspacesBar();
-        Main.panel.addToStatusArea('workspaces-bar', this.workspacesBar, 0, 'left');
+        this.workspacesBar.init();
         this.newWorkspaceButton = new NewWorkspaceButton();
         this.newWorkspaceButton.init();
         this.scrollHandler = new ScrollHandler();

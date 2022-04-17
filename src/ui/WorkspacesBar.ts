@@ -1,16 +1,24 @@
-import { Clutter, GObject, St } from 'imports/gi';
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const Main = imports.ui.main;
+import { Clutter, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import { Workspaces } from 'services/Workspaces';
 const PanelMenu = imports.ui.panelMenu;
 
-export class WorkspacesBarClass extends PanelMenu.Button {
+export class WorkspacesBar {
+    private readonly _name = `${Me.metadata.name}`;
     private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
+    private readonly _button = new PanelMenu.Button(0.0, this._name);
+    private _wsBar!: St.BoxLayout;
 
-    constructor() {
-        super(0.0);
-        this.track_hover = false;
-        this.style_class = 'panel-button workspaces-bar';
+    constructor() {}
+
+    init(): void {
+        Main.panel.addToStatusArea(this._name, this._button, 0, 'left');
+        this._button.track_hover = false;
+        this._button.style_class = 'panel-button workspaces-bar';
 
         this._ws.onUpdate(() => this._update_ws());
         this._settings.showEmptyWorkspaces.subscribe(() => this._update_ws());
@@ -18,20 +26,22 @@ export class WorkspacesBarClass extends PanelMenu.Button {
         this._settings.dynamicWorkspaces.subscribe(() => this._update_ws());
 
         // bar creation
-        this.ws_bar = new St.BoxLayout({});
+        this._wsBar = new St.BoxLayout({});
         this._update_ws();
-        this.add_child(this.ws_bar);
+        this._button.add_child(this._wsBar);
     }
 
-    destroy() {
-        this.ws_bar.destroy();
-        super.destroy();
+    destroy(): void {
+        this._wsBar.destroy();
+        this._button.destroy();
     }
+
+    private _initMenu(): void {}
 
     // update the workspaces bar
     private _update_ws() {
         // destroy old workspaces bar buttons
-        this.ws_bar.destroy_all_children();
+        this._wsBar.destroy_all_children();
 
         // display all current workspaces buttons
         for (let ws_index = 0; ws_index < this._ws.numberOfEnabledWorkspaces; ++ws_index) {
@@ -87,11 +97,11 @@ export class WorkspacesBarClass extends PanelMenu.Button {
                         return this._ws.activate(ws_index);
                     case 2:
                         return this._ws.removeWorkspace(ws_index);
+                    case 3:
+                        return this._button.menu.toggle();
                 }
             });
-            this.ws_bar.add_actor(ws_box);
+            this._wsBar.add_actor(ws_box);
         }
     }
 }
-
-export const WorkspacesBar = GObject.registerClass(WorkspacesBarClass);

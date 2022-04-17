@@ -14,3 +14,7 @@ export namespace Clutter {
 export namespace Gio {
     type Settings = any;
 }
+
+export namespace St {
+    type BoxLayout = any;
+}
