@@ -1,16 +1,20 @@
-import { Shell, Meta } from 'imports/gi';
-const Main = imports.ui.main;
-
+import { Meta, Shell } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import { Workspaces } from 'services/Workspaces';
+const Main = imports.ui.main;
 
 export class KeyBindings {
+    private static _instance: KeyBindings | null;
+    static getInstance(): KeyBindings {
+        return KeyBindings._instance as KeyBindings;
+    }
     private readonly _settings = Settings.getInstance().extensionSettings;
     private readonly _ws = Workspaces.getInstance();
     private _addedKeyBindings: string[] = [];
 
     init() {
         this._addActivateKeys();
+        KeyBindings._instance = this;
     }
 
     destroy() {
@@ -20,7 +24,7 @@ export class KeyBindings {
         this._addedKeyBindings = [];
     }
 
-    private _addKeyBinding(name: string, handler: () => void) {
+    addKeyBinding(name: string, handler: () => void) {
         Shell.ActionMode;
         Main.wm.addKeybinding(
             name,
@@ -38,11 +42,11 @@ export class KeyBindings {
 
     private _addActivateKeys() {
         for (let i = 0; i < 10; i++) {
-            this._addKeyBinding(`activate-${i + 1}-key`, () => {
+            this.addKeyBinding(`activate-${i + 1}-key`, () => {
                 this._ws.activate(i, { focusWindowIfCurrentWorkspace: true });
             });
         }
-        this._addKeyBinding('activate-previous-key', () => {
+        this.addKeyBinding('activate-previous-key', () => {
             this._ws.activatePrevious();
         });
     }

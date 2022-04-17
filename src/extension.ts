@@ -1,14 +1,10 @@
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Main = imports.ui.main;
-
 import { KeyBindings } from 'services/KeyBindings';
 import { ScrollHandler } from 'services/ScrollHandler';
+import { Settings } from 'services/Settings';
 import { showActivities } from 'services/showActivities';
 import { Workspaces } from 'services/Workspaces';
-import { WorkspacesBar } from 'ui/WorkspacesBar';
-import { Settings } from 'services/Settings';
 import { NewWorkspaceButton } from 'ui/NewWorkspaceButton';
+import { WorkspacesBar } from 'ui/WorkspacesBar';
 
 class Extension {
     private workspacesState: Workspaces | null = null;
@@ -28,14 +24,14 @@ class Extension {
         showActivities(false);
         this.workspacesState = Workspaces.getInstance();
         this.workspacesState.init();
+        this.keyBindings = new KeyBindings();
+        this.keyBindings.init();
         this.workspacesBar = new WorkspacesBar();
         this.workspacesBar.init();
         this.newWorkspaceButton = new NewWorkspaceButton();
         this.newWorkspaceButton.init();
         this.scrollHandler = new ScrollHandler();
         this.scrollHandler.init();
-        this.keyBindings = new KeyBindings();
-        this.keyBindings.init();
     }
 
     disable() {

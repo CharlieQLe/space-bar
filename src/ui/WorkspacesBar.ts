@@ -7,12 +7,14 @@ import { WorkspaceNames } from 'services/WorkspaceNames';
 import { Workspaces } from 'services/Workspaces';
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+import { KeyBindings } from 'services/KeyBindings';
 
 export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
     private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
     private readonly _wsNames = WorkspaceNames.getInstance();
+    private readonly _keyBindings = KeyBindings.getInstance();
     private readonly _button = new PanelMenu.Button(0.0, this._name);
     private readonly _menu = this._button.menu;
     private _wsBar!: St.BoxLayout;
@@ -24,6 +26,7 @@ export class WorkspacesBar {
         this._initButton();
         // this._initMenu();
         this._menu.connect('open-state-changed', () => this._onMenuOpen?.());
+        this._keyBindings.addKeyBinding('open-menu', () => this._menu.open());
     }
 
     destroy(): void {

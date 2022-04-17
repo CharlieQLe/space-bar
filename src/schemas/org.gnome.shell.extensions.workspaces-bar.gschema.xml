@@ -53,5 +53,9 @@
             <default><![CDATA[['<Super>Above_Tab']]]></default>
             <summary>Keybinding to activate the previously active workspace.</summary>
         </key>
+        <key name="open-menu" type="as">
+            <default><![CDATA[['<Super>R']]]></default>
+            <summary>Keybinding to activate the previously active workspace.</summary>
+        </key>
     </schema>
 </schemalist>
