@@ -19,12 +19,14 @@ export class WorkspacesBar {
     private readonly _menu = this._button.menu;
     private _wsBar!: St.BoxLayout;
     private _onMenuOpen?: () => void;
-
+    
     constructor() {}
-
+    
     init(): void {
         this._initButton();
         // this._initMenu();
+
+        // FIXME: This triggers when the menu has been destroyed.
         this._menu.connect('open-state-changed', () => this._onMenuOpen?.());
         this._keyBindings.addKeyBinding('open-menu', () => this._menu.open());
     }
