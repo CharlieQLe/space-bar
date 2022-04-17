@@ -5,18 +5,29 @@ import { Clutter, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import { Workspaces } from 'services/Workspaces';
 const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
 
 export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
     private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
     private readonly _button = new PanelMenu.Button(0.0, this._name);
+    private readonly _menu = this._button.menu;
     private _wsBar!: St.BoxLayout;
 
     constructor() {}
 
     init(): void {
-        Main.panel.addToStatusArea(this._name, this._button, 0, 'left');
+        this._initButton();
+        // this._initMenu();
+    }
+
+    destroy(): void {
+        this._wsBar.destroy();
+        this._button.destroy();
+    }
+
+    private _initButton(): void {
         this._button.track_hover = false;
         this._button.style_class = 'panel-button workspaces-bar';
 
@@ -29,17 +40,49 @@ export class WorkspacesBar {
         this._wsBar = new St.BoxLayout({});
         this._update_ws();
         this._button.add_child(this._wsBar);
+        Main.panel.addToStatusArea(this._name, this._button, 0, 'left');
     }
 
-    destroy(): void {
-        this._wsBar.destroy();
-        this._button.destroy();
+    private _initMenu(): void {
+        this._menu.box.add_style_class_name('workspaces-bar-menu');
+        this._initHiddenWorkspaces();
     }
 
-    private _initMenu(): void {}
+    private _refreshMenu() {
+        this._menu.box.destroy_all_children();
+        this._initMenu();
+    }
+
+    private _initHiddenWorkspaces(): void {
+        if (this._settings.showEmptyWorkspaces.value || this._settings.dynamicWorkspaces.value) {
+            return;
+        }
+        const hiddenWorkspaces = this._ws.workspaces.filter(
+            (workspace) =>
+                workspace.isEnabled &&
+                !workspace.hasWindows &&
+                workspace.index !== this._ws.currentIndex,
+        );
+        if (hiddenWorkspaces.length > 0) {
+            const section = new PopupMenu.PopupMenuSection();
+            const separator = new PopupMenu.PopupSeparatorMenuItem('Hidden workspaces');
+            separator.label.add_style_class_name('workspaces-bar-menu-heading');
+            section.addMenuItem(separator);
+            hiddenWorkspaces.forEach((workspace) => {
+                const button = new PopupMenu.PopupMenuItem(this._ws.getDisplayName(workspace));
+                button.connect('activate', () => {
+                    this._menu.close();
+                    this._ws.activate(workspace.index);
+                });
+                section.addMenuItem(button);
+            });
+            this._menu.addMenuItem(section);
+        }
+    }
 
     // update the workspaces bar
     private _update_ws() {
+        this._refreshMenu();
         // destroy old workspaces bar buttons
         this._wsBar.destroy_all_children();
 
@@ -85,20 +128,18 @@ export class WorkspacesBar {
             } else {
                 label.style_class += ' desktop-label-empty';
             }
-            if (workspace.name) {
-                label.set_text(workspace.name);
-            } else {
-                label.set_text((ws_index + 1).toString());
-            }
+            label.set_text(this._ws.getDisplayName(workspace));
             ws_box.set_child(label);
             ws_box.connect('button-press-event', (actor, event: Clutter.Event) => {
                 switch (event.get_button()) {
                     case 1:
-                        return this._ws.activate(ws_index);
+                        this._ws.activate(ws_index);
+                        return Clutter.EVENT_STOP;
                     case 2:
-                        return this._ws.removeWorkspace(ws_index);
+                        this._ws.removeWorkspace(ws_index);
+                        return Clutter.EVENT_STOP;
                     case 3:
-                        return this._button.menu.toggle();
+                        return Clutter.EVENT_PROPAGATE;
                 }
             });
             this._wsBar.add_actor(ws_box);

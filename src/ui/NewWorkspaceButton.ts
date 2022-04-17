@@ -43,13 +43,23 @@ export class NewWorkspaceButton {
         this._ws.onUpdate(() => this._updateVisibility());
         this._updateVisibility();
 
-        // this._button.connect('button-press-event', (actor: any, event: any) => this._onClick());
+        this._button.connect('button-press-event', (actor: any, event: Clutter.Event) => {
+            switch (event.get_button()) {
+                case 1:
+                    return Clutter.EVENT_PROPAGATE;
+                case 2:
+                    this._onClick();
+                    return Clutter.EVENT_STOP;
+                case 3:
+                    return Clutter.EVENT_PROPAGATE;
+            }
+        });
 
         Main.panel.addToStatusArea(this._name, this._button, 1, 'left');
     }
 
     private _initMenu() {
-        this._menu.box.add_style_class_name('new-workspace-menu');
+        this._menu.box.add_style_class_name('workspaces-bar-menu');
         this._initNewWorkspaceMenuItem();
         this._initRecentWorkspacesMenuSection();
     }
@@ -79,7 +89,7 @@ export class NewWorkspaceButton {
         const section = new PopupMenu.PopupMenuSection();
 
         const separator = new PopupMenu.PopupSeparatorMenuItem('Recent workspaces');
-        separator.label.add_style_class_name('new-workspace-menu-heading');
+        separator.label.add_style_class_name('workspaces-bar-menu-heading');
         section.addMenuItem(separator);
 
         recentWorkspaces.forEach((workspace) => {

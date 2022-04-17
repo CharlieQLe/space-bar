@@ -23,13 +23,13 @@
     color: rgba(255, 255, 255, 0.5);
 }
 
-.new-workspace-menu .new-workspace-menu-heading {
+.workspaces-bar-menu .workspaces-bar-menu-heading {
     margin-left: 6px;
     margin-right: 8px;
     font-weight: 700;
     font-size: 9pt;
 }
 
-.new-workspace-menu .popup-menu-ornament {
+.workspaces-bar-menu .popup-menu-ornament {
     width: 0 !important;
 }

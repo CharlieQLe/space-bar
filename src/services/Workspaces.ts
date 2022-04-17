@@ -130,6 +130,10 @@ export class Workspaces {
         }
     }
 
+    getDisplayName(workspace: WorkspaceState): string {
+        return workspace.name || (workspace.index + 1).toString();
+    }
+
     private _onWorkspaceRemoved(index: number): void {
         this._update(null);
         this._wsNames.remove(index);
