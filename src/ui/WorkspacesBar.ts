@@ -2,12 +2,12 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 import { Clutter, GObject, St } from 'imports/gi';
+import { KeyBindings } from 'services/KeyBindings';
 import { Settings } from 'services/Settings';
 import { WorkspaceNames } from 'services/WorkspaceNames';
 import { Workspaces } from 'services/Workspaces';
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-import { KeyBindings } from 'services/KeyBindings';
 
 export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
@@ -18,16 +18,13 @@ export class WorkspacesBar {
     private readonly _button = new PanelMenu.Button(0.0, this._name);
     private readonly _menu = this._button.menu;
     private _wsBar!: St.BoxLayout;
-    private _onMenuOpen?: () => void;
-    
+    private _recentWorkspacesSection = new PopupMenu.PopupMenuSection();
+
     constructor() {}
-    
+
     init(): void {
         this._initButton();
-        // this._initMenu();
-
-        // FIXME: This triggers when the menu has been destroyed.
-        this._menu.connect('open-state-changed', () => this._onMenuOpen?.());
+        this._initMenu();
         this._keyBindings.addKeyBinding('open-menu', () => this._menu.open());
     }
 
@@ -54,28 +51,26 @@ export class WorkspacesBar {
 
     private _initMenu(): void {
         this._menu.box.add_style_class_name('workspaces-bar-menu');
-        this._initRenameCurrentWorkspace();
+        this._addSectionHeading('Rename current workspace');
+        this._initEntry();
+        this._menu.addMenuItem(this._recentWorkspacesSection);
         this._initHiddenWorkspaces();
     }
 
     private _refreshMenu() {
-        this._menu.box.destroy_all_children();
-        this._initMenu();
+        this._refreshRecentWorkspaces();
     }
 
-    private _initRenameCurrentWorkspace(): void {
-        const section = new PopupMenu.PopupMenuSection();
-        const separator = new PopupMenu.PopupSeparatorMenuItem('Rename current workspace');
+    private _addSectionHeading(text: string, section?: any): void {
+        const separator = new PopupMenu.PopupSeparatorMenuItem(text);
         separator.label.add_style_class_name('workspaces-bar-menu-heading');
-        section.addMenuItem(separator);
+        (section ?? this._menu).addMenuItem(separator);
+    }
 
+    private _initEntry(): void {
         const entryItem = new PopupMenuItemEntry();
-        const oldName = this._ws.workspaces[this._ws.currentIndex].name || '';
-        let newName = oldName;
-        entryItem.entry.set_text(oldName);
-        entryItem.onTextChanged = (text: string) => (newName = text);
         entryItem.entry.connect('key-focus-in', () =>
-            entryItem.entry.get_clutter_text().set_selection(0, oldName.length),
+            entryItem.entry.get_clutter_text().set_selection(0, entryItem.entry.get_text().length),
         );
         entryItem.entry.get_clutter_text().connect('activate', () => this._menu.close());
         entryItem.connect('notify::active', () => {
@@ -83,13 +78,24 @@ export class WorkspacesBar {
                 entryItem.entry.grab_key_focus();
             }
         });
-        section.connect('menu-closed', () => {
-            if (newName !== oldName) {
-                this._wsNames.rename(this._ws.currentIndex, newName);
+        let oldName = '';
+        this._menu.connect('open-state-changed', () => {
+            if (this._menu.isOpen) {
+                oldName = this._ws.workspaces[this._ws.currentIndex].name || '';
+                entryItem.entry.set_text(oldName);
+                entryItem.active = true;
+            } else {
+                const newName = entryItem.entry.get_text();
+                if (newName !== oldName) {
+                    this._wsNames.rename(this._ws.currentIndex, newName);
+                }
             }
         });
-        section.addMenuItem(entryItem);
-        this._onMenuOpen = () => (entryItem.active = true);
+        this._menu.addMenuItem(entryItem);
+    }
+
+    private _refreshRecentWorkspaces(): void {
+        this._recentWorkspacesSection.box.destroy_all_children();
 
         const recentWorkspaces = this._ws.workspaces.filter(
             (workspace, index) => !!workspace.name && index > this._ws.lastVisibleWorkspace,
@@ -100,9 +106,8 @@ export class WorkspacesBar {
                 this._menu.close();
                 this._wsNames.rename(this._ws.currentIndex, workspace.name as string);
             });
-            section.addMenuItem(button);
+            this._recentWorkspacesSection.addMenuItem(button);
         });
-        this._menu.addMenuItem(section);
     }
 
     private _initHiddenWorkspaces(): void {
@@ -205,17 +210,10 @@ const PopupMenuItemEntry = GObject.registerClass(
             super._init(params);
             this.entry = new St.Entry({
                 x_expand: true,
-                // y_expand: true,
-                y_align: Clutter.ActorAlign.CENTER,
             });
-            this.entry.connect('button-press-event', (actor: any, event: Clutter.Event) => {
+            this.entry.connect('button-press-event', () => {
                 return Clutter.EVENT_STOP;
             });
-            this.entry
-                .get_clutter_text()
-                .connect('text-changed', (actor: any, event: Clutter.Event) =>
-                    this.onTextChanged?.(actor.get_text()),
-                );
             this.add_child(this.entry);
         }
     },
