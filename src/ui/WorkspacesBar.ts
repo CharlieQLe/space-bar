@@ -19,6 +19,7 @@ export class WorkspacesBar {
     private readonly _menu = this._button.menu;
     private _wsBar!: St.BoxLayout;
     private _recentWorkspacesSection = new PopupMenu.PopupMenuSection();
+    private _hiddenWorkspacesSection = new PopupMenu.PopupMenuSection();
 
     constructor() {}
 
@@ -54,11 +55,17 @@ export class WorkspacesBar {
         this._addSectionHeading('Rename current workspace');
         this._initEntry();
         this._menu.addMenuItem(this._recentWorkspacesSection);
-        this._initHiddenWorkspaces();
+        this._menu.addMenuItem(this._hiddenWorkspacesSection);
+        this._menu.connect('open-state-changed', () => {
+            if (this._menu.isOpen) {
+                this._refreshMenu();
+            }
+        });
     }
 
     private _refreshMenu() {
         this._refreshRecentWorkspaces();
+        this._refreshHiddenWorkspaces();
     }
 
     private _addSectionHeading(text: string, section?: any): void {
@@ -110,7 +117,9 @@ export class WorkspacesBar {
         });
     }
 
-    private _initHiddenWorkspaces(): void {
+    private _refreshHiddenWorkspaces(): void {
+        this._hiddenWorkspacesSection.box.destroy_all_children();
+
         if (this._settings.showEmptyWorkspaces.value || this._settings.dynamicWorkspaces.value) {
             return;
         }
@@ -121,25 +130,21 @@ export class WorkspacesBar {
                 workspace.index !== this._ws.currentIndex,
         );
         if (hiddenWorkspaces.length > 0) {
-            const section = new PopupMenu.PopupMenuSection();
-            const separator = new PopupMenu.PopupSeparatorMenuItem('Hidden workspaces');
-            separator.label.add_style_class_name('workspaces-bar-menu-heading');
-            section.addMenuItem(separator);
+            this._addSectionHeading('Hidden workspaces', this._hiddenWorkspacesSection);
             hiddenWorkspaces.forEach((workspace) => {
                 const button = new PopupMenu.PopupMenuItem(this._ws.getDisplayName(workspace));
                 button.connect('activate', () => {
                     this._menu.close();
                     this._ws.activate(workspace.index);
                 });
-                section.addMenuItem(button);
+                this._hiddenWorkspacesSection.addMenuItem(button);
             });
-            this._menu.addMenuItem(section);
         }
     }
 
     // update the workspaces bar
     private _update_ws() {
-        this._refreshMenu();
+        // this._refreshMenu();
         // destroy old workspaces bar buttons
         this._wsBar.destroy_all_children();
 

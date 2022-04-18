@@ -37,7 +37,7 @@ export class Workspaces {
 
     private _onUpdateCallbacks: Array<(reason: updateReason) => void> = [];
     private _previousWorkspace = 0;
-    private _ws_added?: number;
+    private _ws_changed?: number;
     private _ws_removed?: number;
     private _ws_active_changed?: number;
     private _restacked: any;
@@ -47,12 +47,19 @@ export class Workspaces {
 
     init() {
         this._wsNames = WorkspaceNames.init(this);
-        this._ws_added = global.workspace_manager.connect('workspace-added', (_, index) =>
-            this._update('number-of-workspaces-changed'),
-        );
-        this._ws_removed = global.workspace_manager.connect('workspace-removed', (_, index) =>
-            this._onWorkspaceRemoved(index),
-        );
+        let numberOfWorkspacesChangeHandled = false
+        this._ws_removed = global.workspace_manager.connect('workspace-removed', (_, index) => {
+            this._onWorkspaceRemoved(index);
+            numberOfWorkspacesChangeHandled = true;
+        });
+        this._ws_changed = global.workspace_manager.connect('notify::n-workspaces', () => {
+            if (numberOfWorkspacesChangeHandled) {
+                numberOfWorkspacesChangeHandled = false;
+            } else {
+                this._update('number-of-workspaces-changed');
+            }
+        });
+
         this._ws_active_changed = global.workspace_manager.connect(
             'active-workspace-changed',
             () => {
@@ -71,8 +78,8 @@ export class Workspaces {
 
     destroy() {
         this._wsNames = null;
-        if (this._ws_added) {
-            global.workspace_manager.disconnect(this._ws_added);
+        if (this._ws_changed) {
+            global.workspace_manager.disconnect(this._ws_changed);
         }
         if (this._ws_removed) {
             global.workspace_manager.disconnect(this._ws_removed);
