@@ -2,18 +2,19 @@
     -natural-hpadding: 0px;
 }
 
-.workspaces-bar .desktop-label {
+.workspaces-bar-workspace-label {
     margin: 0 4px;
     padding: 3px 8px;
     border-radius: 4px;
+    font-weight: bold;
 }
 
-.workspaces-bar .desktop-label-active {
+.workspaces-bar-workspace-label-active {
     color: white;
     background-color: rgb(88, 88, 88);
 }
 
-.workspaces-bar .desktop-label-empty.desktop-label-inactive {
+.workspaces-bar-workspace-label-empty.workspaces-bar-workspace-label-inactive {
     color: rgba(255, 255, 255, 0.5);
 }
 
