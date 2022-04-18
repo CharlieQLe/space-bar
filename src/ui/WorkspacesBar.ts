@@ -3,9 +3,10 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 import { Clutter, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
-import { Workspaces } from 'services/Workspaces';
+import { Workspaces, WorkspaceState } from 'services/Workspaces';
 import { WorkspacesBarMenu } from 'ui/WorkspacesBarMenu';
 const PanelMenu = imports.ui.panelMenu;
+const DND = imports.ui.dnd;
 
 export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
@@ -44,7 +45,6 @@ export class WorkspacesBar {
 
     // update the workspaces bar
     private _update_ws() {
-        // this._refreshMenu();
         // destroy old workspaces bar buttons
         this._wsBar.destroy_all_children();
 
@@ -69,42 +69,47 @@ export class WorkspacesBar {
             ) {
                 continue;
             }
-            const ws_box = new St.Bin({
-                visible: true,
-                reactive: true,
-                can_focus: true,
-                track_hover: true,
-                style_class: 'workspace-box',
-            });
-            const label = new St.Label({
-                y_align: Clutter.ActorAlign.CENTER,
-                style_class: 'desktop-label',
-            });
-            if (ws_index == this._ws.currentIndex) {
-                label.style_class += ' desktop-label-active';
-            } else {
-                label.style_class += ' desktop-label-inactive';
-            }
-            if (workspace.hasWindows) {
-                label.style_class += ' desktop-label-nonempty';
-            } else {
-                label.style_class += ' desktop-label-empty';
-            }
-            label.set_text(this._ws.getDisplayName(workspace));
-            ws_box.set_child(label);
-            ws_box.connect('button-press-event', (actor, event: Clutter.Event) => {
-                switch (event.get_button()) {
-                    case 1:
-                        this._ws.activate(ws_index);
-                        return Clutter.EVENT_STOP;
-                    case 2:
-                        this._ws.removeWorkspace(ws_index);
-                        return Clutter.EVENT_STOP;
-                    case 3:
-                        return Clutter.EVENT_PROPAGATE;
-                }
-            });
-            this._wsBar.add_actor(ws_box);
+            const wsBox = this._createWsBox(workspace);
+            this._wsBar.add_actor(wsBox);
         }
+    }
+
+    private _createWsBox(workspace: WorkspaceState): St.Bin {
+        const wsBox = new St.Bin({
+            visible: true,
+            reactive: true,
+            can_focus: true,
+            track_hover: true,
+            style_class: 'workspace-box',
+        });
+        const label = new St.Label({
+            y_align: Clutter.ActorAlign.CENTER,
+            style_class: 'desktop-label',
+        });
+        if (workspace.index == this._ws.currentIndex) {
+            label.style_class += ' desktop-label-active';
+        } else {
+            label.style_class += ' desktop-label-inactive';
+        }
+        if (workspace.hasWindows) {
+            label.style_class += ' desktop-label-nonempty';
+        } else {
+            label.style_class += ' desktop-label-empty';
+        }
+        label.set_text(this._ws.getDisplayName(workspace));
+        wsBox.set_child(label);
+        wsBox.connect('button-press-event', (actor, event: Clutter.Event) => {
+            switch (event.get_button()) {
+                case 1:
+                    this._ws.activate(workspace.index);
+                    return Clutter.EVENT_STOP;
+                case 2:
+                    this._ws.removeWorkspace(workspace.index);
+                    return Clutter.EVENT_STOP;
+                case 3:
+                    return Clutter.EVENT_PROPAGATE;
+            }
+        });
+        return wsBox;
     }
 }
