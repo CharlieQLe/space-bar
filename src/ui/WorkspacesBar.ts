@@ -23,6 +23,12 @@ interface DropPosition {
     width: number;
 }
 
+interface WsBoxPosition {
+    index: number;
+    center: number;
+    wsBox: St.Bin;
+}
+
 export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
     private readonly _settings = Settings.getInstance();
@@ -35,7 +41,7 @@ export class WorkspacesBar {
         wsBox: St.Bin;
     }[] = [];
     private _draggedWorkspace?: WorkspaceState | null;
-    private _dragPositions = false;
+    private _wsBoxPositions?: WsBoxPosition[] | null;
 
     constructor() {}
 
@@ -131,23 +137,28 @@ export class WorkspacesBar {
         const draggable = DND.makeDraggable(wsBox, {});
         draggable.connect('drag-begin', () => {
             console.log('drag begin');
-            wsBox.add_style_class_name('dragged');
-            this._draggedWorkspace = workspace;
-            this._onDragStart();
-            this._setDragMonitor(true);
+            this._onDragStart(wsBox, workspace);
         });
         draggable.connect('drag-end', () => {
             console.log('drag end');
-            wsBox.remove_style_class_name('dragged');
-            this._draggedWorkspace = null;
-            this._setDragMonitor(false);
+            this._onDragFinished(wsBox);
         });
         draggable.connect('drag-cancelled', () => {
             console.log('drag cancelled');
-            wsBox.remove_style_class_name('dragged');
-            this._draggedWorkspace = null;
-            this._setDragMonitor(false);
+            this._onDragFinished(wsBox);
         });
+    }
+    private _onDragStart(wsBox: St.Bin, workspace: WorkspaceState): void {
+        wsBox.add_style_class_name('dragging');
+        this._draggedWorkspace = workspace;
+        this._setDragMonitor(true);
+    }
+
+    private _onDragFinished(wsBox: St.Bin): void {
+        wsBox.remove_style_class_name('dragging');
+        this._draggedWorkspace = null;
+        this._wsBoxPositions = null;
+        this._setDragMonitor(false);
     }
 
     private _setDragMonitor(add: boolean): void {
@@ -162,10 +173,7 @@ export class WorkspacesBar {
         }
     }
 
-    private _onDragStart(): void {}
-
     private _onDragMotion(dragEvent: DragEvent): void {
-        console.log('drag motion');
         const dropPosition = this._getDropPosition();
         this._updateDragPlaceholder(dropPosition);
         return DND.DragMotionResult.CONTINUE;
@@ -175,20 +183,11 @@ export class WorkspacesBar {
         const draggedWsBox = this._wsBoxes.find(
             ({ workspace }) => workspace === this._draggedWorkspace,
         )?.wsBox as St.Bin;
-        const draggedCenter = getHorizontalCenter(draggedWsBox);
-        const otherCenters = this._wsBoxes
-            .filter(({ workspace }) => workspace !== this._draggedWorkspace)
-            .map(({ workspace, wsBox }) => ({
-                index: getDropIndex(this._draggedWorkspace as WorkspaceState, workspace),
-                center: getHorizontalCenter(wsBox),
-                wsBox,
-            }));
-        if (!this._dragPositions) {
-            console.log(otherCenters); // Save otherCenters to _dragPositions
-            this._dragPositions = true;
+        if (!this._wsBoxPositions) {
+            this._wsBoxPositions = this._getWsBoxPositions();
         }
-        for (const { index, center, wsBox } of otherCenters) {
-            if (draggedCenter < center) {
+        for (const { index, center, wsBox } of this._wsBoxPositions) {
+            if (draggedWsBox.get_x() < center) {
                 return { index, wsBox, position: 'before', width: draggedWsBox.get_width() };
             }
         }
@@ -199,6 +198,16 @@ export class WorkspacesBar {
             position: 'after',
             width: draggedWsBox.get_width(),
         };
+    }
+
+    private _getWsBoxPositions(): WsBoxPosition[] {
+        return this._wsBoxes
+            .filter(({ workspace }) => workspace !== this._draggedWorkspace)
+            .map(({ workspace, wsBox }) => ({
+                index: getDropIndex(this._draggedWorkspace as WorkspaceState, workspace),
+                center: getHorizontalCenter(wsBox),
+                wsBox,
+            }));
     }
 
     private _updateDragPlaceholder(dropPosition: DropPosition): void {
