@@ -215,12 +215,13 @@ export class Workspaces {
      * @param index index of an enabled workspace that has no windows
      */
     private _getIsEmptyButVisible(index: number): boolean {
-        if (
+        if (index === this.currentIndex) {
+            return true;
+        } else if (
             // The last workspace for dynamic workspaces is a special case.
             this._settings.dynamicWorkspaces.value &&
             (!this._settings.showEmptyWorkspaces.value ||
-                this._settings.showNewWorkspaceButton.value) &&
-            this.currentIndex !== index
+                this._settings.showNewWorkspaceButton.value)
         ) {
             return false;
         } else {

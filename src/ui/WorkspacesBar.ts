@@ -31,46 +31,29 @@ export class WorkspacesBar {
         this._button.track_hover = false;
         this._button.style_class = 'panel-button workspaces-bar';
 
-        this._ws.onUpdate(() => this._update_ws());
-        this._settings.showEmptyWorkspaces.subscribe(() => this._update_ws());
-        this._settings.showNewWorkspaceButton.subscribe(() => this._update_ws());
-        this._settings.dynamicWorkspaces.subscribe(() => this._update_ws());
+        this._ws.onUpdate(() => this._updateWorkspaces());
+        this._settings.showEmptyWorkspaces.subscribe(() => this._updateWorkspaces());
+        this._settings.showNewWorkspaceButton.subscribe(() => this._updateWorkspaces());
+        this._settings.dynamicWorkspaces.subscribe(() => this._updateWorkspaces());
 
         // bar creation
         this._wsBar = new St.BoxLayout({});
-        this._update_ws();
+        this._updateWorkspaces();
         this._button.add_child(this._wsBar);
         Main.panel.addToStatusArea(this._name, this._button, 0, 'left');
     }
 
     // update the workspaces bar
-    private _update_ws() {
+    private _updateWorkspaces() {
         // destroy old workspaces bar buttons
         this._wsBar.destroy_all_children();
-
         // display all current workspaces buttons
         for (let ws_index = 0; ws_index < this._ws.numberOfEnabledWorkspaces; ++ws_index) {
             const workspace = this._ws.workspaces[ws_index];
-            // Skip empty workspaces when _showEmptyWorkspaces is false.
-            if (
-                !this._settings.showEmptyWorkspaces.value &&
-                !workspace.hasWindows &&
-                ws_index !== this._ws.currentIndex
-            ) {
-                continue;
+            if (workspace.isVisible) {
+                const wsBox = this._createWsBox(workspace);
+                this._wsBar.add_actor(wsBox);
             }
-            // Don't show the last workspace when workspaces are dynamic and we already show the
-            // add-workspace button.
-            if (
-                this._settings.showNewWorkspaceButton.value &&
-                this._settings.dynamicWorkspaces.value &&
-                ws_index === this._ws.numberOfEnabledWorkspaces - 1 &&
-                ws_index !== this._ws.currentIndex
-            ) {
-                continue;
-            }
-            const wsBox = this._createWsBox(workspace);
-            this._wsBar.add_actor(wsBox);
         }
     }
 
@@ -82,6 +65,24 @@ export class WorkspacesBar {
             track_hover: true,
             style_class: 'workspace-box',
         });
+        const label = this._createLabel(workspace);
+        wsBox.set_child(label);
+        wsBox.connect('button-press-event', (actor, event: Clutter.Event) => {
+            switch (event.get_button()) {
+                case 1:
+                    this._ws.activate(workspace.index);
+                    return Clutter.EVENT_STOP;
+                case 2:
+                    this._ws.removeWorkspace(workspace.index);
+                    return Clutter.EVENT_STOP;
+                case 3:
+                    return Clutter.EVENT_PROPAGATE;
+            }
+        });
+        return wsBox;
+    }
+
+    private _createLabel(workspace: WorkspaceState): St.Label {
         const label = new St.Label({
             y_align: Clutter.ActorAlign.CENTER,
             style_class: 'desktop-label',
@@ -97,19 +98,6 @@ export class WorkspacesBar {
             label.style_class += ' desktop-label-empty';
         }
         label.set_text(this._ws.getDisplayName(workspace));
-        wsBox.set_child(label);
-        wsBox.connect('button-press-event', (actor, event: Clutter.Event) => {
-            switch (event.get_button()) {
-                case 1:
-                    this._ws.activate(workspace.index);
-                    return Clutter.EVENT_STOP;
-                case 2:
-                    this._ws.removeWorkspace(workspace.index);
-                    return Clutter.EVENT_STOP;
-                case 3:
-                    return Clutter.EVENT_PROPAGATE;
-            }
-        });
-        return wsBox;
+        return label;
     }
 }

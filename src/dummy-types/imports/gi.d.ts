@@ -18,4 +18,5 @@ export namespace Gio {
 export namespace St {
     type BoxLayout = any;
     type Bin = any;
+    type Label = any;
 }
