@@ -162,19 +162,16 @@ export class WorkspacesBar {
         }
     }
 
-    private _onDragStart(): void {
-        const dropPosition = this._getDropPosition({ initial: true });
-        this._updateDragPlaceholder(dropPosition);
-    }
+    private _onDragStart(): void {}
 
     private _onDragMotion(dragEvent: DragEvent): void {
-        console.log('drag motion')
+        console.log('drag motion');
         const dropPosition = this._getDropPosition();
         this._updateDragPlaceholder(dropPosition);
         return DND.DragMotionResult.CONTINUE;
     }
 
-    private _getDropPosition({ initial = false } = {}): DropPosition {
+    private _getDropPosition(): DropPosition {
         const draggedWsBox = this._wsBoxes.find(
             ({ workspace }) => workspace === this._draggedWorkspace,
         )?.wsBox as St.Bin;
@@ -186,15 +183,12 @@ export class WorkspacesBar {
                 center: getHorizontalCenter(wsBox),
                 wsBox,
             }));
-        if (initial) {
-            console.log('otherCenters', otherCenters)
+        if (!this._dragPositions) {
+            console.log(otherCenters); // Save otherCenters to _dragPositions
+            this._dragPositions = true;
         }
         for (const { index, center, wsBox } of otherCenters) {
-            if (initial === true) {
-                if (index > this._draggedWorkspace!.index) {
-                    return { index, wsBox, position: 'before', width: draggedWsBox.get_width() };
-                }
-            } else if (draggedCenter < center) {
+            if (draggedCenter < center) {
                 return { index, wsBox, position: 'before', width: draggedWsBox.get_width() };
             }
         }
