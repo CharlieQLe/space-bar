@@ -6,6 +6,8 @@ const AltTab = imports.ui.altTab;
 
 export interface WorkspaceState {
     isEnabled: boolean;
+    /** Whether the workspace is currently shown in the workspaces bar. */
+    isVisible: boolean;
     index: number;
     name?: string;
     hasWindows: boolean;
@@ -47,7 +49,7 @@ export class Workspaces {
 
     init() {
         this._wsNames = WorkspaceNames.init(this);
-        let numberOfWorkspacesChangeHandled = false
+        let numberOfWorkspacesChangeHandled = false;
         this._ws_removed = global.workspace_manager.connect('workspace-removed', (_, index) => {
             this._onWorkspaceRemoved(index);
             numberOfWorkspacesChangeHandled = true;
@@ -190,19 +192,39 @@ export class Workspaces {
     private _getWorkspaceState(index: number): WorkspaceState {
         if (index < this.numberOfEnabledWorkspaces) {
             const workspace = global.workspace_manager.get_workspace_by_index(index);
+            const hasWindows = getNumberOfWindows(workspace) > 0;
             return {
                 isEnabled: true,
-                hasWindows: getNumberOfWindows(workspace) > 0,
+                isVisible: hasWindows || this._getIsEmptyButVisible(index),
+                hasWindows,
                 index,
                 name: this._settings.workspaceNames.value[index],
             };
         } else {
             return {
                 isEnabled: false,
+                isVisible: false,
                 hasWindows: false,
                 index,
                 name: this._settings.workspaceNames.value[index],
             };
+        }
+    }
+
+    /**
+     * @param index index of an enabled workspace that has no windows
+     */
+    private _getIsEmptyButVisible(index: number): boolean {
+        if (
+            // The last workspace for dynamic workspaces is a special case.
+            this._settings.dynamicWorkspaces.value &&
+            (!this._settings.showEmptyWorkspaces.value ||
+                this._settings.showNewWorkspaceButton.value) &&
+            this.currentIndex !== index
+        ) {
+            return false;
+        } else {
+            return this._settings.showEmptyWorkspaces.value;
         }
     }
 }

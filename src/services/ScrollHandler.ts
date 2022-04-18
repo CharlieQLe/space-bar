@@ -31,10 +31,10 @@ export class ScrollHandler {
         let newIndex
         switch (event.get_scroll_direction()) {
             case Clutter.ScrollDirection.UP:
-                newIndex = this._findNonEmptyWorkspace(currentIndex, -1);
+                newIndex = this._findVisibleWorkspace(currentIndex, -1);
                 break;
             case Clutter.ScrollDirection.DOWN:
-                newIndex = this._findNonEmptyWorkspace(currentIndex, 1);
+                newIndex = this._findVisibleWorkspace(currentIndex, 1);
                 break;
             default:
                 return Clutter.EVENT_PROPAGATE;
@@ -47,13 +47,13 @@ export class ScrollHandler {
         return Clutter.EVENT_STOP;
     }
 
-    _findNonEmptyWorkspace(index: number, step: number) {
+    _findVisibleWorkspace(index: number, step: number) {
         while (true) {
             index += step;
             if (index < 0 || index >= this._ws.numberOfEnabledWorkspaces) {
                 break;
             }
-            if (this._ws.workspaces[index].hasWindows) {
+            if (this._ws.workspaces[index].isVisible) {
                 return index;
             }
         }
