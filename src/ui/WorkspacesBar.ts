@@ -8,12 +8,26 @@ import { WorkspacesBarMenu } from 'ui/WorkspacesBarMenu';
 const PanelMenu = imports.ui.panelMenu;
 const DND = imports.ui.dnd;
 
+interface DragEvent {
+    x: number;
+    y: number;
+    dragActor: Clutter.Actor;
+    source?: any;
+    targetActor: Clutter.Actor;
+}
+
 export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
     private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
     private readonly _button = new (WorkspacesButton as any)(0.0, this._name);
     private _wsBar!: St.BoxLayout;
+    private _dragMonitor: any;
+    private _wsBoxes: {
+        workspace: WorkspaceState;
+        wsBox: St.Bin;
+    }[] = [];
+    private _draggedWorkspace?: WorkspaceState | null;
 
     constructor() {}
 
@@ -25,6 +39,7 @@ export class WorkspacesBar {
     destroy(): void {
         this._wsBar.destroy();
         this._button.destroy();
+        this._setDragMonitor(false);
     }
 
     private _initButton(): void {
@@ -46,12 +61,14 @@ export class WorkspacesBar {
     private _updateWorkspaces() {
         // destroy old workspaces bar buttons
         this._wsBar.destroy_all_children();
+        this._wsBoxes = [];
         // display all current workspaces buttons
         for (let ws_index = 0; ws_index < this._ws.numberOfEnabledWorkspaces; ++ws_index) {
             const workspace = this._ws.workspaces[ws_index];
             if (workspace.isVisible) {
                 const wsBox = this._createWsBox(workspace);
-                this._wsBar.add_actor(wsBox);
+                this._wsBar.add_child(wsBox);
+                this._wsBoxes.push({ workspace, wsBox });
             }
         }
     }
@@ -106,13 +123,62 @@ export class WorkspacesBar {
         const draggable = DND.makeDraggable(wsBox, {});
         draggable.connect('drag-begin', () => {
             console.log('drag begin');
+            wsBox.add_style_class_name('dragged');
+            this._draggedWorkspace = workspace;
+            this._setDragMonitor(true);
         });
         draggable.connect('drag-end', () => {
             console.log('drag end');
+            wsBox.remove_style_class_name('dragged');
+            this._draggedWorkspace = null;
+            this._setDragMonitor(false);
         });
         draggable.connect('drag-cancelled', () => {
             console.log('drag cancelled');
+            wsBox.remove_style_class_name('dragged');
+            this._draggedWorkspace = null;
+            this._setDragMonitor(false);
         });
+    }
+
+    private _setDragMonitor(add: boolean): void {
+        if (add) {
+            this._dragMonitor = {
+                dragMotion: this._onDragMotion.bind(this),
+                //dragDrop : this._onDragDrop.bind(this),
+            };
+            DND.addDragMonitor(this._dragMonitor);
+        } else if (this._dragMonitor) {
+            DND.removeDragMonitor(this._dragMonitor);
+        }
+    }
+
+    private _onDragMotion(dragEvent: DragEvent): void {
+        // console.log('drag motion', { x: dragEvent.x, y: dragEvent.y });
+        // console.log('wsbar', this._wsBar.get_x());
+        // for (const { workspace, wsBox } of this._wsBoxes) {
+        //     console.log(workspace.name, wsBox.x);
+        // }
+        const dropIndex = this._getDropIndex(dragEvent);
+        console.log('dropIndex', dropIndex);
+        return DND.DragMotionResult.CONTINUE;
+    }
+
+    private _getDropIndex(dragEvent: DragEvent): number {
+        const draggedWsBox = this._wsBoxes.find(
+            ({ workspace }) => workspace === this._draggedWorkspace,
+        )?.wsBox as St.Bin;
+        const draggedCenter = getHorizontalCenter(draggedWsBox);
+        // console.log('draggedWsBox', draggedCenter);
+        const otherCenters = this._wsBoxes
+            .filter(({ workspace }) => workspace !== this._draggedWorkspace)
+            .map(({ workspace, wsBox }) => ({ workspace, center: getHorizontalCenter(wsBox) }));
+        for (const { workspace, center } of otherCenters) {
+            if (draggedCenter < center) {
+                return workspace.index;
+            }
+        }
+        return this._ws.lastVisibleWorkspace + 1;
     }
 }
 
@@ -123,3 +189,7 @@ var WorkspacesButton = GObject.registerClass(
         }
     },
 );
+
+function getHorizontalCenter(widget: St.Widget): number {
+    return widget.get_x() + widget.get_width() / 2;
+}

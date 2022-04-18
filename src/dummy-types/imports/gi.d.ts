@@ -8,6 +8,7 @@ export const Gtk: any;
 export const Clutter: any;
 
 export namespace Clutter {
+    type Actor = any;
     type Event = any;
 }
 
@@ -19,4 +20,5 @@ export namespace St {
     type BoxLayout = any;
     type Bin = any;
     type Label = any;
+    type Widget = any;
 }
