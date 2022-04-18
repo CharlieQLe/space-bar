@@ -16,6 +16,12 @@ interface DragEvent {
     targetActor: Clutter.Actor;
 }
 
+interface DropEvent {
+    dropActor: Clutter.Actor;
+    targetActor: Clutter.Actor;
+    clutterEvent: Clutter.Event;
+}
+
 interface DropPosition {
     index: number;
     wsBox: St.Bin;
@@ -165,7 +171,7 @@ export class WorkspacesBar {
         if (add) {
             this._dragMonitor = {
                 dragMotion: this._onDragMotion.bind(this),
-                //dragDrop : this._onDragDrop.bind(this),
+                dragDrop: this._onDragDrop.bind(this),
             };
             DND.addDragMonitor(this._dragMonitor);
         } else if (this._dragMonitor) {
@@ -177,6 +183,14 @@ export class WorkspacesBar {
         const dropPosition = this._getDropPosition();
         this._updateDragPlaceholder(dropPosition);
         return DND.DragMotionResult.CONTINUE;
+    }
+
+    _onDragDrop(dropEvent: DropEvent) {
+        console.log('on drop')
+        // DND.DragDropResult.FAILURE
+        // DND.DragDropResult.SUCCESS
+        // DND.DragDropResult.CONTINUE
+        return DND.DragDropResult.CONTINUE;
     }
 
     private _getDropPosition(): DropPosition {
