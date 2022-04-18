@@ -16,13 +16,13 @@ export class NewWorkspaceButton {
     private readonly _wsNames = WorkspaceNames.getInstance();
     private readonly _button = new PanelMenu.Button(0.0, this._name);
     private readonly _menu = this._button.menu;
+    private _recentWorkspacesSection = new PopupMenu.PopupMenuSection();
 
     constructor() {}
 
     init() {
         this._initButton();
         this._initMenu();
-        this._ws.onUpdate(() => this._refreshMenu());
     }
 
     destroy() {
@@ -61,12 +61,16 @@ export class NewWorkspaceButton {
     private _initMenu() {
         this._menu.box.add_style_class_name('workspaces-bar-menu');
         this._initNewWorkspaceMenuItem();
-        this._initRecentWorkspacesMenuSection();
+        this._menu.addMenuItem(this._recentWorkspacesSection);
+        this._menu.connect('open-state-changed', () => {
+            if (this._menu.isOpen) {
+                this._refreshMenu();
+            }
+        });
     }
 
     private _refreshMenu() {
-        this._menu.box.destroy_all_children();
-        this._initMenu();
+        this._refreshRecentWorkspacesMenuSection();
     }
 
     private _initNewWorkspaceMenuItem(): void {
@@ -77,30 +81,28 @@ export class NewWorkspaceButton {
         this._menu.addMenuItem(button);
     }
 
-    private _initRecentWorkspacesMenuSection(): void {
+    private _refreshRecentWorkspacesMenuSection(): void {
+        this._recentWorkspacesSection.box.destroy_all_children();
         const recentWorkspaces = this._ws.workspaces.filter(
             (workspace, index) => !!workspace.name && index > this._ws.lastVisibleWorkspace,
         );
-
         if (recentWorkspaces.length === 0) {
             return;
         }
-
-        const section = new PopupMenu.PopupMenuSection();
-
-        const separator = new PopupMenu.PopupSeparatorMenuItem('Recent workspaces');
-        separator.label.add_style_class_name('workspaces-bar-menu-heading');
-        section.addMenuItem(separator);
-
+        this._addSectionHeading('Recent workspaces', this._recentWorkspacesSection);
         recentWorkspaces.forEach((workspace) => {
             const button = new PopupMenu.PopupMenuItem(workspace.name);
             button.connect('activate', () => {
                 this._onClick(workspace);
             });
-            section.addMenuItem(button);
+            this._recentWorkspacesSection.addMenuItem(button);
         });
+    }
 
-        this._menu.addMenuItem(section);
+    private _addSectionHeading(text: string, section?: any): void {
+        const separator = new PopupMenu.PopupSeparatorMenuItem(text);
+        separator.label.add_style_class_name('workspaces-bar-menu-heading');
+        (section ?? this._menu).addMenuItem(separator);
     }
 
     private _onClick(workspace?: WorkspaceState) {
