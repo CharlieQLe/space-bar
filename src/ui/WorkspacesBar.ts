@@ -63,6 +63,7 @@ export class WorkspacesBar {
     }
 
     private _initButton(): void {
+        this._button._delegate = { acceptDrop: this.acceptDrop.bind(this) };
         this._button.track_hover = false;
         this._button.style_class = 'panel-button workspaces-bar';
         this._ws.onUpdate(() => this._updateWorkspaces());
@@ -161,6 +162,7 @@ export class WorkspacesBar {
     }
 
     private _onDragFinished(wsBox: St.Bin): void {
+        console.log('on drag finished');
         wsBox.remove_style_class_name('dragging');
         this._draggedWorkspace = null;
         this._wsBoxPositions = null;
@@ -171,7 +173,7 @@ export class WorkspacesBar {
         if (add) {
             this._dragMonitor = {
                 dragMotion: this._onDragMotion.bind(this),
-                dragDrop: this._onDragDrop.bind(this),
+                // dragDrop: this._onDragDrop.bind(this),
             };
             DND.addDragMonitor(this._dragMonitor);
         } else if (this._dragMonitor) {
@@ -186,7 +188,7 @@ export class WorkspacesBar {
     }
 
     _onDragDrop(dropEvent: DropEvent) {
-        console.log('on drop')
+        console.log('on drop');
         // DND.DragDropResult.FAILURE
         // DND.DragDropResult.SUCCESS
         // DND.DragDropResult.CONTINUE
@@ -237,6 +239,19 @@ export class WorkspacesBar {
             }
         }
     }
+
+    acceptDrop(source: any, actor: Clutter.Actor, x: number, y: number): boolean {
+        console.log('acceptDrop', source, actor.get_parent(), x, y);
+        const { index } = this._getDropPosition();
+        console.log(index);
+        if (this._draggedWorkspace!.index === index) {
+            this._updateWorkspaces();
+        } else {
+            this._ws.reorderWorkspace(this._draggedWorkspace!.index, index);
+        }
+        this._onDragFinished(actor as St.Bin);
+        return true;
+    }
 }
 
 var WorkspacesButton = GObject.registerClass(
@@ -258,3 +273,5 @@ function getDropIndex(draggedWorkspace: WorkspaceState, workspace: WorkspaceStat
 function getHorizontalCenter(widget: St.Widget): number {
     return widget.get_x() + widget.get_width() / 2;
 }
+
+class DropHandler {}

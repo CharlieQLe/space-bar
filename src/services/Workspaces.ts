@@ -141,6 +141,14 @@ export class Workspaces {
         }
     }
 
+    reorderWorkspace(oldIndex: number, newIndex: number): void {
+        const workspace = global.workspace_manager.get_workspace_by_index(oldIndex);
+        if (workspace) {
+            global.workspace_manager.reorder_workspace(workspace, newIndex);
+            this._wsNames?.moveByIndex(oldIndex, newIndex);
+        }
+    }
+
     getDisplayName(workspace: WorkspaceState): string {
         return workspace.name || (workspace.index + 1).toString();
     }
