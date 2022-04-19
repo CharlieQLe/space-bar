@@ -22,3 +22,7 @@ export namespace St {
     type Label = any;
     type Widget = any;
 }
+
+export namespace Meta {
+    type Window = any;
+}
