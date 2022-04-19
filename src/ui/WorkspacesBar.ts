@@ -1,8 +1,8 @@
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
-import { Clutter, GObject, St } from 'imports/gi';
 import type { Meta } from 'imports/gi';
+import { Clutter, GObject, St } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import { Workspaces, WorkspaceState } from 'services/Workspaces';
 import { WorkspacesBarMenu } from 'ui/WorkspacesBarMenu';
@@ -36,9 +36,29 @@ interface WsBoxPosition {
     wsBox: St.Bin;
 }
 
+class WorkspaceBoxDragHandler {
+    constructor(private readonly workspace: WorkspaceState) {}
+
+    acceptDrop(source: any) {
+        if (source?.constructor.name === 'WindowPreview') {
+            (source.metaWindow as Meta.Window).change_workspace_by_index(
+                this.workspace.index,
+                false,
+            );
+        }
+    }
+
+    handleDragOver(source: any) {
+        if (source?.constructor.name === 'WindowPreview') {
+            return DND.DragMotionResult.MOVE_DROP;
+        } else {
+            return DND.DragMotionResult.CONTINUE;
+        }
+    }
+}
+
 export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
-    private readonly _wsBoxName = `${Me.metadata.name} workspace box`;
     private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
     private readonly _button = new (WorkspacesButton as any)(0.0, this._name);
@@ -98,30 +118,13 @@ export class WorkspacesBar {
 
     private _createWsBox(workspace: WorkspaceState): St.Bin {
         const wsBox = new St.Bin({
-            name: this._wsBoxName,
             visible: true,
             reactive: true,
             can_focus: true,
             track_hover: true,
             style_class: 'workspace-box',
         });
-        (wsBox as any)._delegate = {
-            acceptDrop: (source: any) => {
-                if (source?.constructor.name === 'WindowPreview') {
-                    (source.metaWindow as Meta.Window).change_workspace_by_index(
-                        workspace.index,
-                        false,
-                    );
-                }
-            },
-            handleDragOver: (source: any) => {
-                if (source?.constructor.name === 'WindowPreview') {
-                    return DND.DragMotionResult.MOVE_DROP;
-                } else {
-                    return DND.DragMotionResult.CONTINUE;
-                }
-            },
-        };
+        (wsBox as any)._delegate = new WorkspaceBoxDragHandler(workspace);
         const label = this._createLabel(workspace);
         wsBox.set_child(label);
         wsBox.connect('button-release-event', (actor, event: Clutter.Event) => {
@@ -283,7 +286,7 @@ export class WorkspacesBar {
     }
 
     acceptDrop(source: any, actor: Clutter.Actor, x: number, y: number): boolean {
-        if (actor?.name === this._wsBoxName) {
+        if (source instanceof WorkspaceBoxDragHandler) {
             const { index } = this._getDropPosition();
             if (this._draggedWorkspace!.index === index) {
                 this._updateWorkspaces();
