@@ -36,40 +36,13 @@ interface WsBoxPosition {
     wsBox: St.Bin;
 }
 
-class WorkspaceBoxDragHandler {
-    constructor(private readonly workspace: WorkspaceState) {}
-
-    acceptDrop(source: any) {
-        if (source?.constructor.name === 'WindowPreview') {
-            (source.metaWindow as Meta.Window).change_workspace_by_index(
-                this.workspace.index,
-                false,
-            );
-        }
-    }
-
-    handleDragOver(source: any) {
-        if (source?.constructor.name === 'WindowPreview') {
-            return DND.DragMotionResult.MOVE_DROP;
-        } else {
-            return DND.DragMotionResult.CONTINUE;
-        }
-    }
-}
-
 export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
     private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
     private readonly _button = new (WorkspacesButton as any)(0.0, this._name);
     private _wsBar!: St.BoxLayout;
-    private _dragMonitor: any;
-    private _wsBoxes: {
-        workspace: WorkspaceState;
-        wsBox: St.Bin;
-    }[] = [];
-    private _draggedWorkspace?: WorkspaceState | null;
-    private _wsBoxPositions?: WsBoxPosition[] | null;
+    private readonly _dragHandler = new WorkspacesBarDragHandler(() => this._updateWorkspaces());
 
     constructor() {}
 
@@ -81,11 +54,11 @@ export class WorkspacesBar {
     destroy(): void {
         this._wsBar.destroy();
         this._button.destroy();
-        this._setDragMonitor(false);
+        this._dragHandler.destroy();
     }
 
     private _initButton(): void {
-        this._button._delegate = { acceptDrop: this.acceptDrop.bind(this) };
+        this._button._delegate = this._dragHandler;
         this._button.track_hover = false;
         this._button.style_class = 'panel-button workspaces-bar';
         this._ws.onUpdate(() => this._updateWorkspaces());
@@ -104,14 +77,14 @@ export class WorkspacesBar {
     private _updateWorkspaces() {
         // destroy old workspaces bar buttons
         this._wsBar.destroy_all_children();
-        this._wsBoxes = [];
+        this._dragHandler.wsBoxes = [];
         // display all current workspaces buttons
         for (let ws_index = 0; ws_index < this._ws.numberOfEnabledWorkspaces; ++ws_index) {
             const workspace = this._ws.workspaces[ws_index];
             if (workspace.isVisible) {
                 const wsBox = this._createWsBox(workspace);
                 this._wsBar.add_child(wsBox);
-                this._wsBoxes.push({ workspace, wsBox });
+                this._dragHandler.wsBoxes.push({ workspace, wsBox });
             }
         }
     }
@@ -140,7 +113,7 @@ export class WorkspacesBar {
                     return Clutter.EVENT_PROPAGATE;
             }
         });
-        this._setupDnd(wsBox, workspace);
+        this._dragHandler.setupDnd(wsBox, workspace);
         return wsBox;
     }
 
@@ -162,22 +135,61 @@ export class WorkspacesBar {
         label.set_text(this._ws.getDisplayName(workspace));
         return label;
     }
+}
 
-    private _setupDnd(wsBox: St.Bin, workspace: WorkspaceState): void {
+var WorkspacesButton = GObject.registerClass(
+    class WorkspacesButton extends PanelMenu.Button {
+        vfunc_event() {
+            return Clutter.EVENT_PROPAGATE;
+        }
+    },
+);
+
+class WorkspacesBarDragHandler {
+    wsBoxes: {
+        workspace: WorkspaceState;
+        wsBox: St.Bin;
+    }[] = [];
+    private readonly _ws = Workspaces.getInstance();
+    private _dragMonitor: any;
+    private _draggedWorkspace?: WorkspaceState | null;
+    private _wsBoxPositions?: WsBoxPosition[] | null;
+
+    constructor(private _updateWorkspaces: () => void) {}
+
+    destroy(): void {
+        this._setDragMonitor(false);
+    }
+
+    setupDnd(wsBox: St.Bin, workspace: WorkspaceState): void {
         const draggable = DND.makeDraggable(wsBox, {});
         draggable.connect('drag-begin', () => {
             this._onDragStart(wsBox, workspace);
         });
         draggable.connect('drag-cancelled', () => {
-            console.log('drag cancelled');
             this._updateDragPlaceholder(this._getInitialDropPosition(wsBox, workspace));
             this._onDragFinished(wsBox);
         });
         draggable.connect('drag-end', () => {
-            console.log('drag end');
             this._updateWorkspaces();
         });
     }
+
+    acceptDrop(source: any, actor: Clutter.Actor, x: number, y: number): boolean {
+        if (source instanceof WorkspaceBoxDragHandler) {
+            const { index } = this._getDropPosition();
+            if (this._draggedWorkspace!.index === index) {
+                this._updateWorkspaces();
+            } else {
+                this._ws.reorderWorkspace(this._draggedWorkspace!.index, index);
+            }
+            this._onDragFinished(actor as St.Bin);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private _onDragStart(wsBox: St.Bin, workspace: WorkspaceState): void {
         wsBox.add_style_class_name('dragging');
         this._draggedWorkspace = workspace;
@@ -210,7 +222,7 @@ export class WorkspacesBar {
     }
 
     private _setUpBoxPositions(wsBox: St.Bin, workspace: WorkspaceState) {
-        const boxIndex = this._wsBoxes.findIndex((box) => box.workspace === workspace);
+        const boxIndex = this.wsBoxes.findIndex((box) => box.workspace === workspace);
         this._wsBoxPositions = this._getWsBoxPositions(boxIndex, wsBox.get_width());
         this._updateDragPlaceholder(this._getInitialDropPosition(wsBox, workspace));
     }
@@ -219,18 +231,18 @@ export class WorkspacesBar {
         wsBox: St.Bin,
         workspace: WorkspaceState,
     ): DropPosition | undefined {
-        const boxIndex = this._wsBoxes.findIndex((box) => box.workspace === workspace);
-        if (boxIndex < this._wsBoxes.length - 1) {
+        const boxIndex = this.wsBoxes.findIndex((box) => box.workspace === workspace);
+        if (boxIndex < this.wsBoxes.length - 1) {
             return {
                 index: workspace.index,
-                wsBox: this._wsBoxes[boxIndex + 1].wsBox,
+                wsBox: this.wsBoxes[boxIndex + 1].wsBox,
                 position: 'before',
                 width: wsBox.get_width(),
             };
-        } else if (this._wsBoxes.length > 1) {
+        } else if (this.wsBoxes.length > 1) {
             return {
                 index: workspace.index,
-                wsBox: this._wsBoxes[boxIndex - 1].wsBox,
+                wsBox: this.wsBoxes[boxIndex - 1].wsBox,
                 position: 'after',
                 width: wsBox.get_width(),
             };
@@ -238,7 +250,7 @@ export class WorkspacesBar {
     }
 
     private _getDropPosition(): DropPosition {
-        const draggedWsBox = this._wsBoxes.find(
+        const draggedWsBox = this.wsBoxes.find(
             ({ workspace }) => workspace === this._draggedWorkspace,
         )?.wsBox as St.Bin;
         for (const { index, center, wsBox } of this._wsBoxPositions!) {
@@ -256,7 +268,7 @@ export class WorkspacesBar {
     }
 
     private _getWsBoxPositions(draggedBoxIndex: number, draggedBoxWidth: number): WsBoxPosition[] {
-        const positions = this._wsBoxes
+        const positions = this.wsBoxes
             .filter(({ workspace }) => workspace !== this._draggedWorkspace)
             .map(({ workspace, wsBox }) => ({
                 index: getDropIndex(this._draggedWorkspace as WorkspaceState, workspace),
@@ -272,7 +284,7 @@ export class WorkspacesBar {
     }
 
     private _updateDragPlaceholder(dropPosition?: DropPosition): void {
-        for (const { wsBox } of this._wsBoxes) {
+        for (const { wsBox } of this.wsBoxes) {
             if (wsBox === dropPosition?.wsBox) {
                 if (dropPosition!.position === 'before') {
                     wsBox?.set_style('margin-left: ' + dropPosition!.width + 'px');
@@ -284,30 +296,28 @@ export class WorkspacesBar {
             }
         }
     }
+}
 
-    acceptDrop(source: any, actor: Clutter.Actor, x: number, y: number): boolean {
-        if (source instanceof WorkspaceBoxDragHandler) {
-            const { index } = this._getDropPosition();
-            if (this._draggedWorkspace!.index === index) {
-                this._updateWorkspaces();
-            } else {
-                this._ws.reorderWorkspace(this._draggedWorkspace!.index, index);
-            }
-            this._onDragFinished(actor as St.Bin);
-            return true;
+class WorkspaceBoxDragHandler {
+    constructor(private readonly _workspace: WorkspaceState) {}
+
+    acceptDrop(source: any) {
+        if (source?.constructor.name === 'WindowPreview') {
+            (source.metaWindow as Meta.Window).change_workspace_by_index(
+                this._workspace.index,
+                false,
+            );
+        }
+    }
+
+    handleDragOver(source: any) {
+        if (source?.constructor.name === 'WindowPreview') {
+            return DND.DragMotionResult.MOVE_DROP;
         } else {
-            return false;
+            return DND.DragMotionResult.CONTINUE;
         }
     }
 }
-
-var WorkspacesButton = GObject.registerClass(
-    class WorkspacesButton extends PanelMenu.Button {
-        vfunc_event() {
-            return Clutter.EVENT_PROPAGATE;
-        }
-    },
-);
 
 function getDropIndex(draggedWorkspace: WorkspaceState, workspace: WorkspaceState): number {
     if (draggedWorkspace.index < workspace.index) {
