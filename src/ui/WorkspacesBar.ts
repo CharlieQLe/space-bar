@@ -127,14 +127,14 @@ export class WorkspacesBar {
             style_class: 'workspaces-bar-workspace-label',
         });
         if (workspace.index == this._ws.currentIndex) {
-            label.style_class += ' workspaces-bar-workspace-label-active';
+            label.style_class += ' active';
         } else {
-            label.style_class += ' workspaces-bar-workspace-label-inactive';
+            label.style_class += ' inactive';
         }
         if (workspace.hasWindows) {
-            label.style_class += ' workspaces-bar-workspace-label-nonempty';
+            label.style_class += ' nonempty';
         } else {
-            label.style_class += ' workspaces-bar-workspace-label-empty';
+            label.style_class += ' empty';
         }
         label.set_text(this._ws.getDisplayName(workspace));
         return label;
@@ -143,26 +143,26 @@ export class WorkspacesBar {
     private _setupDnd(wsBox: St.Bin, workspace: WorkspaceState): void {
         const draggable = DND.makeDraggable(wsBox, {});
         draggable.connect('drag-begin', () => {
-            console.log('drag begin');
             this._onDragStart(wsBox, workspace);
-        });
-        draggable.connect('drag-end', () => {
-            console.log('drag end');
-            this._onDragFinished(wsBox);
         });
         draggable.connect('drag-cancelled', () => {
             console.log('drag cancelled');
+            this._updateDragPlaceholder(this._getInitialDropPosition(wsBox, workspace));
             this._onDragFinished(wsBox);
+        });
+        draggable.connect('drag-end', () => {
+            console.log('drag end');
+            this._updateWorkspaces();
         });
     }
     private _onDragStart(wsBox: St.Bin, workspace: WorkspaceState): void {
         wsBox.add_style_class_name('dragging');
         this._draggedWorkspace = workspace;
         this._setDragMonitor(true);
+        this._setUpBoxPositions(wsBox, workspace);
     }
 
     private _onDragFinished(wsBox: St.Bin): void {
-        console.log('on drag finished');
         wsBox.remove_style_class_name('dragging');
         this._draggedWorkspace = null;
         this._wsBoxPositions = null;
@@ -173,7 +173,6 @@ export class WorkspacesBar {
         if (add) {
             this._dragMonitor = {
                 dragMotion: this._onDragMotion.bind(this),
-                // dragDrop: this._onDragDrop.bind(this),
             };
             DND.addDragMonitor(this._dragMonitor);
         } else if (this._dragMonitor) {
@@ -187,27 +186,44 @@ export class WorkspacesBar {
         return DND.DragMotionResult.CONTINUE;
     }
 
-    _onDragDrop(dropEvent: DropEvent) {
-        console.log('on drop');
-        // DND.DragDropResult.FAILURE
-        // DND.DragDropResult.SUCCESS
-        // DND.DragDropResult.CONTINUE
-        return DND.DragDropResult.CONTINUE;
+    private _setUpBoxPositions(wsBox: St.Bin, workspace: WorkspaceState) {
+        const boxIndex = this._wsBoxes.findIndex((box) => box.workspace === workspace);
+        this._wsBoxPositions = this._getWsBoxPositions(boxIndex, wsBox.get_width());
+        this._updateDragPlaceholder(this._getInitialDropPosition(wsBox, workspace));
+    }
+
+    private _getInitialDropPosition(
+        wsBox: St.Bin,
+        workspace: WorkspaceState,
+    ): DropPosition | undefined {
+        const boxIndex = this._wsBoxes.findIndex((box) => box.workspace === workspace);
+        if (boxIndex < this._wsBoxes.length - 1) {
+            return {
+                index: workspace.index,
+                wsBox: this._wsBoxes[boxIndex + 1].wsBox,
+                position: 'before',
+                width: wsBox.get_width(),
+            };
+        } else if (this._wsBoxes.length > 1) {
+            return {
+                index: workspace.index,
+                wsBox: this._wsBoxes[boxIndex - 1].wsBox,
+                position: 'after',
+                width: wsBox.get_width(),
+            };
+        }
     }
 
     private _getDropPosition(): DropPosition {
         const draggedWsBox = this._wsBoxes.find(
             ({ workspace }) => workspace === this._draggedWorkspace,
         )?.wsBox as St.Bin;
-        if (!this._wsBoxPositions) {
-            this._wsBoxPositions = this._getWsBoxPositions();
-        }
-        for (const { index, center, wsBox } of this._wsBoxPositions) {
+        for (const { index, center, wsBox } of this._wsBoxPositions!) {
             if (draggedWsBox.get_x() < center) {
                 return { index, wsBox, position: 'before', width: draggedWsBox.get_width() };
             }
         }
-        const lastWsBox = this._wsBoxes[this._wsBoxes.length - 1].wsBox;
+        const lastWsBox = this._wsBoxPositions![this._wsBoxPositions!.length - 1].wsBox;
         return {
             index: this._ws.lastVisibleWorkspace,
             wsBox: lastWsBox,
@@ -216,23 +232,29 @@ export class WorkspacesBar {
         };
     }
 
-    private _getWsBoxPositions(): WsBoxPosition[] {
-        return this._wsBoxes
+    private _getWsBoxPositions(draggedBoxIndex: number, draggedBoxWidth: number): WsBoxPosition[] {
+        const positions = this._wsBoxes
             .filter(({ workspace }) => workspace !== this._draggedWorkspace)
             .map(({ workspace, wsBox }) => ({
                 index: getDropIndex(this._draggedWorkspace as WorkspaceState, workspace),
                 center: getHorizontalCenter(wsBox),
                 wsBox,
             }));
+        positions.forEach((position, index) => {
+            if (index >= draggedBoxIndex) {
+                position.center -= draggedBoxWidth;
+            }
+        });
+        return positions;
     }
 
-    private _updateDragPlaceholder(dropPosition: DropPosition): void {
+    private _updateDragPlaceholder(dropPosition?: DropPosition): void {
         for (const { wsBox } of this._wsBoxes) {
-            if (wsBox === dropPosition.wsBox) {
-                if (dropPosition.position === 'before') {
-                    wsBox?.set_style('margin-left: ' + dropPosition.width + 'px');
+            if (wsBox === dropPosition?.wsBox) {
+                if (dropPosition!.position === 'before') {
+                    wsBox?.set_style('margin-left: ' + dropPosition!.width + 'px');
                 } else {
-                    wsBox?.set_style('margin-right: ' + dropPosition.width + 'px');
+                    wsBox?.set_style('margin-right: ' + dropPosition!.width + 'px');
                 }
             } else {
                 wsBox.set_style(null);
@@ -241,9 +263,8 @@ export class WorkspacesBar {
     }
 
     acceptDrop(source: any, actor: Clutter.Actor, x: number, y: number): boolean {
-        console.log('acceptDrop', source, actor.get_parent(), x, y);
+        console.log('accept drop');
         const { index } = this._getDropPosition();
-        console.log(index);
         if (this._draggedWorkspace!.index === index) {
             this._updateWorkspaces();
         } else {
@@ -273,5 +294,3 @@ function getDropIndex(draggedWorkspace: WorkspaceState, workspace: WorkspaceStat
 function getHorizontalCenter(widget: St.Widget): number {
     return widget.get_x() + widget.get_width() / 2;
 }
-
-class DropHandler {}
