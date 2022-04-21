@@ -100,18 +100,24 @@ export class WorkspacesBar {
         (wsBox as any)._delegate = new WorkspaceBoxDragHandler(workspace);
         const label = this._createLabel(workspace);
         wsBox.set_child(label);
+        wsBox.connect('button-press-event', (actor, event: Clutter.Event) => {
+            switch (event.get_button()) {
+                case 2:
+                    this._ws.removeWorkspace(workspace.index);
+                    break;
+                case 3:
+                    this._button.menu.toggle();
+                    break;
+            }
+            return Clutter.EVENT_PROPAGATE;
+        });
         wsBox.connect('button-release-event', (actor, event: Clutter.Event) => {
             switch (event.get_button()) {
                 case 1:
                     this._ws.activate(workspace.index);
-                    return Clutter.EVENT_PROPAGATE; // Allow drag and drop
-                case 2:
-                    this._ws.removeWorkspace(workspace.index);
-                    return Clutter.EVENT_STOP;
-                case 3:
-                    this._button.menu.toggle();
-                    return Clutter.EVENT_PROPAGATE;
+                    break;
             }
+            return Clutter.EVENT_PROPAGATE;
         });
         this._dragHandler.setupDnd(wsBox, workspace);
         return wsBox;
@@ -177,11 +183,11 @@ class WorkspacesBarDragHandler {
 
     acceptDrop(source: any, actor: Clutter.Actor, x: number, y: number): boolean {
         if (source instanceof WorkspaceBoxDragHandler) {
-            const { index } = this._getDropPosition();
-            if (this._draggedWorkspace!.index === index) {
+            const dropPosition = this._getDropPosition();
+            if (this._draggedWorkspace!.index === dropPosition?.index) {
                 this._updateWorkspaces();
-            } else {
-                this._ws.reorderWorkspace(this._draggedWorkspace!.index, index);
+            } else if (dropPosition) {
+                this._ws.reorderWorkspace(this._draggedWorkspace!.index, dropPosition?.index);
             }
             this._onDragFinished(actor as St.Bin);
             return true;
@@ -249,7 +255,7 @@ class WorkspacesBarDragHandler {
         }
     }
 
-    private _getDropPosition(): DropPosition {
+    private _getDropPosition(): DropPosition | undefined {
         const draggedWsBox = this.wsBoxes.find(
             ({ workspace }) => workspace === this._draggedWorkspace,
         )?.wsBox as St.Bin;
@@ -258,13 +264,15 @@ class WorkspacesBarDragHandler {
                 return { index, wsBox, position: 'before', width: draggedWsBox.get_width() };
             }
         }
-        const lastWsBox = this._wsBoxPositions![this._wsBoxPositions!.length - 1].wsBox;
-        return {
-            index: this._ws.lastVisibleWorkspace,
-            wsBox: lastWsBox,
-            position: 'after',
-            width: draggedWsBox.get_width(),
-        };
+        if (this._wsBoxPositions!.length > 1) {
+            const lastWsBox = this._wsBoxPositions![this._wsBoxPositions!.length - 1].wsBox;
+            return {
+                index: this._ws.lastVisibleWorkspace,
+                wsBox: lastWsBox,
+                position: 'after',
+                width: draggedWsBox.get_width(),
+            };
+        }
     }
 
     private _getWsBoxPositions(draggedBoxIndex: number, draggedBoxWidth: number): WsBoxPosition[] {
