@@ -8,6 +8,8 @@ import type { WorkspaceState } from 'services/Workspaces';
 import { Workspaces } from 'services/Workspaces';
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+import type { Meta } from 'imports/gi';
+const DND = imports.ui.dnd;
 
 export class NewWorkspaceButton {
     private readonly _name = `${Me.metadata.name} New-Menu-Button`;
@@ -30,6 +32,7 @@ export class NewWorkspaceButton {
     }
 
     private _initButton(): void {
+        this._button._delegate = new NewWorkspaceButtonDragHandler();
         this._button.style_class = 'panel-button new-workspace-button';
 
         const label = new St.Label({
@@ -131,6 +134,35 @@ export class NewWorkspaceButton {
             }
         } else {
             this._button.visible = false;
+        }
+    }
+}
+
+
+class NewWorkspaceButtonDragHandler {
+    private readonly _settings = Settings.getInstance();
+    private readonly _ws = Workspaces.getInstance();
+
+    constructor() {}
+
+    acceptDrop(source: any) {
+        if (source?.constructor.name === 'WindowPreview') {
+            if (!this._settings.dynamicWorkspaces.value) {
+                global.workspace_manager.append_new_workspace(false, global.get_current_time());
+            }
+            (source.metaWindow as Meta.Window).change_workspace_by_index(
+                this._ws.numberOfEnabledWorkspaces - 1,
+                false,
+            );
+            return true;
+        }
+    }
+
+    handleDragOver(source: any) {
+        if (source?.constructor.name === 'WindowPreview') {
+            return DND.DragMotionResult.MOVE_DROP;
+        } else {
+            return DND.DragMotionResult.CONTINUE;
         }
     }
 }

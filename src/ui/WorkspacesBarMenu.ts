@@ -20,7 +20,7 @@ export class WorkspacesBarMenu {
         this._menu.box.add_style_class_name('workspaces-bar-menu');
         this._addSectionHeading('Rename current workspace');
         this._initEntry();
-        // this._menu.addMenuItem(this._recentWorkspacesSection);
+        this._menu.addMenuItem(this._recentWorkspacesSection);
         this._menu.addMenuItem(this._hiddenWorkspacesSection);
         this._menu.connect('open-state-changed', () => {
             if (this._menu.isOpen) {
@@ -31,7 +31,7 @@ export class WorkspacesBarMenu {
     }
 
     private _refreshMenu() {
-        // this._refreshRecentWorkspaces();
+        this._refreshRecentWorkspaces();
         this._refreshHiddenWorkspaces();
     }
 
