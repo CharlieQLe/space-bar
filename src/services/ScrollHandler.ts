@@ -28,7 +28,7 @@ export class ScrollHandler {
             }
         }
         const currentIndex = global.workspace_manager.get_active_workspace_index();
-        let newIndex
+        let newIndex;
         switch (event.get_scroll_direction()) {
             case Clutter.ScrollDirection.UP:
                 newIndex = this._findVisibleWorkspace(currentIndex, -1);
@@ -40,9 +40,11 @@ export class ScrollHandler {
                 return Clutter.EVENT_PROPAGATE;
         }
         if (newIndex !== null) {
-            global.workspace_manager
-                .get_workspace_by_index(newIndex)
-                ?.activate(global.get_current_time());
+            const workspace = global.workspace_manager.get_workspace_by_index(newIndex);
+            if (workspace) {
+                workspace.activate(global.get_current_time());
+                this._ws.focusMostRecentWindowOnWorkspace(workspace);
+            }
         }
         return Clutter.EVENT_STOP;
     }

@@ -117,14 +117,14 @@ export class Workspaces {
                 focusWindowIfCurrentWorkspace &&
                 global.display.get_focus_window().is_on_all_workspaces()
             ) {
-                this._focusMostRecentWindowOnWorkspace(workspace);
+                this.focusMostRecentWindowOnWorkspace(workspace);
             } else {
                 Main.overview.toggle();
             }
         } else {
             if (workspace) {
                 workspace.activate(global.get_current_time());
-                this._focusMostRecentWindowOnWorkspace(workspace);
+                this.focusMostRecentWindowOnWorkspace(workspace);
                 if (!Main.overview.visible && !this.workspaces[index].hasWindows) {
                     Main.overview.show();
                 }
@@ -160,6 +160,15 @@ export class Workspaces {
         return workspace.name || (workspace.index + 1).toString();
     }
 
+    focusMostRecentWindowOnWorkspace(workspace: Workspace) {
+        const mostRecentWindowOnWorkspace = AltTab.getWindows(workspace).find(
+            (window: Window) => !window.is_on_all_workspaces(),
+        );
+        if (mostRecentWindowOnWorkspace) {
+            workspace.activate_with_focus(mostRecentWindowOnWorkspace, global.get_current_time());
+        }
+    }
+
     private _onWorkspaceRemoved(index: number): void {
         this._update(null);
         this._wsNames!.remove(index);
@@ -193,15 +202,6 @@ export class Workspaces {
 
     private _notify(reason: updateReason): void {
         this._onUpdateCallbacks.forEach((cb) => cb(reason));
-    }
-
-    private _focusMostRecentWindowOnWorkspace(workspace: Workspace) {
-        const mostRecentWindowOnWorkspace = AltTab.getWindows(workspace).find(
-            (window: Window) => !window.is_on_all_workspaces(),
-        );
-        if (mostRecentWindowOnWorkspace) {
-            workspace.activate_with_focus(mostRecentWindowOnWorkspace, global.get_current_time());
-        }
     }
 
     private _getWorkspaceState(index: number): WorkspaceState {
