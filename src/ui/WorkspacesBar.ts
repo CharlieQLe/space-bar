@@ -194,6 +194,14 @@ class WorkspacesBarDragHandler {
         }
     }
 
+    handleDragOver(source: any) {
+        if (source instanceof WorkspaceBoxDragHandler) {
+            return DND.DragMotionResult.MOVE_DROP;
+        } else {
+            return DND.DragMotionResult.CONTINUE;
+        }
+    }
+
     private _onDragStart(wsBox: St.Bin, workspace: WorkspaceState): void {
         wsBox.add_style_class_name('dragging');
         this._draggedWorkspace = workspace;
