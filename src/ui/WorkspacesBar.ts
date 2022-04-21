@@ -101,20 +101,18 @@ export class WorkspacesBar {
         const label = this._createLabel(workspace);
         wsBox.set_child(label);
         wsBox.connect('button-press-event', (actor, event: Clutter.Event) => {
+            if (event.has_shift_modifier()) {
+                return Clutter.EVENT_PROPAGATE;
+            }
             switch (event.get_button()) {
+                case 1:
+                    this._ws.activate(workspace.index);
+                    break;
                 case 2:
                     this._ws.removeWorkspace(workspace.index);
                     break;
                 case 3:
                     this._button.menu.toggle();
-                    break;
-            }
-            return Clutter.EVENT_PROPAGATE;
-        });
-        wsBox.connect('button-release-event', (actor, event: Clutter.Event) => {
-            switch (event.get_button()) {
-                case 1:
-                    this._ws.activate(workspace.index);
                     break;
             }
             return Clutter.EVENT_PROPAGATE;
