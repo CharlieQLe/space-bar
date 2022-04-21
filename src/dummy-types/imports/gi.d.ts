@@ -7,6 +7,10 @@ export const Meta: any;
 export const Gtk: any;
 export const Clutter: any;
 
+export namespace Adw {
+    type PreferencesGroup = any;
+}
+
 export namespace Clutter {
     type Actor = any;
     type Event = any;
