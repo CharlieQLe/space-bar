@@ -264,7 +264,7 @@ class WorkspacesBarDragHandler {
                 return { index, wsBox, position: 'before', width: draggedWsBox.get_width() };
             }
         }
-        if (this._wsBoxPositions!.length > 1) {
+        if (this._wsBoxPositions!.length > 0) {
             const lastWsBox = this._wsBoxPositions![this._wsBoxPositions!.length - 1].wsBox;
             return {
                 index: this._ws.lastVisibleWorkspace,
