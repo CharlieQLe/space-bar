@@ -5,9 +5,21 @@ const Main = imports.ui.main;
 
 export class KeyBindings {
     private static _instance: KeyBindings | null;
+
+    static init() {
+        KeyBindings._instance = new KeyBindings();
+        KeyBindings._instance.init();
+    }
+
+    static destroy() {
+        KeyBindings._instance?.destroy();
+        KeyBindings._instance = null;
+    }
+
     static getInstance(): KeyBindings {
         return KeyBindings._instance as KeyBindings;
     }
+
     private readonly _settings = Settings.getInstance().extensionSettings;
     private readonly _ws = Workspaces.getInstance();
     private _addedKeyBindings: string[] = [];

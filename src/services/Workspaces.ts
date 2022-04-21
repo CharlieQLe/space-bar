@@ -23,13 +23,20 @@ type Workspace = any;
 type Window = any;
 
 export class Workspaces {
-    static _instance: Workspaces;
+    static _instance: Workspaces | null;
 
-    static getInstance() {
-        if (!Workspaces._instance) {
-            Workspaces._instance = new Workspaces();
-        }
-        return Workspaces._instance;
+    static init() {
+        Workspaces._instance = new Workspaces();
+        Workspaces._instance.init();
+    }
+
+    static destroy() {
+        Workspaces._instance!.destroy();
+        Workspaces._instance = null;
+    }
+
+    static getInstance(): Workspaces {
+        return Workspaces._instance as Workspaces;
     }
 
     numberOfEnabledWorkspaces = 0;
