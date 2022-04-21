@@ -10,15 +10,17 @@ export function addToggle({
     group,
     key,
     title,
+    subtitle = null,
     settings = extensionSettings,
 }: {
     group: Adw.PreferencesGroup;
     key: string;
     title: string;
+    subtitle?: string | null;
     settings?: any;
 }): void {
     // Create a new preferences row
-    const row = new Adw.ActionRow({ title });
+    const row = new Adw.ActionRow({ title, subtitle });
     group.add(row);
 
     // Create the switch and bind its value to the `show-indicator` key

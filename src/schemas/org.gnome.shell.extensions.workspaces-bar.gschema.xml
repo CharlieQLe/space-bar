@@ -8,6 +8,9 @@
         <key name="show-empty-workspaces" type="b">
             <default>true</default>
         </key>
+        <key name="enable-activate-workspace-shortcuts" type="b">
+            <default>true</default>
+        </key>
 
         <key name="activate-1-key" type="as">
             <default><![CDATA[['<Super>1']]]></default>
