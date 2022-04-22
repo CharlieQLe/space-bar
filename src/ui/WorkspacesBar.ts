@@ -36,6 +36,11 @@ interface WsBoxPosition {
     wsBox: St.Bin;
 }
 
+/**
+ * Maximum number of milliseconds between button press and button release to be recognized as click.
+ */
+const MAX_CLICK_TIME_DELTA = 300;
+
 export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
     private readonly _settings = Settings.getInstance();
@@ -100,19 +105,34 @@ export class WorkspacesBar {
         (wsBox as any)._delegate = new WorkspaceBoxDragHandler(workspace);
         const label = this._createLabel(workspace);
         wsBox.set_child(label);
+        let lastButton1PressEvent: Clutter.Event | null;
         wsBox.connect('button-press-event', (actor, event: Clutter.Event) => {
-            if (event.has_shift_modifier()) {
-                return Clutter.EVENT_PROPAGATE;
-            }
             switch (event.get_button()) {
                 case 1:
-                    this._ws.activate(workspace.index);
+                    lastButton1PressEvent = event;
                     break;
                 case 2:
                     this._ws.removeWorkspace(workspace.index);
                     break;
                 case 3:
                     this._button.menu.toggle();
+                    break;
+            }
+            return Clutter.EVENT_PROPAGATE;
+        });
+        // Activate workspaces on button release to not interfere with drag and drop, but make sure
+        // we saw a corresponding button-press event to avoid activating workspaces when the click
+        // already triggered another action like closing a menu.
+        wsBox.connect('button-release-event', (actor, event: Clutter.Event) => {
+            switch (event.get_button()) {
+                case 1:
+                    if (lastButton1PressEvent) {
+                        const timeDelta = event.get_time() - lastButton1PressEvent.get_time();
+                        if (timeDelta <= MAX_CLICK_TIME_DELTA) {
+                            this._ws.activate(workspace.index);
+                        }
+                        lastButton1PressEvent = null;
+                    }
                     break;
             }
             return Clutter.EVENT_PROPAGATE;
