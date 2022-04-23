@@ -217,10 +217,10 @@ class WorkspacesBarDragHandler {
 
     handleDragOver(source: any) {
         if (source instanceof WorkspaceBoxDragHandler) {
-            return DND.DragMotionResult.MOVE_DROP;
-        } else {
-            return DND.DragMotionResult.CONTINUE;
+            const dropPosition = this._getDropPosition();
+            this._updateDragPlaceholder(dropPosition);
         }
+        return DND.DragMotionResult.CONTINUE;
     }
 
     private _onDragStart(wsBox: St.Bin, workspace: WorkspaceState): void {
@@ -250,8 +250,7 @@ class WorkspacesBarDragHandler {
     }
 
     private _onDragMotion(dragEvent: DragEvent): void {
-        const dropPosition = this._getDropPosition();
-        this._updateDragPlaceholder(dropPosition);
+        this._updateDragPlaceholder(this._initialDropPosition!);
         return DND.DragMotionResult.CONTINUE;
     }
 
