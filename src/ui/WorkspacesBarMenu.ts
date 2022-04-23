@@ -1,3 +1,5 @@
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 import { Clutter, GObject, St } from 'imports/gi';
 import { KeyBindings } from 'services/KeyBindings';
 import { Settings } from 'services/Settings';
@@ -22,6 +24,7 @@ export class WorkspacesBarMenu {
         this._initEntry();
         this._menu.addMenuItem(this._recentWorkspacesSection);
         this._menu.addMenuItem(this._hiddenWorkspacesSection);
+        this._initSettingsButton();
         this._menu.connect('open-state-changed', () => {
             if (this._menu.isOpen) {
                 this._refreshMenu();
@@ -107,6 +110,17 @@ export class WorkspacesBarMenu {
                 this._hiddenWorkspacesSection.addMenuItem(button);
             });
         }
+    }
+
+    private _initSettingsButton(): void {
+        const separator = new PopupMenu.PopupSeparatorMenuItem();
+        this._menu.addMenuItem(separator);
+        const button = new PopupMenu.PopupMenuItem(`${Me.metadata.name} Settings`);
+        button.connect('activate', () => {
+            this._menu.close();
+            ExtensionUtils.openPrefs();
+        });
+        this._menu.addMenuItem(button);
     }
 }
 

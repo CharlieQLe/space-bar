@@ -34,3 +34,25 @@ export function addToggle({
     row.add_suffix(toggle);
     row.activatable_widget = toggle;
 }
+
+// export function addKeyboardShortcut({
+//     group,
+//     key,
+//     title,
+//     subtitle = null,
+//     settings = extensionSettings,    
+// } : {
+//     group: Adw.PreferencesGroup;
+//     key: string;
+//     title: string;
+//     subtitle?: string | null;
+//     settings?: any;
+// }): void {
+//         const row = new Adw.ActionRow({ title, subtitle });
+//         group.add(row);
+
+//         const 
+    
+//         row.add_suffix(toggle);
+//         row.activatable_widget = toggle;
+// }
