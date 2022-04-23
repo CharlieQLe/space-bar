@@ -1,5 +1,6 @@
 .workspaces-bar {
     -natural-hpadding: 0px;
+    border-radius: 8px;
 }
 
 .workspaces-bar-workspace-label {
