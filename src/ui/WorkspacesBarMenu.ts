@@ -15,6 +15,7 @@ export class WorkspacesBarMenu {
 
     private _recentWorkspacesSection = new PopupMenu.PopupMenuSection();
     private _hiddenWorkspacesSection = new PopupMenu.PopupMenuSection();
+    private _manageWorkspaceSection = new PopupMenu.PopupMenuSection();
 
     constructor(private readonly _menu: any) {}
 
@@ -24,7 +25,8 @@ export class WorkspacesBarMenu {
         this._initEntry();
         this._menu.addMenuItem(this._recentWorkspacesSection);
         this._menu.addMenuItem(this._hiddenWorkspacesSection);
-        this._initSettingsButton();
+        this._initManageWorkspaceSection();
+        this._initExtensionSettingsButton();
         this._menu.connect('open-state-changed', () => {
             if (this._menu.isOpen) {
                 this._refreshMenu();
@@ -71,6 +73,29 @@ export class WorkspacesBarMenu {
         this._menu.addMenuItem(entryItem);
     }
 
+    private _initManageWorkspaceSection() {
+        this._refreshManageWorkspaceSection();
+        const separator = new PopupMenu.PopupSeparatorMenuItem();
+        this._menu.addMenuItem(separator);
+        this._menu.addMenuItem(this._manageWorkspaceSection);
+        this._settings.showNewWorkspaceButton.subscribe(() =>
+            this._refreshManageWorkspaceSection(),
+        );
+        this._settings.showEmptyWorkspaces.subscribe(() => this._refreshManageWorkspaceSection());
+        this._settings.dynamicWorkspaces.subscribe(() => this._refreshManageWorkspaceSection());
+    }
+
+    private _initExtensionSettingsButton(): void {
+        const separator = new PopupMenu.PopupSeparatorMenuItem();
+        this._menu.addMenuItem(separator);
+        const button = new PopupMenu.PopupMenuItem(`${Me.metadata.name} settings`);
+        button.connect('activate', () => {
+            this._menu.close();
+            ExtensionUtils.openPrefs();
+        });
+        this._menu.addMenuItem(button);
+    }
+
     private _refreshRecentWorkspaces(): void {
         this._recentWorkspacesSection.box.destroy_all_children();
 
@@ -112,15 +137,29 @@ export class WorkspacesBarMenu {
         }
     }
 
-    private _initSettingsButton(): void {
-        const separator = new PopupMenu.PopupSeparatorMenuItem();
-        this._menu.addMenuItem(separator);
-        const button = new PopupMenu.PopupMenuItem(`${Me.metadata.name} Settings`);
-        button.connect('activate', () => {
-            this._menu.close();
-            ExtensionUtils.openPrefs();
+    private _refreshManageWorkspaceSection() {
+        this._manageWorkspaceSection.box.destroy_all_children();
+
+        if (
+            !this._settings.showNewWorkspaceButton.value &&
+            (!this._settings.dynamicWorkspaces.value || !this._settings.showEmptyWorkspaces.value)
+        ) {
+            const newWorkspaceButton = new PopupMenu.PopupMenuItem('New workspace');
+            newWorkspaceButton.connect('activate', () => {
+                this._menu.close();
+                if (this._settings.dynamicWorkspaces.value) {
+                    this._ws.activate(this._ws.numberOfEnabledWorkspaces - 1);
+                } else {
+                    this._ws.addWorkspace();
+                }
+            });
+            this._manageWorkspaceSection.addMenuItem(newWorkspaceButton);
+        }
+        const closeWorkspaceButton = new PopupMenu.PopupMenuItem('Close current workspace');
+        closeWorkspaceButton.connect('activate', () => {
+            this._ws.removeWorkspace(this._ws.currentIndex);
         });
-        this._menu.addMenuItem(button);
+        this._manageWorkspaceSection.addMenuItem(closeWorkspaceButton);
     }
 }
 
