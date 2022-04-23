@@ -82,6 +82,9 @@ export class Workspaces {
             () => this._update('windows-changed'),
         );
         this._settings.workspaceNames.subscribe(() => this._update('workspace-names-changed'));
+        this._settings.showEmptyWorkspaces.subscribe(() =>
+            this._update('number-of-workspaces-changed'),
+        );
         this._update(null);
     }
 
