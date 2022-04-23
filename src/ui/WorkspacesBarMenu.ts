@@ -144,7 +144,7 @@ export class WorkspacesBarMenu {
             !this._settings.showNewWorkspaceButton.value &&
             (!this._settings.dynamicWorkspaces.value || !this._settings.showEmptyWorkspaces.value)
         ) {
-            const newWorkspaceButton = new PopupMenu.PopupMenuItem('New workspace');
+            const newWorkspaceButton = new PopupMenu.PopupMenuItem('Add new workspace');
             newWorkspaceButton.connect('activate', () => {
                 this._menu.close();
                 if (this._settings.dynamicWorkspaces.value) {
@@ -155,7 +155,7 @@ export class WorkspacesBarMenu {
             });
             this._manageWorkspaceSection.addMenuItem(newWorkspaceButton);
         }
-        const closeWorkspaceButton = new PopupMenu.PopupMenuItem('Close current workspace');
+        const closeWorkspaceButton = new PopupMenu.PopupMenuItem('Remove current workspace');
         closeWorkspaceButton.connect('activate', () => {
             this._ws.removeWorkspace(this._ws.currentIndex);
         });

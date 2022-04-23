@@ -85,6 +85,9 @@ export class Workspaces {
         this._settings.showEmptyWorkspaces.subscribe(() =>
             this._update('number-of-workspaces-changed'),
         );
+        this._settings.showNewWorkspaceButton.subscribe(() =>
+            this._update('number-of-workspaces-changed'),
+        );
         this._update(null);
     }
 

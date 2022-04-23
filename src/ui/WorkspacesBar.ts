@@ -68,8 +68,6 @@ export class WorkspacesBar {
         this._button.track_hover = false;
         this._button.style_class = 'panel-button workspaces-bar';
         this._ws.onUpdate(() => this._updateWorkspaces());
-        this._settings.showNewWorkspaceButton.subscribe(() => this._updateWorkspaces());
-        this._settings.dynamicWorkspaces.subscribe(() => this._updateWorkspaces());
 
         // bar creation
         this._wsBar = new St.BoxLayout({});
