@@ -178,6 +178,7 @@ class WorkspacesBarDragHandler {
     private _dragMonitor: any;
     private _draggedWorkspace?: WorkspaceState | null;
     private _wsBoxPositions?: WsBoxPosition[] | null;
+    private _initialDropPosition?: DropPosition | null;
 
     constructor(private _updateWorkspaces: () => void) {}
 
@@ -191,7 +192,7 @@ class WorkspacesBarDragHandler {
             this._onDragStart(wsBox, workspace);
         });
         draggable.connect('drag-cancelled', () => {
-            this._updateDragPlaceholder(this._getInitialDropPosition(wsBox, workspace));
+            this._updateDragPlaceholder(this._initialDropPosition!);
             this._onDragFinished(wsBox);
         });
         draggable.connect('drag-end', () => {
@@ -233,6 +234,7 @@ class WorkspacesBarDragHandler {
         wsBox.remove_style_class_name('dragging');
         this._draggedWorkspace = null;
         this._wsBoxPositions = null;
+        this._initialDropPosition = null;
         this._setDragMonitor(false);
     }
 
@@ -256,29 +258,8 @@ class WorkspacesBarDragHandler {
     private _setUpBoxPositions(wsBox: St.Bin, workspace: WorkspaceState) {
         const boxIndex = this.wsBoxes.findIndex((box) => box.workspace === workspace);
         this._wsBoxPositions = this._getWsBoxPositions(boxIndex, wsBox.get_width());
-        this._updateDragPlaceholder(this._getInitialDropPosition(wsBox, workspace));
-    }
-
-    private _getInitialDropPosition(
-        wsBox: St.Bin,
-        workspace: WorkspaceState,
-    ): DropPosition | undefined {
-        const boxIndex = this.wsBoxes.findIndex((box) => box.workspace === workspace);
-        if (boxIndex < this.wsBoxes.length - 1) {
-            return {
-                index: workspace.index,
-                wsBox: this.wsBoxes[boxIndex + 1].wsBox,
-                position: 'before',
-                width: wsBox.get_width(),
-            };
-        } else if (this.wsBoxes.length > 1) {
-            return {
-                index: workspace.index,
-                wsBox: this.wsBoxes[boxIndex - 1].wsBox,
-                position: 'after',
-                width: wsBox.get_width(),
-            };
-        }
+        this._initialDropPosition = this._getDropPosition();
+        this._updateDragPlaceholder(this._initialDropPosition);
     }
 
     private _getDropPosition(): DropPosition | undefined {
