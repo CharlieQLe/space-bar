@@ -8,6 +8,7 @@ import { Workspaces, WorkspaceState } from 'services/Workspaces';
 import { WorkspacesBarMenu } from 'ui/WorkspacesBarMenu';
 const PanelMenu = imports.ui.panelMenu;
 const DND = imports.ui.dnd;
+const { WindowPreview } = imports.ui.windowPreview;
 
 interface DragEvent {
     x: number;
@@ -316,7 +317,7 @@ class WorkspaceBoxDragHandler {
     constructor(private readonly _workspace: WorkspaceState) {}
 
     acceptDrop(source: any) {
-        if (source?.constructor.name === 'WindowPreview') {
+        if (source instanceof WindowPreview) {
             (source.metaWindow as Meta.Window).change_workspace_by_index(
                 this._workspace.index,
                 false,
@@ -325,7 +326,7 @@ class WorkspaceBoxDragHandler {
     }
 
     handleDragOver(source: any) {
-        if (source?.constructor.name === 'WindowPreview') {
+        if (source instanceof WindowPreview) {
             return DND.DragMotionResult.MOVE_DROP;
         } else {
             return DND.DragMotionResult.CONTINUE;
