@@ -2,6 +2,7 @@ import { Adw } from 'imports/gi';
 import { addToggle } from 'preferences/common';
 
 export class BehaviorPage {
+    window!: Adw.PreferencesWindow;
     page = new Adw.PreferencesPage();
 
     init() {

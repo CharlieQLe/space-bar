@@ -58,7 +58,7 @@
         </key>
         <key name="open-menu" type="as">
             <default><![CDATA[['<Super>W']]]></default>
-            <summary>Keybinding to activate the previously active workspace.</summary>
+            <summary>Keybinding to open the workspaces bar menu.</summary>
         </key>
     </schema>
 </schemalist>

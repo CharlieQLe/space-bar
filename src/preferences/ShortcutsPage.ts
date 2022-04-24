@@ -1,7 +1,8 @@
 import { Adw } from 'imports/gi';
-import { addToggle } from 'preferences/common';
+import { addKeyboardShortcut, addToggle } from 'preferences/common';
 
 export class ShortcutsPage {
+    window!: Adw.PreferencesWindow;
     page = new Adw.PreferencesPage();
 
     init() {
@@ -20,5 +21,12 @@ export class ShortcutsPage {
             subtitle: 'Switch workspaces by pressing super and a number on the keyboard',
         });
         this.page.add(group);
+
+        addKeyboardShortcut({
+            window: this.window,
+            group,
+            key: 'activate-previous-key',
+            title: 'Activate the previously active workspace'
+        })
     }
 }

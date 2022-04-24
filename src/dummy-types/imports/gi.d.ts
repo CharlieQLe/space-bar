@@ -8,6 +8,7 @@ export const Gtk: any;
 export const Clutter: any;
 
 export namespace Adw {
+    type PreferencesWindow = any;
     type PreferencesGroup = any;
 }
 
