@@ -78,62 +78,63 @@ export function addKeyboardShortcut({
     // revealer.set_child(clearButton);
     // row.add_suffix(revealer);
 
-    const dialog = new Gtk.Dialog({
-        title: 'Set Shortcut',
-        modal: true,
-        use_header_bar: 1,
-        transient_for: window,
-        hide_on_close: true,
-        width_request: 400,
-        height_request: 200,
-    });
-    // dialog.add_button('_Cancel', Gtk.ResponseType.CANCEL);
-    const dialogBox = new Gtk.Box({
-        margin_bottom: 12,
-        margin_end: 12,
-        margin_start: 12,
-        margin_top: 12,
-        orientation: Gtk.Orientation.VERTICAL,
-        valign: Gtk.Align.CENTER,
-    });
-    const dialogLabel = new Gtk.Label({
-        label: 'Enter new shortcut to change <b>' + title + '</b>.',
-        use_markup: true,
-        margin_bottom: 12,
-    });
-    dialogBox.append(dialogLabel);
-    const dialogDimLabel = new Gtk.Label({
-        label: 'Press Esc to cancel or Backspace to disable the keyboard shortcut.',
-        css_classes: ['dim-label'],
-    });
-    dialogBox.append(dialogDimLabel);
-    const keyController = new Gtk.EventControllerKey({
-        propagation_phase: Gtk.PropagationPhase.CAPTURE,
-    });
-    dialog.add_controller(keyController);
-    keyController.connect('key-pressed', (keyController, keyval, keycode, modifier) => {
-        const accelerator = getAccelerator(keyval, modifier);
-        if (accelerator) {
-            if (keyval === Gdk.KEY_Escape && !modifier) {
-                // Just hide the dialog
-            } else if (keyval === Gdk.KEY_BackSpace && !modifier) {
-                shortcutLabel.hide();
-                disabledLabel.show();
-                settings.set_strv(key, []);
-            } else {
-                shortcutLabel.accelerator = accelerator;
-                shortcutLabel.show();
-                disabledLabel.hide();
-                settings.set_strv(key, [accelerator]);
+    function showDialog(): void {
+        const dialog = new Gtk.Dialog({
+            title: 'Set Shortcut',
+            modal: true,
+            use_header_bar: 1,
+            transient_for: window,
+            // hide_on_close: true,
+            width_request: 400,
+            height_request: 200,
+        });
+        // dialog.add_button('_Cancel', Gtk.ResponseType.CANCEL);
+        const dialogBox = new Gtk.Box({
+            margin_bottom: 12,
+            margin_end: 12,
+            margin_start: 12,
+            margin_top: 12,
+            orientation: Gtk.Orientation.VERTICAL,
+            valign: Gtk.Align.CENTER,
+        });
+        const dialogLabel = new Gtk.Label({
+            label: 'Enter new shortcut to change <b>' + title + '</b>.',
+            use_markup: true,
+            margin_bottom: 12,
+        });
+        dialogBox.append(dialogLabel);
+        const dialogDimLabel = new Gtk.Label({
+            label: 'Press Esc to cancel or Backspace to disable the keyboard shortcut.',
+            css_classes: ['dim-label'],
+        });
+        dialogBox.append(dialogDimLabel);
+        const keyController = new Gtk.EventControllerKey({
+            propagation_phase: Gtk.PropagationPhase.CAPTURE,
+        });
+        dialog.add_controller(keyController);
+        keyController.connect('key-pressed', (keyController, keyval, keycode, modifier) => {
+            const accelerator = getAccelerator(keyval, modifier);
+            if (accelerator) {
+                if (keyval === Gdk.KEY_Escape && !modifier) {
+                    // Just hide the dialog
+                } else if (keyval === Gdk.KEY_BackSpace && !modifier) {
+                    shortcutLabel.hide();
+                    disabledLabel.show();
+                    settings.set_strv(key, []);
+                } else {
+                    shortcutLabel.accelerator = accelerator;
+                    shortcutLabel.show();
+                    disabledLabel.hide();
+                    settings.set_strv(key, [accelerator]);
+                }
+                dialog.close();
             }
-            dialog.hide();
-        }
-    });
-    dialog.set_child(dialogBox);
-
-    row.connect('activated', () => {
+        });
+        dialog.set_child(dialogBox);
         dialog.show();
-    });
+    }
+
+    row.connect('activated', () => showDialog());
 }
 
 function getAccelerator(keyval: number, modifiers: number): string | null {
