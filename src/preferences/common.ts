@@ -76,13 +76,10 @@ export function addKeyboardShortcut({
         hide_on_close: true,
     });
     // dialog.add_button('_Cancel', Gtk.ResponseType.CANCEL);
-    const recorder = new Gtk.Box({ focusable: true, focus_on_click: true });
-    recorder.connect('notify::has-focus', (box, spec) => {
-        console.log('has focus', spec);
-    });
+    const dialogBox = new Gtk.Box();
     // TOOD: Description and styling
     // const label2 = new Gtk.Label({ label: 'Recorder' });
-    // recorder.append(label2);
+    // dialogBox.append(label2);
     const keyController = new Gtk.EventControllerKey({
         propagation_phase: Gtk.PropagationPhase.CAPTURE,
     });
@@ -96,7 +93,7 @@ export function addKeyboardShortcut({
             dialog.hide();
         }
     });
-    dialog.set_child(recorder);
+    dialog.set_child(dialogBox);
 
     row.connect('activated', () => dialog.show());
 }
