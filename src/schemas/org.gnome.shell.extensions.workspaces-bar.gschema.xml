@@ -55,7 +55,7 @@
         <key name="activate-previous-key" type="as">
             <default><![CDATA[['<Super>grave']]]></default>
             <!-- <default><![CDATA[['<Super>Above_Tab']]]></default> -->
-            <summary>Keybinding to activate the previously active workspace.</summary>
+            <summary>Keybinding to activate the previous workspace.</summary>
         </key>
         <key name="open-menu" type="as">
             <default><![CDATA[['<Super>W']]]></default>

@@ -1,4 +1,4 @@
-import { Adw, Gio, Gtk } from 'imports/gi';
+import { Adw, Gio, Gtk, Gdk } from 'imports/gi';
 
 const ExtensionUtils = imports.misc.extensionUtils;
 
@@ -58,10 +58,20 @@ export function addKeyboardShortcut({
     group.add(row);
 
     const shortcutLabel = new Gtk.ShortcutLabel({
-        accelerator: settings.get_strv(key)[0],
+        accelerator: settings.get_strv(key)[0] ?? null,
         valign: Gtk.Align.CENTER,
     });
     row.add_suffix(shortcutLabel);
+    const disabledLabel = new Gtk.Label({
+        label: 'Disabled',
+        css_classes: ['dim-label'],
+    });
+    row.add_suffix(disabledLabel);
+    if (settings.get_strv(key).length > 0) {
+        disabledLabel.hide();
+    } else {
+        shortcutLabel.hide();
+    }
 
     // const revealer = new Gtk.Revealer();
     // const clearButton = new Gtk.Button({ icon_name: 'edit-clear-symbolic' });
@@ -69,17 +79,34 @@ export function addKeyboardShortcut({
     // row.add_suffix(revealer);
 
     const dialog = new Gtk.Dialog({
-        title: 'Set keybinding',
+        title: 'Set Shortcut',
         modal: true,
         use_header_bar: 1,
         transient_for: window,
         hide_on_close: true,
+        width_request: 400,
+        height_request: 200,
     });
     // dialog.add_button('_Cancel', Gtk.ResponseType.CANCEL);
-    const dialogBox = new Gtk.Box();
-    // TOOD: Description and styling
-    // const label2 = new Gtk.Label({ label: 'Recorder' });
-    // dialogBox.append(label2);
+    const dialogBox = new Gtk.Box({
+        margin_bottom: 12,
+        margin_end: 12,
+        margin_start: 12,
+        margin_top: 12,
+        orientation: Gtk.Orientation.VERTICAL,
+        valign: Gtk.Align.CENTER,
+    });
+    const dialogLabel = new Gtk.Label({
+        label: 'Enter new shortcut to change <b>' + title + '</b>.',
+        use_markup: true,
+        margin_bottom: 12,
+    });
+    dialogBox.append(dialogLabel);
+    const dialogDimLabel = new Gtk.Label({
+        label: 'Press Esc to cancel or Backspace to disable the keyboard shortcut.',
+        css_classes: ['dim-label'],
+    });
+    dialogBox.append(dialogDimLabel);
     const keyController = new Gtk.EventControllerKey({
         propagation_phase: Gtk.PropagationPhase.CAPTURE,
     });
@@ -87,21 +114,29 @@ export function addKeyboardShortcut({
     keyController.connect('key-pressed', (keyController, keyval, keycode, modifier) => {
         const accelerator = getAccelerator(keyval, modifier);
         if (accelerator) {
-            // TODO: handle escape and backspace
-            shortcutLabel.accelerator = accelerator;
-            settings.set_strv(key, [accelerator]);
+            if (keyval === Gdk.KEY_Escape && !modifier) {
+                // Just hide the dialog
+            } else if (keyval === Gdk.KEY_BackSpace && !modifier) {
+                shortcutLabel.hide();
+                disabledLabel.show();
+                settings.set_strv(key, []);
+            } else {
+                shortcutLabel.accelerator = accelerator;
+                shortcutLabel.show();
+                disabledLabel.hide();
+                settings.set_strv(key, [accelerator]);
+            }
             dialog.hide();
         }
     });
     dialog.set_child(dialogBox);
 
-    row.connect('activated', () => dialog.show());
+    row.connect('activated', () => {
+        dialog.show();
+    });
 }
 
-function getAccelerator(
-    keyval: number,
-    modifiers: number,
-): string | null {
+function getAccelerator(keyval: number, modifiers: number): string | null {
     const acceleratorName = Gtk.accelerator_name(keyval, modifiers);
     const isValid = Gtk.accelerator_valid(keyval, modifiers);
     if (isValid) {
