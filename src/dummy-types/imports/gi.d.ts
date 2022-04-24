@@ -6,6 +6,7 @@ export const Shell: any;
 export const Meta: any;
 export const Gtk: any;
 export const Clutter: any;
+export const Gdk: any;
 
 export namespace Adw {
     type PreferencesWindow = any;
@@ -30,4 +31,10 @@ export namespace St {
 
 export namespace Meta {
     type Window = any;
+}
+
+export namespace Gtk {
+    type EventControllerKey = any;
+    type ShortcutManager = any;
+    type ShortcutController = any;
 }

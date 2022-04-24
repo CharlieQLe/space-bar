@@ -28,5 +28,12 @@ export class ShortcutsPage {
             key: 'activate-previous-key',
             title: 'Activate the previously active workspace'
         })
+
+        addKeyboardShortcut({
+            window: this.window,
+            group,
+            key: 'open-menu',
+            title: 'Open the workspaces bar menu'
+        })
     }
 }

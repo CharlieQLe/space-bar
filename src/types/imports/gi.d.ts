@@ -1,5 +1,6 @@
 import * as Adw1 from '@imports/Adw-1';
 import * as Clutter10 from '@imports/Clutter-10';
+import * as Gdk40 from '@imports/Gdk-4.0';
 import * as Gio20 from '@imports/Gio-2.0';
 import * as GObject20 from '@imports/GObject-2.0';
 import * as Gtk40 from '@imports/Gtk-4.0';
@@ -15,3 +16,4 @@ export { Shell01 as Shell };
 export { Meta10 as Meta };
 export { Gtk40 as Gtk };
 export { Clutter10 as Clutter };
+export { Gdk40 as Gdk };
