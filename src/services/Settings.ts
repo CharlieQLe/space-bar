@@ -15,8 +15,11 @@ export class Settings {
         return Settings._instance as Settings;
     }
 
-    readonly extensionSettings = ExtensionUtils.getSettings(
-        'org.gnome.shell.extensions.workspaces-bar',
+    readonly behaviorSettings = ExtensionUtils.getSettings(
+        'org.gnome.shell.extensions.workspaces-bar.behavior',
+    );
+    readonly shortcutsSettings = ExtensionUtils.getSettings(
+        'org.gnome.shell.extensions.workspaces-bar.shortcuts',
     );
     readonly mutterSettings = new Gio.Settings({ schema: 'org.gnome.mutter' });
     readonly wmPreferencesSettings = new Gio.Settings({
@@ -28,11 +31,11 @@ export class Settings {
         'dynamic-workspaces',
     );
     readonly showNewWorkspaceButton = SettingsSubject.createBooleanSubject(
-        this.extensionSettings,
+        this.behaviorSettings,
         'show-new-workspace-button',
     );
     readonly showEmptyWorkspaces = SettingsSubject.createBooleanSubject(
-        this.extensionSettings,
+        this.behaviorSettings,
         'show-empty-workspaces',
     );
     readonly workspaceNames = SettingsSubject.createStringArraySubject(

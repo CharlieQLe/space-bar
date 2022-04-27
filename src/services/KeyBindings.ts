@@ -20,7 +20,7 @@ export class KeyBindings {
         return KeyBindings._instance as KeyBindings;
     }
 
-    private readonly _settings = Settings.getInstance().extensionSettings;
+    private readonly _shortcutsSettings = Settings.getInstance().shortcutsSettings;
     private readonly _ws = Workspaces.getInstance();
     private _addedKeyBindings: string[] = [];
 
@@ -40,7 +40,7 @@ export class KeyBindings {
         Shell.ActionMode;
         Main.wm.addKeybinding(
             name,
-            this._settings,
+            this._shortcutsSettings,
             Meta.KeyBindingFlags.NONE,
             Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
             handler,

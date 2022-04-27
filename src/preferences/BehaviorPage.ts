@@ -1,5 +1,8 @@
 import { Adw } from 'imports/gi';
 import { addToggle } from 'preferences/common';
+const ExtensionUtils = imports.misc.extensionUtils;
+
+const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.workspaces-bar.behavior');
 
 export class BehaviorPage {
     window!: Adw.PreferencesWindow;
@@ -15,12 +18,14 @@ export class BehaviorPage {
         const group = new Adw.PreferencesGroup();
         // group.set_title('Workspaces Bar');
         addToggle({
+            settings,
             group,
             key: 'show-new-workspace-button',
             title: 'Show new-workspace button',
             subtitle: 'A button next to the workspaces bar that will add a new workspace',
         });
         addToggle({
+            settings,
             group,
             key: 'show-empty-workspaces',
             title: 'Show empty workspaces',

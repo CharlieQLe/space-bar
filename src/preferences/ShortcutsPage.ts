@@ -1,5 +1,10 @@
 import { Adw } from 'imports/gi';
 import { addKeyboardShortcut, addToggle } from 'preferences/common';
+const ExtensionUtils = imports.misc.extensionUtils;
+
+const settings = ExtensionUtils.getSettings(
+    'org.gnome.shell.extensions.workspaces-bar.shortcuts',
+);
 
 export class ShortcutsPage {
     window!: Adw.PreferencesWindow;
@@ -15,6 +20,7 @@ export class ShortcutsPage {
         const group = new Adw.PreferencesGroup();
         // group.set_title('Workspaces Bar');
         addToggle({
+            settings,
             group,
             key: 'enable-activate-workspace-shortcuts',
             title: 'Enable super + number shortcuts',
@@ -23,6 +29,7 @@ export class ShortcutsPage {
         this.page.add(group);
 
         addKeyboardShortcut({
+            settings,
             window: this.window,
             group,
             key: 'activate-previous-key',
@@ -30,6 +37,7 @@ export class ShortcutsPage {
         })
 
         addKeyboardShortcut({
+            settings,
             window: this.window,
             group,
             key: 'open-menu',

@@ -1,23 +1,17 @@
 import { Adw, Gio, Gtk, Gdk } from 'imports/gi';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-
-export const extensionSettings = ExtensionUtils.getSettings(
-    'org.gnome.shell.extensions.workspaces-bar',
-);
-
 export function addToggle({
     group,
     key,
     title,
     subtitle = null,
-    settings = extensionSettings,
+    settings,
 }: {
     group: Adw.PreferencesGroup;
     key: string;
     title: string;
     subtitle?: string | null;
-    settings?: any;
+    settings: Gio.Settings;
 }): void {
     // Create a new preferences row
     const row = new Adw.ActionRow({ title, subtitle });
@@ -41,14 +35,14 @@ export function addKeyboardShortcut({
     key,
     title,
     subtitle = null,
-    settings = extensionSettings,
+    settings,
 }: {
     window: Adw.PreferencesWindow;
     group: Adw.PreferencesGroup;
     key: string;
     title: string;
     subtitle?: string | null;
-    settings?: Gio.Settings;
+    settings: Gio.Settings;
 }): void {
     const row = new Adw.ActionRow({
         title,

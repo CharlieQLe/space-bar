@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-    <schema id="org.gnome.shell.extensions.workspaces-bar" path="/org/gnome/shell/extensions/workspaces-bar/">
+    <schema id="org.gnome.shell.extensions.workspaces-bar.behavior" path="/org/gnome/shell/extensions/workspaces-bar/behavior/">
         <!-- See also: https://docs.gtk.org/glib/gvariant-format-strings.html -->
         <key name="show-new-workspace-button" type="b">
             <default>true</default>
@@ -8,8 +8,32 @@
         <key name="show-empty-workspaces" type="b">
             <default>true</default>
         </key>
+
+		<key name="new-workspace-button-action" type="s">
+			<choices>
+				<choice value="empty"/>
+				<choice value="most-recent"/>
+				<choice value="menu"/>
+			</choices>
+			<default>"menu"</default>
+			<summary>New-workspace-button action</summary>
+		</key>
+    </schema>
+
+    <schema id="org.gnome.shell.extensions.workspaces-bar.shortcuts" path="/org/gnome/shell/extensions/workspaces-bar/shortcuts/">
+
         <key name="enable-activate-workspace-shortcuts" type="b">
             <default>true</default>
+        </key>
+
+        <key name="activate-previous-key" type="as">
+            <default><![CDATA[['<Super>grave']]]></default>
+            <!-- <default><![CDATA[['<Super>Above_Tab']]]></default> -->
+            <summary>Keybinding to activate the previous workspace.</summary>
+        </key>
+        <key name="open-menu" type="as">
+            <default><![CDATA[['<Super>W']]]></default>
+            <summary>Keybinding to open the workspaces bar menu.</summary>
         </key>
 
         <key name="activate-1-key" type="as">
@@ -52,14 +76,6 @@
             <default><![CDATA[['<Super>0']]]></default>
             <summary>Keybinding to activate workspace 10.</summary>
         </key>
-        <key name="activate-previous-key" type="as">
-            <default><![CDATA[['<Super>grave']]]></default>
-            <!-- <default><![CDATA[['<Super>Above_Tab']]]></default> -->
-            <summary>Keybinding to activate the previous workspace.</summary>
-        </key>
-        <key name="open-menu" type="as">
-            <default><![CDATA[['<Super>W']]]></default>
-            <summary>Keybinding to open the workspaces bar menu.</summary>
-        </key>
+
     </schema>
 </schemalist>
