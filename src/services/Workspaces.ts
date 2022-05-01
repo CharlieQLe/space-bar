@@ -163,6 +163,14 @@ export class Workspaces {
     }
 
     getDisplayName(workspace: WorkspaceState): string {
+        if (
+            this._settings.dynamicWorkspaces.value &&
+            workspace.index > 0 &&
+            !workspace.hasWindows &&
+            this.currentIndex !== workspace.index
+        ) {
+            return '+';
+        }
         return workspace.name || (workspace.index + 1).toString();
     }
 
