@@ -220,10 +220,7 @@ export class Workspaces {
                 this._wsNames!.rename(workspace.index, '');
             } else if (workspace.hasWindows && !workspace.name) {
                 this._wsNames!.restoreSmartWorkspaceName(workspace.index);
-            // } else {
-            //     continue;
             }
-            // workspace.name = this._settings.workspaceNames.value[workspace.index];
         }
     }
 
