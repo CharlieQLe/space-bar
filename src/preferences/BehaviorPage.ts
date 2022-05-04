@@ -20,13 +20,6 @@ export class BehaviorPage {
         addToggle({
             settings,
             group,
-            key: 'show-new-workspace-button',
-            title: 'Show new-workspace button',
-            subtitle: 'A button next to the workspaces bar that will add a new workspace',
-        });
-        addToggle({
-            settings,
-            group,
             key: 'show-empty-workspaces',
             title: 'Show empty workspaces',
             subtitle: "Includes workspaces that don't have any windows",

@@ -2,14 +2,11 @@
 <schemalist>
     <schema id="org.gnome.shell.extensions.workspaces-bar.behavior" path="/org/gnome/shell/extensions/workspaces-bar/behavior/">
         <!-- See also: https://docs.gtk.org/glib/gvariant-format-strings.html -->
-        <key name="show-new-workspace-button" type="b">
-            <default>true</default>
-        </key>
         <key name="show-empty-workspaces" type="b">
             <default>true</default>
         </key>
 
-		<key name="new-workspace-button-action" type="s">
+		<!-- <key name="new-workspace-button-action" type="s">
 			<choices>
 				<choice value="empty"/>
 				<choice value="most-recent"/>
@@ -17,7 +14,7 @@
 			</choices>
 			<default>"menu"</default>
 			<summary>New-workspace-button action</summary>
-		</key>
+		</key> -->
     </schema>
 
     <schema id="org.gnome.shell.extensions.workspaces-bar.shortcuts" path="/org/gnome/shell/extensions/workspaces-bar/shortcuts/">

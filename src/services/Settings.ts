@@ -30,10 +30,6 @@ export class Settings {
         this.mutterSettings,
         'dynamic-workspaces',
     );
-    readonly showNewWorkspaceButton = SettingsSubject.createBooleanSubject(
-        this.behaviorSettings,
-        'show-new-workspace-button',
-    );
     readonly showEmptyWorkspaces = SettingsSubject.createBooleanSubject(
         this.behaviorSettings,
         'show-empty-workspaces',

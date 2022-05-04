@@ -85,9 +85,6 @@ export class Workspaces {
         this._settings.showEmptyWorkspaces.subscribe(() =>
             this._update('number-of-workspaces-changed'),
         );
-        this._settings.showNewWorkspaceButton.subscribe(() =>
-            this._update('number-of-workspaces-changed'),
-        );
         this._update(null);
     }
 
@@ -194,8 +191,7 @@ export class Workspaces {
         this.currentIndex = global.workspace_manager.get_active_workspace_index();
         if (
             this._settings.dynamicWorkspaces.value &&
-            (!this._settings.showEmptyWorkspaces.value ||
-                this._settings.showNewWorkspaceButton.value) &&
+            !this._settings.showEmptyWorkspaces.value &&
             this.currentIndex !== this.numberOfEnabledWorkspaces - 1
         ) {
             this.lastVisibleWorkspace = this.numberOfEnabledWorkspaces - 2;
@@ -249,8 +245,7 @@ export class Workspaces {
         } else if (
             // The last workspace for dynamic workspaces is a special case.
             this._settings.dynamicWorkspaces.value &&
-            (!this._settings.showEmptyWorkspaces.value ||
-                this._settings.showNewWorkspaceButton.value)
+            !this._settings.showEmptyWorkspaces.value
         ) {
             return false;
         } else {

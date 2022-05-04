@@ -78,9 +78,6 @@ export class WorkspacesBarMenu {
         const separator = new PopupMenu.PopupSeparatorMenuItem();
         this._menu.addMenuItem(separator);
         this._menu.addMenuItem(this._manageWorkspaceSection);
-        this._settings.showNewWorkspaceButton.subscribe(() =>
-            this._refreshManageWorkspaceSection(),
-        );
         this._settings.showEmptyWorkspaces.subscribe(() => this._refreshManageWorkspaceSection());
         this._settings.dynamicWorkspaces.subscribe(() => this._refreshManageWorkspaceSection());
     }
@@ -141,8 +138,7 @@ export class WorkspacesBarMenu {
         this._manageWorkspaceSection.box.destroy_all_children();
 
         if (
-            !this._settings.showNewWorkspaceButton.value &&
-            (!this._settings.dynamicWorkspaces.value || !this._settings.showEmptyWorkspaces.value)
+            !this._settings.dynamicWorkspaces.value || !this._settings.showEmptyWorkspaces.value
         ) {
             const newWorkspaceButton = new PopupMenu.PopupMenuItem('Add new workspace');
             newWorkspaceButton.connect('activate', () => {

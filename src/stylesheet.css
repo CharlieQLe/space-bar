@@ -1,7 +1,7 @@
-.workspaces-bar {
+/* .workspaces-bar { */
     /* -natural-hpadding: 0px; */
     /* border-radius: 8px; */
-}
+/* } */
 
 .workspaces-bar-workspace-label {
     margin: 0 4px;
@@ -21,12 +21,6 @@
 }
 
 .workspaces-bar-workspace-label.empty.inactive {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.new-workspace-button {
-    /* -natural-hpadding: 0px; */
-    /* -minimum-hpadding: 0px; */
     color: rgba(255, 255, 255, 0.5);
 }
 
