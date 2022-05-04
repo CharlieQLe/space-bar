@@ -15,6 +15,7 @@ export class Settings {
         return Settings._instance as Settings;
     }
 
+    readonly state = ExtensionUtils.getSettings('org.gnome.shell.extensions.workspaces-bar.state');
     readonly behaviorSettings = ExtensionUtils.getSettings(
         'org.gnome.shell.extensions.workspaces-bar.behavior',
     );
@@ -26,6 +27,9 @@ export class Settings {
         schema: 'org.gnome.desktop.wm.preferences',
     });
 
+    readonly workspaceNamesMap = SettingsSubject.createJsonObjectSubject<{
+        [windowName: string]: string[];
+    }>(this.state, 'workspace-names-map');
     readonly dynamicWorkspaces = SettingsSubject.createBooleanSubject(
         this.mutterSettings,
         'dynamic-workspaces',
@@ -33,6 +37,10 @@ export class Settings {
     readonly showEmptyWorkspaces = SettingsSubject.createBooleanSubject(
         this.behaviorSettings,
         'show-empty-workspaces',
+    );
+    readonly smartWorkspaceNames = SettingsSubject.createBooleanSubject(
+        this.behaviorSettings,
+        'smart-workspace-names',
     );
     readonly workspaceNames = SettingsSubject.createStringArraySubject(
         this.wmPreferencesSettings,
@@ -58,6 +66,9 @@ class SettingsSubject<T> {
         name: string,
     ): SettingsSubject<string[]> {
         return new SettingsSubject<string[]>(settings, name, 'string-array');
+    }
+    static createJsonObjectSubject<T>(settings: Gio.Settings, name: string): SettingsSubject<T> {
+        return new SettingsSubject<T>(settings, name, 'json-object');
     }
     static initAll() {
         for (const subject of SettingsSubject._subjects) {
@@ -87,7 +98,7 @@ class SettingsSubject<T> {
     private constructor(
         private readonly _settings: Gio.Settings,
         private readonly _name: string,
-        private readonly _type: 'boolean' | 'string-array',
+        private readonly _type: 'boolean' | 'string-array' | 'json-object',
     ) {
         SettingsSubject._subjects.push(this);
     }
@@ -106,6 +117,8 @@ class SettingsSubject<T> {
                     return this._settings.get_boolean(this._name) as unknown as T;
                 case 'string-array':
                     return this._settings.get_strv(this._name) as unknown as T;
+                case 'json-object':
+                    return JSON.parse(this._settings.get_string(this._name)) as unknown as T;
                 default:
                     throw new Error('unknown type ' + this._type);
             }
@@ -116,6 +129,8 @@ class SettingsSubject<T> {
                     return this._settings.set_boolean(this._name, value as unknown as boolean);
                 case 'string-array':
                     return this._settings.set_strv(this._name, value as unknown as string[]);
+                case 'json-object':
+                    return this._settings.set_string(this._name, JSON.stringify(value));
                 default:
                     throw new Error('unknown type ' + this._type);
             }

@@ -9,7 +9,7 @@ export interface WorkspaceState {
     /** Whether the workspace is currently shown in the workspaces bar. */
     isVisible: boolean;
     index: number;
-    name?: string;
+    name?: string | null;
     hasWindows: boolean;
 }
 
@@ -82,6 +82,7 @@ export class Workspaces {
             () => this._update('windows-changed'),
         );
         this._settings.workspaceNames.subscribe(() => this._update('workspace-names-changed'));
+        this._settings.smartWorkspaceNames.subscribe(() => this._update('workspace-names-changed'));
         this._settings.showEmptyWorkspaces.subscribe(() =>
             this._update('number-of-workspaces-changed'),
         );
@@ -205,8 +206,24 @@ export class Workspaces {
         this.workspaces = [...Array(numberOfTrackedWorkspaces)].map((_, index) =>
             this._getWorkspaceState(index),
         );
+        if (this._settings.smartWorkspaceNames.value) {
+            this._updateSmartWorkspaceNames();
+        }
         if (reason !== null) {
             this._notify(reason);
+        }
+    }
+
+    private _updateSmartWorkspaceNames() {
+        for (const workspace of this.workspaces) {
+            if (!workspace.hasWindows && workspace.name) {
+                this._wsNames!.rename(workspace.index, '');
+            } else if (workspace.hasWindows && !workspace.name) {
+                this._wsNames!.restoreSmartWorkspaceName(workspace.index);
+            // } else {
+            //     continue;
+            }
+            // workspace.name = this._settings.workspaceNames.value[workspace.index];
         }
     }
 

@@ -22,7 +22,14 @@ export class BehaviorPage {
             group,
             key: 'show-empty-workspaces',
             title: 'Show empty workspaces',
-            subtitle: "Includes workspaces that don't have any windows",
+            subtitle: "Show workspaces that don't have any windows in the workspaces bar",
+        });
+        addToggle({
+            settings,
+            group,
+            key: 'smart-workspace-names',
+            title: 'Enable smart workspace names',
+            subtitle: "Automatically assign workspace names based on started applications",
         });
         this.page.add(group);
     }
