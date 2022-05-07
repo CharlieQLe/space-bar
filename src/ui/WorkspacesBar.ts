@@ -177,7 +177,7 @@ class WorkspacesBarDragHandler {
     private _draggedWorkspace?: WorkspaceState | null;
     private _wsBoxPositions?: WsBoxPosition[] | null;
     private _initialDropPosition?: DropPosition | null;
-    private _nextBoxInitialPosition: number | null = null;
+    private _barWidthAtDragStart: number | null = null;
     private _hasLeftInitialPosition = false;
     private _workspacesBarOffset: number | null = null;
 
@@ -228,6 +228,7 @@ class WorkspacesBarDragHandler {
         wsBox.add_style_class_name('dragging');
         this._draggedWorkspace = workspace;
         this._setDragMonitor(true);
+        this._barWidthAtDragStart = this._getBarWidth();
         this._setUpBoxPositions(wsBox, workspace);
     }
 
@@ -237,7 +238,7 @@ class WorkspacesBarDragHandler {
         this._wsBoxPositions = null;
         this._initialDropPosition = null;
         this._hasLeftInitialPosition = false;
-        this._nextBoxInitialPosition = null;
+        this._barWidthAtDragStart = null;
         this._setDragMonitor(false);
     }
 
@@ -302,11 +303,14 @@ class WorkspacesBarDragHandler {
 
     private _updateDragPlaceholder(dropPosition?: DropPosition): void {
         if (
-            !this._getHasLeftInitialPosition() &&
             dropPosition?.index === this._initialDropPosition?.index &&
             dropPosition?.position === this._initialDropPosition?.position
         ) {
-            return;
+            if (!this._getHasLeftInitialPosition()) {
+                return;
+            }
+        } else {
+            this._hasLeftInitialPosition = true;
         }
         for (const { wsBox } of this.wsBoxes) {
             if (wsBox === dropPosition?.wsBox) {
@@ -321,16 +325,15 @@ class WorkspacesBarDragHandler {
         }
     }
 
+    private _getBarWidth(): number {
+        return this.wsBoxes[0].wsBox.get_parent()!.get_width();
+    }
+
     private _getHasLeftInitialPosition(): boolean {
         if (this._hasLeftInitialPosition) {
             return true;
         }
-        const nextBox = this.wsBoxes[this._draggedWorkspace!.index + 1];
-        if (!nextBox) {
-            this._hasLeftInitialPosition = true;
-        } else if (this._nextBoxInitialPosition === null) {
-            this._nextBoxInitialPosition = nextBox.wsBox.get_x();
-        } else if (this._nextBoxInitialPosition !== nextBox.wsBox.get_x()) {
+        if (this._barWidthAtDragStart !== this._getBarWidth()) {
             this._hasLeftInitialPosition = true;
         }
         return this._hasLeftInitialPosition;
