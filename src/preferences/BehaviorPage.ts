@@ -11,25 +11,35 @@ export class BehaviorPage {
     init() {
         this.page.set_title('Behavior');
         this.page.set_icon_name('settings');
-        this._initGroup();
+        this._initGeneralGroup();
+        this._initSmartWorkspaceNamesGroup();
     }
 
-    private _initGroup(): void {
+    private _initGeneralGroup(): void {
         const group = new Adw.PreferencesGroup();
-        // group.set_title('Workspaces Bar');
+        group.set_title('General');
         addToggle({
             settings,
             group,
             key: 'show-empty-workspaces',
             title: 'Show empty workspaces',
-            subtitle: "Show workspaces that don't have any windows in the workspaces bar",
+            subtitle: "Shows workspaces that don't have any windows in the workspaces bar",
         });
+        this.page.add(group);
+    }
+
+    private _initSmartWorkspaceNamesGroup(): void {
+        const group = new Adw.PreferencesGroup();
+        group.set_title('Smart Workspace Names');
+        group.set_description(
+            'Remembers open applications when renaming a workspace and automatically assign workspace names based on the first application started on a new workspace.',
+        );
         addToggle({
             settings,
             group,
             key: 'smart-workspace-names',
             title: 'Enable smart workspace names',
-            subtitle: "Automatically assign workspace names based on started applications",
+            // subtitle: 'Automatically assign workspace names based on started applications',
         });
         this.page.add(group);
     }
