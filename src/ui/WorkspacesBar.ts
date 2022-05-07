@@ -178,6 +178,8 @@ class WorkspacesBarDragHandler {
     private _draggedWorkspace?: WorkspaceState | null;
     private _wsBoxPositions?: WsBoxPosition[] | null;
     private _initialDropPosition?: DropPosition | null;
+    private _nextBoxInitialPosition: number | null = null;
+    private _hasLeftInitialPosition = false;
 
     constructor(private _updateWorkspaces: () => void) {}
 
@@ -234,6 +236,8 @@ class WorkspacesBarDragHandler {
         this._draggedWorkspace = null;
         this._wsBoxPositions = null;
         this._initialDropPosition = null;
+        this._hasLeftInitialPosition = false;
+        this._nextBoxInitialPosition = null;
         this._setDragMonitor(false);
     }
 
@@ -297,6 +301,13 @@ class WorkspacesBarDragHandler {
     }
 
     private _updateDragPlaceholder(dropPosition?: DropPosition): void {
+        if (
+            !this._getHasLeftInitialPosition() &&
+            dropPosition?.index === this._initialDropPosition?.index &&
+            dropPosition?.position === this._initialDropPosition?.position
+        ) {
+            return;
+        }
         for (const { wsBox } of this.wsBoxes) {
             if (wsBox === dropPosition?.wsBox) {
                 if (dropPosition!.position === 'before') {
@@ -308,6 +319,21 @@ class WorkspacesBarDragHandler {
                 wsBox.set_style(null);
             }
         }
+    }
+
+    private _getHasLeftInitialPosition(): boolean {
+        if (this._hasLeftInitialPosition) {
+            return true;
+        }
+        const nextBox = this.wsBoxes[this._draggedWorkspace!.index + 1];
+        if (!nextBox) {
+            this._hasLeftInitialPosition = true;
+        } else if (this._nextBoxInitialPosition === null) {
+            this._nextBoxInitialPosition = nextBox.wsBox.get_x();
+        } else if (this._nextBoxInitialPosition !== nextBox.wsBox.get_x()) {
+            this._hasLeftInitialPosition = true;
+        }
+        return this._hasLeftInitialPosition;
     }
 }
 
