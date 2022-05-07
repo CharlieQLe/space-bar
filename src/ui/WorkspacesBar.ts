@@ -204,10 +204,11 @@ class WorkspacesBarDragHandler {
     acceptDrop(source: any, actor: Clutter.Actor, x: number, y: number): boolean {
         if (source instanceof WorkspaceBoxDragHandler) {
             const dropPosition = this._getDropPosition();
-            if (this._draggedWorkspace!.index === dropPosition?.index) {
+            if (dropPosition) {
+                if (this._draggedWorkspace!.index !== dropPosition?.index) {
+                    this._ws.reorderWorkspace(this._draggedWorkspace!.index, dropPosition?.index);
+                }
                 this._updateWorkspaces();
-            } else if (dropPosition) {
-                this._ws.reorderWorkspace(this._draggedWorkspace!.index, dropPosition?.index);
             }
             this._onDragFinished(actor as St.Bin);
             return true;
