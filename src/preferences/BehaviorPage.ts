@@ -32,7 +32,7 @@ export class BehaviorPage {
         const group = new Adw.PreferencesGroup();
         group.set_title('Smart Workspace Names');
         group.set_description(
-            'Remembers open applications when renaming a workspace and automatically assign workspace names based on the first application started on a new workspace.',
+            'Remembers open applications when renaming a workspace and automatically assigns workspace names based on the first application started on a new workspace.',
         );
         addToggle({
             settings,
