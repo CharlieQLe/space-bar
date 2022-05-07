@@ -46,7 +46,7 @@ export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
     private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
-    private readonly _button = new (WorkspacesButton as any)(0.0, this._name);
+    private readonly _button = new (WorkspacesButton as any)(0.5, this._name);
     private _wsBar!: St.BoxLayout;
     private readonly _dragHandler = new WorkspacesBarDragHandler(() => this._updateWorkspaces());
 
