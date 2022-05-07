@@ -82,6 +82,14 @@ export class Workspaces {
             () => this._update('windows-changed'),
         );
         this._settings.workspaceNames.subscribe(() => this._update('workspace-names-changed'));
+        if (this._settings.smartWorkspaceNames.value) {
+            this._clearEmptyWorkspaceNames();
+        }
+        this._settings.smartWorkspaceNames.subscribe((value) => {
+            if (value) {
+                this._clearEmptyWorkspaceNames();
+            }
+        });
         this._settings.smartWorkspaceNames.subscribe(() => this._update('workspace-names-changed'));
         this._settings.showEmptyWorkspaces.subscribe(() =>
             this._update('number-of-workspaces-changed'),
@@ -161,12 +169,7 @@ export class Workspaces {
     }
 
     getDisplayName(workspace: WorkspaceState): string {
-        if (
-            this._settings.dynamicWorkspaces.value &&
-            workspace.index > 0 &&
-            !workspace.hasWindows &&
-            this.currentIndex !== workspace.index
-        ) {
+        if (this._isExtraDynamicWorkspace(workspace)) {
             return '+';
         }
         return workspace.name || (workspace.index + 1).toString();
@@ -179,6 +182,19 @@ export class Workspaces {
         if (mostRecentWindowOnWorkspace) {
             workspace.activate_with_focus(mostRecentWindowOnWorkspace, global.get_current_time());
         }
+    }
+
+    /**
+     * When using dynamic workspaces, whether `workspace` is the extra last workspace, that is
+     * currently neither used nor focused.
+     */
+    private _isExtraDynamicWorkspace(workspace: WorkspaceState): boolean {
+        return (
+            this._settings.dynamicWorkspaces.value &&
+            workspace.index > 0 &&
+            !workspace.hasWindows &&
+            this.currentIndex !== workspace.index
+        );
     }
 
     private _onWorkspaceRemoved(index: number): void {
@@ -214,12 +230,28 @@ export class Workspaces {
         }
     }
 
-    private _updateSmartWorkspaceNames() {
+    private _updateSmartWorkspaceNames(): void {
         for (const workspace of this.workspaces) {
-            if (!workspace.hasWindows && workspace.name) {
-                this._wsNames!.rename(workspace.index, '');
-            } else if (workspace.hasWindows && !workspace.name) {
+            if (workspace.hasWindows && !workspace.name) {
                 this._wsNames!.restoreSmartWorkspaceName(workspace.index);
+            }
+            if (this._isExtraDynamicWorkspace(workspace)) {
+                this._wsNames!.remove(workspace.index);
+            }
+        }
+    }
+
+    private _clearEmptyWorkspaceNames(): void {
+        for (const workspace of this.workspaces) {
+            if (
+                (!workspace.isEnabled || this._isExtraDynamicWorkspace(workspace)) &&
+                typeof workspace.name === 'string'
+            ) {
+                // Completely remove disabled workspaces from the names array.
+                this._wsNames!.remove(workspace.index);
+            } else if (!workspace.hasWindows && workspace.name) {
+                // Keep empty workspaces in the names array to not mix up names of workspaces after.
+                this._wsNames!.rename(workspace.index, '');
             }
         }
     }
