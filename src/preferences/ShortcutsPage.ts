@@ -2,9 +2,7 @@ import { Adw } from 'imports/gi';
 import { addKeyboardShortcut, addToggle } from 'preferences/common';
 const ExtensionUtils = imports.misc.extensionUtils;
 
-const settings = ExtensionUtils.getSettings(
-    'org.gnome.shell.extensions.workspaces-bar.shortcuts',
-);
+const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.workspaces-bar.shortcuts');
 
 export class ShortcutsPage {
     window!: Adw.PreferencesWindow;
@@ -23,8 +21,17 @@ export class ShortcutsPage {
             settings,
             group,
             key: 'enable-activate-workspace-shortcuts',
-            title: 'Enable super + number shortcuts',
+            title: 'Enable super+number shortcuts',
             subtitle: 'Switch workspaces by pressing super and a number on the keyboard',
+        });
+        this.page.add(group);
+        addToggle({
+            settings,
+            group,
+            key: 'enable-move-to-workspace-shortcuts',
+            title: 'Enable super+shift+number shortcuts',
+            subtitle:
+                'Move the current window to a workspace by pressing super+shift and a number on the keyboard',
         });
         this.page.add(group);
 
@@ -33,15 +40,15 @@ export class ShortcutsPage {
             window: this.window,
             group,
             key: 'activate-previous-key',
-            title: 'Activate previous workspace'
-        })
+            title: 'Activate previous workspace',
+        });
 
         addKeyboardShortcut({
             settings,
             window: this.window,
             group,
             key: 'open-menu',
-            title: 'Open workspaces bar menu'
-        })
+            title: 'Open workspaces bar menu',
+        });
     }
 }

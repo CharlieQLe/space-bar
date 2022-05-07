@@ -2,6 +2,7 @@ import { Meta, Shell } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import { Workspaces } from 'services/Workspaces';
 const Main = imports.ui.main;
+import { Gio } from 'imports/gi';
 
 export class KeyBindings {
     private static _instance: KeyBindings | null;
@@ -22,10 +23,14 @@ export class KeyBindings {
 
     private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
+    private readonly _desktopKeybindings = new Gio.Settings({
+        schema: 'org.gnome.desktop.wm.keybindings',
+    });
     private _addedKeyBindings: string[] = [];
 
     init() {
         this._registerActivateByNumberKeys();
+        this._registerMoveToByNumberKeys();
         this._addActivateKeys();
         KeyBindings._instance = this;
     }
@@ -78,5 +83,18 @@ export class KeyBindings {
             },
             { emitCurrentValue: true },
         );
+    }
+
+    private _registerMoveToByNumberKeys(): void {
+        this._settings.enableMoveToWorkspaceShortcuts.subscribe((value) => {
+            for (let i = 0; i < 10; i++) {
+                const name = `move-to-workspace-${i + 1}`;
+                if (value) {
+                    this._desktopKeybindings.set_strv(name, [`<Super><Shift>${(i + 1) % 10}`]);
+                } else {
+                    this._desktopKeybindings.reset(name);
+                }
+            }
+        });
     }
 }

@@ -46,6 +46,10 @@ export class Settings {
         this.shortcutsSettings,
         'enable-activate-workspace-shortcuts',
     );
+    readonly enableMoveToWorkspaceShortcuts = SettingsSubject.createBooleanSubject(
+        this.shortcutsSettings,
+        'enable-move-to-workspace-shortcuts',
+    );
     readonly workspaceNames = SettingsSubject.createStringArraySubject(
         this.wmPreferencesSettings,
         'workspace-names',
