@@ -40,10 +40,10 @@ export class WorkspaceNames {
         let workspaceNames = this._getNames();
         const oldName = workspaceNames[index];
         workspaceNames[index] = newName;
+        this._setNames(workspaceNames);
         if (this._settings.smartWorkspaceNames.value && newName) {
             this._saveSmartWorkspaceName(index, oldName, newName);
         }
-        this._setNames(workspaceNames);
     }
 
     restoreSmartWorkspaceName(index: number) {
@@ -68,16 +68,15 @@ export class WorkspaceNames {
         const windowNames = this._getWindowNames(index);
         const workspacesNamesMap = this._settings.workspaceNamesMap.value;
         for (const windowName of windowNames) {
-            if (!workspacesNamesMap[windowName]?.includes(newName)) {
-                workspacesNamesMap[windowName] = [
-                    ...(workspacesNamesMap[windowName] ?? []),
-                    newName,
-                ];
-            }
-            if (workspacesNamesMap[windowName]?.includes(oldName)) {
-                const oldNameIndex = workspacesNamesMap[windowName].indexOf(oldName);
-                workspacesNamesMap[windowName].splice(oldNameIndex, 1);
-            }
+            workspacesNamesMap[windowName] = [
+                ...(workspacesNamesMap[windowName] ?? [])
+                    // Clear our unused names.
+                    .filter(
+                        (name) =>
+                            name !== newName && this._getEnabledWorkspaceNames().includes(name),
+                    ),
+                newName,
+            ];
         }
         this._settings.workspaceNamesMap.value = workspacesNamesMap;
     }
