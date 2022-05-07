@@ -32,15 +32,7 @@ export class WorkspaceNames {
 
     remove(index: number): void {
         const workspaceNames = this._getNames();
-        const insertIndex = this._ws.lastVisibleWorkspace + 1;
-        const [removedName] = workspaceNames.splice(index, 1);
-        if (removedName) {
-            if (!workspaceNames[insertIndex]) {
-                workspaceNames[insertIndex] = removedName;
-            } else {
-                workspaceNames.splice(insertIndex, 0, removedName);
-            }
-        }
+        workspaceNames.splice(index, 1);
         this._setNames(workspaceNames);
     }
 
@@ -110,24 +102,15 @@ export class WorkspaceNames {
     }
 
     private _setNames(names: string[]): void {
-        names = this._cleanUp(names);
+        // names = this._cleanUp(names);
         this._settings.workspaceNames.value = names;
     }
 
     private _cleanUp(workspaceNames: string[]): string[] {
-        // const enabledWorkspaceNames = workspaceNames.filter(
-        //     (_, index) => index < this._ws.numberOfEnabledWorkspaces,
-        // );
         return (
             workspaceNames
                 // Filter empty and unused workspace names.
                 .filter((name, index) => index < this._ws.numberOfEnabledWorkspaces || !!name)
-            // Filter unused workspace names that are already used.
-            // .filter(
-            //     (name, index) =>
-            //         index < this._ws.numberOfEnabledWorkspaces ||
-            //         !enabledWorkspaceNames.includes(name),
-            // )
         );
     }
 
