@@ -187,6 +187,7 @@ export class Workspaces {
         return (
             this._settings.dynamicWorkspaces.value &&
             workspace.index > 0 &&
+            workspace.index === this.numberOfEnabledWorkspaces - 1 &&
             !workspace.hasWindows &&
             this.currentIndex !== workspace.index
         );
