@@ -20,11 +20,12 @@ export class KeyBindings {
         return KeyBindings._instance as KeyBindings;
     }
 
-    private readonly _shortcutsSettings = Settings.getInstance().shortcutsSettings;
+    private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
     private _addedKeyBindings: string[] = [];
 
     init() {
+        this._registerActivateByNumberKeys();
         this._addActivateKeys();
         KeyBindings._instance = this;
     }
@@ -40,7 +41,7 @@ export class KeyBindings {
         Shell.ActionMode;
         Main.wm.addKeybinding(
             name,
-            this._shortcutsSettings,
+            this._settings.shortcutsSettings,
             Meta.KeyBindingFlags.NONE,
             Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
             handler,
@@ -49,17 +50,33 @@ export class KeyBindings {
     }
 
     private _removeKeybinding(name: string) {
-        Main.wm.removeKeybinding(name);
+        if (this._addedKeyBindings.includes(name)) {
+            Main.wm.removeKeybinding(name);
+            this._addedKeyBindings.splice(this._addedKeyBindings.indexOf(name), 1);
+        }
     }
 
     private _addActivateKeys() {
-        for (let i = 0; i < 10; i++) {
-            this.addKeyBinding(`activate-${i + 1}-key`, () => {
-                this._ws.activate(i, { focusWindowIfCurrentWorkspace: true });
-            });
-        }
         this.addKeyBinding('activate-previous-key', () => {
             this._ws.activatePrevious();
         });
+    }
+
+    private _registerActivateByNumberKeys(): void {
+        this._settings.enableActivateWorkspaceShortcuts.subscribe(
+            (value) => {
+                for (let i = 0; i < 10; i++) {
+                    const name = `activate-${i + 1}-key`;
+                    if (value) {
+                        this.addKeyBinding(name, () => {
+                            this._ws.activate(i, { focusWindowIfCurrentWorkspace: true });
+                        });
+                    } else {
+                        this._removeKeybinding(name);
+                    }
+                }
+            },
+            { emitCurrentValue: true },
+        );
     }
 }

@@ -42,6 +42,10 @@ export class Settings {
         this.behaviorSettings,
         'smart-workspace-names',
     );
+    readonly enableActivateWorkspaceShortcuts = SettingsSubject.createBooleanSubject(
+        this.shortcutsSettings,
+        'enable-activate-workspace-shortcuts',
+    );
     readonly workspaceNames = SettingsSubject.createStringArraySubject(
         this.wmPreferencesSettings,
         'workspace-names',
