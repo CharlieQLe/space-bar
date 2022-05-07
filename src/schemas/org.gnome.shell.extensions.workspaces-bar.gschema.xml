@@ -28,6 +28,10 @@
             <!-- <default><![CDATA[['<Super>Above_Tab']]]></default> -->
             <summary>Keybinding to activate the previous workspace.</summary>
         </key>
+        <key name="new-workspace-key" type="as">
+            <default><![CDATA[['<Super>n']]]></default>
+            <summary>Add a new workspace.</summary>
+        </key>
         <key name="open-menu" type="as">
             <default><![CDATA[['<Super>W']]]></default>
             <summary>Keybinding to open the workspaces bar menu.</summary>

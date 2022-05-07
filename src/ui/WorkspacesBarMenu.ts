@@ -144,11 +144,7 @@ export class WorkspacesBarMenu {
             const newWorkspaceButton = new PopupMenu.PopupMenuItem('Add new workspace');
             newWorkspaceButton.connect('activate', () => {
                 this._menu.close();
-                if (this._settings.dynamicWorkspaces.value) {
-                    this._ws.activate(this._ws.numberOfEnabledWorkspaces - 1);
-                } else {
-                    this._ws.addWorkspace();
-                }
+                this._ws.addWorkspace();
             });
             this._manageWorkspaceSection.addMenuItem(newWorkspaceButton);
         }

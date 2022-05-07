@@ -144,6 +144,14 @@ export class Workspaces {
     }
 
     addWorkspace() {
+        if (this._settings.dynamicWorkspaces.value) {
+            this.activate(this.numberOfEnabledWorkspaces - 1);
+        } else {
+            this._addStaticWorkspace();
+        }
+    }
+
+    _addStaticWorkspace() {
         global.workspace_manager.append_new_workspace(true, global.get_current_time());
         Main.overview.show();
     }

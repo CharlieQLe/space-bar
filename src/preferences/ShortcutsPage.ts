@@ -17,6 +17,9 @@ export class ShortcutsPage {
     private _initGroup(): void {
         const group = new Adw.PreferencesGroup();
         // group.set_title('Workspaces Bar');
+        group.set_description('Shortcuts might not work if they are already bound elsewhere.');
+        this.page.add(group);
+
         addToggle({
             settings,
             group,
@@ -24,7 +27,7 @@ export class ShortcutsPage {
             title: 'Enable super+number shortcuts',
             subtitle: 'Switch workspaces by pressing super and a number on the keyboard',
         });
-        this.page.add(group);
+
         addToggle({
             settings,
             group,
@@ -41,6 +44,14 @@ export class ShortcutsPage {
             group,
             key: 'activate-previous-key',
             title: 'Activate previous workspace',
+        });
+
+        addKeyboardShortcut({
+            settings,
+            window: this.window,
+            group,
+            key: 'new-workspace-key',
+            title: 'Add a new workspace',
         });
 
         addKeyboardShortcut({

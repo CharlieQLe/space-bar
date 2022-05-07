@@ -29,9 +29,9 @@ export class KeyBindings {
     private _addedKeyBindings: string[] = [];
 
     init() {
-        this._registerActivateByNumberKeys();
-        this._registerMoveToByNumberKeys();
-        this._addActivateKeys();
+        this._registerActivateByNumber();
+        this._registerMoveToByNumber();
+        this._addExtensionKeyBindings();
         KeyBindings._instance = this;
     }
 
@@ -61,13 +61,12 @@ export class KeyBindings {
         }
     }
 
-    private _addActivateKeys() {
-        this.addKeyBinding('activate-previous-key', () => {
-            this._ws.activatePrevious();
-        });
+    private _addExtensionKeyBindings() {
+        this.addKeyBinding('activate-previous-key', () => this._ws.activatePrevious());
+        this.addKeyBinding('new-workspace-key', () => this._ws.addWorkspace());
     }
 
-    private _registerActivateByNumberKeys(): void {
+    private _registerActivateByNumber(): void {
         this._settings.enableActivateWorkspaceShortcuts.subscribe(
             (value) => {
                 for (let i = 0; i < 10; i++) {
@@ -85,7 +84,7 @@ export class KeyBindings {
         );
     }
 
-    private _registerMoveToByNumberKeys(): void {
+    private _registerMoveToByNumber(): void {
         this._settings.enableMoveToWorkspaceShortcuts.subscribe((value) => {
             for (let i = 0; i < 10; i++) {
                 const name = `move-to-workspace-${i + 1}`;
