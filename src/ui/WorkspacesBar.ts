@@ -173,13 +173,13 @@ class WorkspacesBarDragHandler {
         wsBox: St.Bin;
     }[] = [];
     private readonly _ws = Workspaces.getInstance();
-    private readonly _workspacesBarOffset = 12;
     private _dragMonitor: any;
     private _draggedWorkspace?: WorkspaceState | null;
     private _wsBoxPositions?: WsBoxPosition[] | null;
     private _initialDropPosition?: DropPosition | null;
     private _nextBoxInitialPosition: number | null = null;
     private _hasLeftInitialPosition = false;
+    private _workspacesBarOffset: number | null = null;
 
     constructor(private _updateWorkspaces: () => void) {}
 
@@ -269,7 +269,7 @@ class WorkspacesBarDragHandler {
             ({ workspace }) => workspace === this._draggedWorkspace,
         )?.wsBox as St.Bin;
         for (const { index, center, wsBox } of this._wsBoxPositions!) {
-            if (draggedWsBox.get_x() < center + this._workspacesBarOffset) {
+            if (draggedWsBox.get_x() < center + this._getWorkspacesBarOffset()) {
                 return { index, wsBox, position: 'before', width: draggedWsBox.get_width() };
             }
         }
@@ -334,6 +334,18 @@ class WorkspacesBarDragHandler {
             this._hasLeftInitialPosition = true;
         }
         return this._hasLeftInitialPosition;
+    }
+
+    private _getWorkspacesBarOffset(): number {
+        if (this._workspacesBarOffset === null) {
+            this._workspacesBarOffset = 0;
+            let widget = this.wsBoxes[0].wsBox.get_parent();
+            while (widget) {
+                this._workspacesBarOffset += widget.get_x();
+                widget = widget.get_parent();
+            }
+        }
+        return this._workspacesBarOffset;
     }
 }
 
