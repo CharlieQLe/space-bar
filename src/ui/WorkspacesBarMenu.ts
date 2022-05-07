@@ -36,7 +36,7 @@ export class WorkspacesBarMenu {
     }
 
     private _refreshMenu() {
-        this._refreshRecentWorkspaces();
+        // this._refreshRecentWorkspaces();
         this._refreshHiddenWorkspaces();
     }
 
@@ -93,21 +93,21 @@ export class WorkspacesBarMenu {
         this._menu.addMenuItem(button);
     }
 
-    private _refreshRecentWorkspaces(): void {
-        this._recentWorkspacesSection.box.destroy_all_children();
+    // private _refreshRecentWorkspaces(): void {
+    //     this._recentWorkspacesSection.box.destroy_all_children();
 
-        const recentWorkspaces = this._ws.workspaces.filter(
-            (workspace, index) => !!workspace.name && index > this._ws.lastVisibleWorkspace,
-        );
-        recentWorkspaces.forEach((workspace) => {
-            const button = new PopupMenu.PopupMenuItem(workspace.name);
-            button.connect('activate', () => {
-                this._menu.close();
-                this._wsNames.rename(this._ws.currentIndex, workspace.name as string);
-            });
-            this._recentWorkspacesSection.addMenuItem(button);
-        });
-    }
+    //     const recentWorkspaces = this._ws.workspaces.filter(
+    //         (workspace, index) => !!workspace.name && index > this._ws.lastVisibleWorkspace,
+    //     );
+    //     recentWorkspaces.forEach((workspace) => {
+    //         const button = new PopupMenu.PopupMenuItem(workspace.name);
+    //         button.connect('activate', () => {
+    //             this._menu.close();
+    //             this._wsNames.rename(this._ws.currentIndex, workspace.name as string);
+    //         });
+    //         this._recentWorkspacesSection.addMenuItem(button);
+    //     });
+    // }
 
     private _refreshHiddenWorkspaces(): void {
         this._hiddenWorkspacesSection.box.destroy_all_children();
