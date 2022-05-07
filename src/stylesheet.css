@@ -1,7 +1,6 @@
-/* .workspaces-bar { */
-    /* -natural-hpadding: 0px; */
-    /* border-radius: 8px; */
-/* } */
+/* .workspaces-bar {
+    -natural-hpadding: 0;
+} */
 
 .workspaces-bar-workspace-label {
     margin: 0 4px;
