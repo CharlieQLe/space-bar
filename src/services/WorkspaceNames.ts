@@ -20,7 +20,14 @@ export class WorkspaceNames {
     moveByIndex(oldIndex: number, newIndex: number): void {
         const workspaceNames = this._getNames();
         const [element] = workspaceNames.splice(oldIndex, 1);
-        workspaceNames.splice(newIndex, 0, element);
+        if (newIndex < workspaceNames.length) {
+            workspaceNames.splice(newIndex, 0, element ?? '');
+        } else {
+            while (workspaceNames.length < newIndex) {
+                workspaceNames.push('');
+            }
+            workspaceNames[newIndex] = element ?? '';
+        }
         this._setNames(workspaceNames);
     }
 
