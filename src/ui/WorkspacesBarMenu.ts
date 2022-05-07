@@ -48,9 +48,12 @@ export class WorkspacesBarMenu {
 
     private _initEntry(): void {
         const entryItem = new PopupMenuItemEntry();
-        entryItem.entry.connect('key-focus-in', () =>
-            entryItem.entry.get_clutter_text().set_selection(0, entryItem.entry.get_text().length),
-        );
+        entryItem.entry.connect('key-focus-in', () => {
+            const text = entryItem.entry.get_text();
+            if (text.length > 0) {
+                entryItem.entry.get_clutter_text().set_selection(0, text.length);
+            }
+        });
         entryItem.entry.get_clutter_text().connect('activate', () => this._menu.close());
         entryItem.connect('notify::active', () => {
             if (entryItem.active) {
@@ -137,9 +140,7 @@ export class WorkspacesBarMenu {
     private _refreshManageWorkspaceSection() {
         this._manageWorkspaceSection.box.destroy_all_children();
 
-        if (
-            !this._settings.dynamicWorkspaces.value || !this._settings.showEmptyWorkspaces.value
-        ) {
+        if (!this._settings.dynamicWorkspaces.value || !this._settings.showEmptyWorkspaces.value) {
             const newWorkspaceButton = new PopupMenu.PopupMenuItem('Add new workspace');
             newWorkspaceButton.connect('activate', () => {
                 this._menu.close();
