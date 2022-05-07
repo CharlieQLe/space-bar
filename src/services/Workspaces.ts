@@ -82,19 +82,14 @@ export class Workspaces {
             () => this._update('windows-changed'),
         );
         this._settings.workspaceNames.subscribe(() => this._update('workspace-names-changed'));
-        if (this._settings.smartWorkspaceNames.value) {
-            this._clearEmptyWorkspaceNames();
-        }
-        this._settings.smartWorkspaceNames.subscribe((value) => {
-            if (value) {
-                this._clearEmptyWorkspaceNames();
-            }
-        });
-        this._settings.smartWorkspaceNames.subscribe(() => this._update('workspace-names-changed'));
         this._settings.showEmptyWorkspaces.subscribe(() =>
             this._update('number-of-workspaces-changed'),
         );
         this._update(null);
+        this._settings.smartWorkspaceNames.subscribe(
+            (value) => value && this._clearEmptyWorkspaceNames(),
+            { emitCurrentValue: true },
+        );
     }
 
     destroy() {
