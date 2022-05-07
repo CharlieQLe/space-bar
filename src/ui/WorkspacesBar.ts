@@ -173,6 +173,7 @@ class WorkspacesBarDragHandler {
         wsBox: St.Bin;
     }[] = [];
     private readonly _ws = Workspaces.getInstance();
+    private readonly _workspacesBarOffset = 12;
     private _dragMonitor: any;
     private _draggedWorkspace?: WorkspaceState | null;
     private _wsBoxPositions?: WsBoxPosition[] | null;
@@ -264,7 +265,7 @@ class WorkspacesBarDragHandler {
             ({ workspace }) => workspace === this._draggedWorkspace,
         )?.wsBox as St.Bin;
         for (const { index, center, wsBox } of this._wsBoxPositions!) {
-            if (draggedWsBox.get_x() < center) {
+            if (draggedWsBox.get_x() < center + this._workspacesBarOffset) {
                 return { index, wsBox, position: 'before', width: draggedWsBox.get_width() };
             }
         }
