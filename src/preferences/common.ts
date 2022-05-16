@@ -7,16 +7,26 @@ export function addToggle({
     title,
     subtitle = null,
     settings,
+    shortcutLabel,
 }: {
     group: Adw.PreferencesGroup;
     key: string;
     title: string;
     subtitle?: string | null;
     settings: Gio.Settings;
+    shortcutLabel?: string | null;
 }): void {
     // Create a new preferences row
     const row = new Adw.ActionRow({ title, subtitle });
     group.add(row);
+
+    if (shortcutLabel) {
+        const gtkShortcutLabel = new Gtk.ShortcutLabel({
+            accelerator: shortcutLabel,
+            valign: Gtk.Align.CENTER,
+        });
+        row.add_prefix(gtkShortcutLabel);
+    }
 
     // Create the switch and bind its value to the `show-indicator` key
     const toggle = new Gtk.Switch({
@@ -56,7 +66,6 @@ export function addCombo({
         subtitle,
         model,
         expression: Gtk.PropertyExpression.new(DropDownChoice, null, 'title'),
-        // valign: Gtk.Align.CENTER,
     });
     group.add(row);
     row.connect('notify::selected-item', () =>

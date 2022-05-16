@@ -25,17 +25,17 @@ export class ShortcutsPage {
             settings,
             group,
             key: 'enable-activate-workspace-shortcuts',
-            title: 'Enable super+number shortcuts',
-            subtitle: 'Switch workspaces by pressing super and a number on the keyboard',
+            title: 'Switch to workspace',
+            shortcutLabel: '<Super>1...0',
         });
 
         addToggle({
             settings,
             group,
             key: 'enable-move-to-workspace-shortcuts',
-            title: 'Enable super+shift+number shortcuts',
-            subtitle:
-                'Move the current window to a workspace by pressing super+shift and a number on the keyboard',
+            title: 'Move to workspace',
+            shortcutLabel: '<Super><Shift>1...0',
+            subtitle: 'With the current window',
         });
         this.page.add(group);
 
@@ -44,7 +44,7 @@ export class ShortcutsPage {
             window: this.window,
             group,
             key: 'activate-previous-key',
-            title: 'Activate previous workspace',
+            title: 'Switch to previous workspace',
         });
 
         addKeyboardShortcut({
@@ -52,7 +52,7 @@ export class ShortcutsPage {
             window: this.window,
             group,
             key: 'new-workspace-key',
-            title: 'Add a new workspace',
+            title: 'Add new workspace',
         });
 
         addKeyboardShortcut({
@@ -60,7 +60,7 @@ export class ShortcutsPage {
             window: this.window,
             group,
             key: 'open-menu',
-            title: 'Open workspaces bar menu',
+            title: 'Open menu',
         });
     }
 }

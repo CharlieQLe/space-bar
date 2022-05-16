@@ -30,7 +30,7 @@ export class BehaviorPage {
             group,
             key: 'show-empty-workspaces',
             title: 'Show empty workspaces',
-            subtitle: "Shows workspaces that don't have any windows in the workspaces bar",
+            // subtitle: "Shows workspaces that don't have any windows in the workspaces bar",
         });
         addCombo({
             window: this.window,
