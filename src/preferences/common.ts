@@ -1,4 +1,5 @@
-import { Adw, Gio, Gtk, Gdk } from 'imports/gi';
+import { Adw, Gdk, Gio, GObject, Gtk } from 'imports/gi';
+import { DropDownChoice, DropDownChoiceClass } from 'preferences/DropDownChoice';
 
 export function addToggle({
     group,
@@ -27,6 +28,50 @@ export function addToggle({
     // Add the switch to the row
     row.add_suffix(toggle);
     row.activatable_widget = toggle;
+}
+
+export function addCombo({
+    group,
+    key,
+    title,
+    subtitle = null,
+    options,
+    settings,
+    window,
+}: {
+    group: Adw.PreferencesGroup;
+    key: string;
+    title: string;
+    subtitle?: string | null;
+    options: { [key: string]: string };
+    settings: Gio.Settings;
+    window: Adw.PreferencesWindow;
+}): void {
+    const model = Gio.ListStore.new(DropDownChoice);
+    for (const id in options) {
+        model.append(new DropDownChoice({ id, title: options[id] }));
+    }
+    const row = new Adw.ComboRow({
+        title,
+        subtitle,
+        model,
+        expression: Gtk.PropertyExpression.new(DropDownChoice, null, 'title'),
+        // valign: Gtk.Align.CENTER,
+    });
+    group.add(row);
+    row.connect('notify::selected-item', () =>
+        settings.set_string(key, (row.selected_item as DropDownChoiceClass).id),
+    );
+    function updateComboRowState() {
+        row.selected =
+            findItemPositionInModel<DropDownChoiceClass>(
+                model,
+                (item) => item.id === settings.get_string(key),
+            ) ?? Gtk.INVALID_LIST_POSITION;
+    }
+    const changed = settings.connect(`changed::${key}`, () => updateComboRowState());
+    window.connect('unmap', () => settings.disconnect(changed));
+    updateComboRowState();
 }
 
 export function addKeyboardShortcut({
@@ -67,22 +112,15 @@ export function addKeyboardShortcut({
         shortcutLabel.hide();
     }
 
-    // const revealer = new Gtk.Revealer();
-    // const clearButton = new Gtk.Button({ icon_name: 'edit-clear-symbolic' });
-    // revealer.set_child(clearButton);
-    // row.add_suffix(revealer);
-
     function showDialog(): void {
         const dialog = new Gtk.Dialog({
             title: 'Set Shortcut',
             modal: true,
             use_header_bar: 1,
             transient_for: window,
-            // hide_on_close: true,
             width_request: 400,
             height_request: 200,
         });
-        // dialog.add_button('_Cancel', Gtk.ResponseType.CANCEL);
         const dialogBox = new Gtk.Box({
             margin_bottom: 12,
             margin_end: 12,
@@ -139,4 +177,17 @@ function getAccelerator(keyval: number, modifiers: number): string | null {
     } else {
         return null;
     }
+}
+
+// From https://gitlab.com/rmnvgr/nightthemeswitcher-gnome-shell-extension/-/blob/main/src/utils.js
+function findItemPositionInModel<T extends GObject.Object>(
+    model: Gio.ListModel,
+    predicate: (item: T) => boolean,
+): number | undefined {
+    for (let i = 0; i < model.get_n_items(); i++) {
+        if (predicate(model.get_item(i) as T)) {
+            return i;
+        }
+    }
+    return undefined;
 }

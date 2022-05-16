@@ -19,6 +19,7 @@ export namespace Clutter {
 }
 
 export namespace Gio {
+    type ListModel = any;
     type Settings = any;
 }
 
@@ -37,4 +38,9 @@ export namespace Gtk {
     type EventControllerKey = any;
     type ShortcutManager = any;
     type ShortcutController = any;
+}
+
+export namespace GObject {
+    type Object = any;
+    type GType = any;
 }

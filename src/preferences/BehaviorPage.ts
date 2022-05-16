@@ -1,7 +1,7 @@
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 import { Adw } from 'imports/gi';
-import { addToggle } from 'preferences/common';
+import { addCombo, addToggle } from 'preferences/common';
 
 const settings = ExtensionUtils.getSettings(`${Me.metadata['settings-schema']}.behavior`);
 
@@ -25,6 +25,18 @@ export class BehaviorPage {
             key: 'show-empty-workspaces',
             title: 'Show empty workspaces',
             subtitle: "Shows workspaces that don't have any windows in the workspaces bar",
+        });
+        addCombo({
+            window: this.window,
+            settings,
+            group,
+            key: 'scroll-wheel',
+            title: 'Switch workspaces with scroll wheel',
+            options: {
+                panel: 'Over panel',
+                'workspaces-bar': 'Over workspaces bar',
+                disabled: 'Disabled',
+            },
         });
         this.page.add(group);
     }
