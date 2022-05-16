@@ -3,7 +3,6 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 import type { Meta } from 'imports/gi';
 import { Clutter, GObject, St } from 'imports/gi';
-import { Settings } from 'services/Settings';
 import { Workspaces, WorkspaceState } from 'services/Workspaces';
 import { WorkspacesBarMenu } from 'ui/WorkspacesBarMenu';
 const PanelMenu = imports.ui.panelMenu;
@@ -44,9 +43,8 @@ const MAX_CLICK_TIME_DELTA = 300;
 
 export class WorkspacesBar {
     private readonly _name = `${Me.metadata.name}`;
-    private readonly _settings = Settings.getInstance();
     private readonly _ws = Workspaces.getInstance();
-    private readonly _button = new (WorkspacesButton as any)(0.5, this._name);
+    readonly button = new (WorkspacesButton as any)(0.5, this._name);
     private _wsBar!: St.BoxLayout;
     private readonly _dragHandler = new WorkspacesBarDragHandler(() => this._updateWorkspaces());
 
@@ -54,26 +52,26 @@ export class WorkspacesBar {
 
     init(): void {
         this._initButton();
-        new WorkspacesBarMenu(this._button.menu).init();
+        new WorkspacesBarMenu(this.button.menu).init();
     }
 
     destroy(): void {
         this._wsBar.destroy();
-        this._button.destroy();
+        this.button.destroy();
         this._dragHandler.destroy();
     }
 
     private _initButton(): void {
-        this._button._delegate = this._dragHandler;
-        this._button.track_hover = false;
-        this._button.style_class = 'panel-button space-bar';
+        this.button._delegate = this._dragHandler;
+        this.button.track_hover = false;
+        this.button.style_class = 'panel-button space-bar';
         this._ws.onUpdate(() => this._updateWorkspaces());
 
         // bar creation
         this._wsBar = new St.BoxLayout({});
         this._updateWorkspaces();
-        this._button.add_child(this._wsBar);
-        Main.panel.addToStatusArea(this._name, this._button, 0, 'left');
+        this.button.add_child(this._wsBar);
+        Main.panel.addToStatusArea(this._name, this.button, 0, 'left');
     }
 
     // update the workspaces bar
@@ -113,7 +111,7 @@ export class WorkspacesBar {
                     this._ws.removeWorkspace(workspace.index);
                     break;
                 case 3:
-                    this._button.menu.toggle();
+                    this.button.menu.toggle();
                     break;
             }
             return Clutter.EVENT_PROPAGATE;

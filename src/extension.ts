@@ -10,12 +10,6 @@ class Extension {
     private scrollHandler: ScrollHandler | null = null;
 
     enable() {
-        console.log('-------------------------------------------------------');
-        console.log('-------------------------------------------------------');
-        console.log('-------------------------------------------------------');
-        console.log('-------------------------------------------------------');
-        console.log('-------------------------------------------------------');
-        console.log('-------------------------------------------------------');
         Settings.init();
         showActivities(false);
         Workspaces.init();
@@ -23,7 +17,7 @@ class Extension {
         this.workspacesBar = new WorkspacesBar();
         this.workspacesBar.init();
         this.scrollHandler = new ScrollHandler();
-        this.scrollHandler.init();
+        this.scrollHandler.init(this.workspacesBar.button);
     }
 
     disable() {

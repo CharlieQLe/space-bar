@@ -1,24 +1,46 @@
 import { Clutter } from 'imports/gi';
+import { Settings } from 'services/Settings';
 import { Workspaces } from 'services/Workspaces';
 const Main = imports.ui.main;
 
 export class ScrollHandler {
-    private _ws!: Workspaces;
-    private scroll_binding: any;
+    private _ws = Workspaces.getInstance();
+    private _settings = Settings.getInstance();
+    private _disconnectBinding?: () => void;
 
-    init() {
-        this._ws = Workspaces.getInstance();
-        this.scroll_binding = Main.panel.connect('scroll-event', (actor: any, event: any) =>
-            this._handle_scroll(actor, event),
+    init(panelButton: any) {
+        this._settings.scrollWheel.subscribe(
+            (value) => {
+                this._disconnectBinding?.();
+                switch (value) {
+                    case 'panel':
+                        this._registerScroll(Main.panel);
+                        break;
+                    case 'workspaces-bar':
+                        this._registerScroll(panelButton);
+                        break;
+                    case 'disabled':
+                        this._disconnectBinding = undefined;
+                        break;
+                }
+            },
+            { emitCurrentValue: true },
         );
     }
 
     destroy() {
-        Main.panel.disconnect(this.scroll_binding);
-        this.scroll_binding = null;
+        this._disconnectBinding?.();
+        this._disconnectBinding = undefined;
     }
 
-    _handle_scroll(actor: any, event: any) {
+    private _registerScroll(widget: any): void {
+        const scrollBinding = widget.connect('scroll-event', (actor: any, event: any) =>
+            this._handle_scroll(actor, event),
+        );
+        this._disconnectBinding = () => widget.disconnect(scrollBinding);
+    }
+
+    private _handle_scroll(actor: any, event: any): boolean {
         // Adapted from https://github.com/timbertson/gnome-shell-scroll-workspaces
         const source = event.get_source();
         if (source !== actor) {
@@ -49,7 +71,7 @@ export class ScrollHandler {
         return Clutter.EVENT_STOP;
     }
 
-    _findVisibleWorkspace(index: number, step: number) {
+    private _findVisibleWorkspace(index: number, step: number): number | null {
         while (true) {
             index += step;
             if (index < 0 || index >= this._ws.numberOfEnabledWorkspaces) {

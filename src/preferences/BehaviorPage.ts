@@ -5,6 +5,12 @@ import { addCombo, addToggle } from 'preferences/common';
 
 const settings = ExtensionUtils.getSettings(`${Me.metadata['settings-schema']}.behavior`);
 
+export const scrollWheelOptions = {
+    panel: 'Over top panel',
+    'workspaces-bar': 'Over workspaces bar',
+    disabled: 'Disabled',
+};
+
 export class BehaviorPage {
     window!: Adw.PreferencesWindow;
     page = new Adw.PreferencesPage();
@@ -32,11 +38,7 @@ export class BehaviorPage {
             group,
             key: 'scroll-wheel',
             title: 'Switch workspaces with scroll wheel',
-            options: {
-                panel: 'Over panel',
-                'workspaces-bar': 'Over workspaces bar',
-                disabled: 'Disabled',
-            },
+            options: scrollWheelOptions,
         });
         this.page.add(group);
     }

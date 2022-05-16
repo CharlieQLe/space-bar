@@ -1,6 +1,7 @@
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 import { Gio } from 'imports/gi';
+import { scrollWheelOptions } from 'preferences/BehaviorPage';
 
 export class Settings {
     private static _instance: Settings | null;
@@ -39,6 +40,10 @@ export class Settings {
         this.behaviorSettings,
         'show-empty-workspaces',
     );
+    readonly scrollWheel = SettingsSubject.createStringSubject<keyof typeof scrollWheelOptions>(
+        this.behaviorSettings,
+        'scroll-wheel',
+    );
     readonly smartWorkspaceNames = SettingsSubject.createBooleanSubject(
         this.behaviorSettings,
         'smart-workspace-names',
@@ -69,6 +74,12 @@ class SettingsSubject<T> {
     private static _subjects: SettingsSubject<any>[] = [];
     static createBooleanSubject(settings: Gio.Settings, name: string): SettingsSubject<boolean> {
         return new SettingsSubject<boolean>(settings, name, 'boolean');
+    }
+    static createStringSubject<T extends string = string>(
+        settings: Gio.Settings,
+        name: string,
+    ): SettingsSubject<T> {
+        return new SettingsSubject<T>(settings, name, 'string');
     }
     static createStringArraySubject(
         settings: Gio.Settings,
@@ -107,7 +118,7 @@ class SettingsSubject<T> {
     private constructor(
         private readonly _settings: Gio.Settings,
         private readonly _name: string,
-        private readonly _type: 'boolean' | 'string-array' | 'json-object',
+        private readonly _type: 'boolean' | 'string' | 'string-array' | 'json-object',
     ) {
         SettingsSubject._subjects.push(this);
     }
@@ -124,6 +135,8 @@ class SettingsSubject<T> {
             switch (this._type) {
                 case 'boolean':
                     return this._settings.get_boolean(this._name) as unknown as T;
+                case 'string':
+                    return this._settings.get_string(this._name) as unknown as T;
                 case 'string-array':
                     return this._settings.get_strv(this._name) as unknown as T;
                 case 'json-object':
@@ -136,6 +149,8 @@ class SettingsSubject<T> {
             switch (this._type) {
                 case 'boolean':
                     return this._settings.set_boolean(this._name, value as unknown as boolean);
+                case 'string':
+                    return this._settings.set_string(this._name, value as unknown as string);
                 case 'string-array':
                     return this._settings.set_strv(this._name, value as unknown as string[]);
                 case 'json-object':
