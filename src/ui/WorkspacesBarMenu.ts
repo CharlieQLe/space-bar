@@ -20,7 +20,7 @@ export class WorkspacesBarMenu {
     constructor(private readonly _menu: any) {}
 
     init(): void {
-        this._menu.box.add_style_class_name('workspaces-bar-menu');
+        this._menu.box.add_style_class_name('space-bar-menu');
         this._addSectionHeading('Rename current workspace');
         this._initEntry();
         this._menu.addMenuItem(this._recentWorkspacesSection);
@@ -42,7 +42,7 @@ export class WorkspacesBarMenu {
 
     private _addSectionHeading(text: string, section?: any): void {
         const separator = new PopupMenu.PopupSeparatorMenuItem(text);
-        separator.label.add_style_class_name('workspaces-bar-menu-heading');
+        separator.label.add_style_class_name('space-bar-menu-heading');
         (section ?? this._menu).addMenuItem(separator);
     }
 

@@ -1,8 +1,9 @@
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 import { Adw } from 'imports/gi';
 import { addKeyboardShortcut, addToggle } from 'preferences/common';
-const ExtensionUtils = imports.misc.extensionUtils;
 
-const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.workspaces-bar.shortcuts');
+const settings = ExtensionUtils.getSettings(`${Me.metadata['settings-schema']}.shortcuts`);
 
 export class ShortcutsPage {
     window!: Adw.PreferencesWindow;

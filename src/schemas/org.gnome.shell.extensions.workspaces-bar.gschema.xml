@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-    <schema id="org.gnome.shell.extensions.workspaces-bar.state" path="/org/gnome/shell/extensions/workspaces-bar/state/">
+    <schema id="org.gnome.shell.extensions.space-bar.state" path="/org/gnome/shell/extensions/space-bar/state/">
         <key name="workspace-names-map" type="s">
             <default><![CDATA['{}']]></default>
         </key>
     </schema>
 
-    <schema id="org.gnome.shell.extensions.workspaces-bar.behavior" path="/org/gnome/shell/extensions/workspaces-bar/behavior/">
+    <schema id="org.gnome.shell.extensions.space-bar.behavior" path="/org/gnome/shell/extensions/space-bar/behavior/">
         <key name="show-empty-workspaces" type="b">
             <default>true</default>
         </key>
@@ -15,7 +15,7 @@
         </key>
     </schema>
 
-    <schema id="org.gnome.shell.extensions.workspaces-bar.shortcuts" path="/org/gnome/shell/extensions/workspaces-bar/shortcuts/">
+    <schema id="org.gnome.shell.extensions.space-bar.shortcuts" path="/org/gnome/shell/extensions/space-bar/shortcuts/">
         <key name="enable-activate-workspace-shortcuts" type="b">
             <default>true</default>
         </key>

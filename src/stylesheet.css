@@ -1,35 +1,35 @@
-/* .workspaces-bar {
+/* .space-bar {
     -natural-hpadding: 0;
 } */
 
-.workspaces-bar-workspace-label {
+.space-bar-workspace-label {
     margin: 0 4px;
     padding: 3px 8px;
     border-radius: 4px;
     font-weight: bold;
 }
 
-.workspaces-bar-workspace-label.active {
+.space-bar-workspace-label.active {
     color: white;
     background-color: rgb(78, 78, 78);
 }
 
-.workspace-box.dragging .workspaces-bar-workspace-label.inactive {
+.workspace-box.dragging .space-bar-workspace-label.inactive {
     background-color: rgb(0, 0, 0);
     transition: margin-left 0.5s, margin-right 0.5s;
 }
 
-.workspaces-bar-workspace-label.empty.inactive {
+.space-bar-workspace-label.empty.inactive {
     color: rgba(255, 255, 255, 0.5);
 }
 
-.workspaces-bar-menu .workspaces-bar-menu-heading {
+.space-bar-menu .space-bar-menu-heading {
     margin-left: 8px;
     margin-right: 8px;
     font-weight: 700;
     font-size: 9pt;
 }
 
-.workspaces-bar-menu .popup-menu-ornament {
+.space-bar-menu .popup-menu-ornament {
     width: 0 !important;
 }

@@ -1,8 +1,9 @@
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 import { Adw } from 'imports/gi';
 import { addToggle } from 'preferences/common';
-const ExtensionUtils = imports.misc.extensionUtils;
 
-const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.workspaces-bar.behavior');
+const settings = ExtensionUtils.getSettings(`${Me.metadata['settings-schema']}.behavior`);
 
 export class BehaviorPage {
     window!: Adw.PreferencesWindow;

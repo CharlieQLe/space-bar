@@ -1,4 +1,5 @@
 const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 import { Gio } from 'imports/gi';
 
 export class Settings {
@@ -15,12 +16,12 @@ export class Settings {
         return Settings._instance as Settings;
     }
 
-    readonly state = ExtensionUtils.getSettings('org.gnome.shell.extensions.workspaces-bar.state');
+    readonly state = ExtensionUtils.getSettings(`${Me.metadata['settings-schema']}.state`);
     readonly behaviorSettings = ExtensionUtils.getSettings(
-        'org.gnome.shell.extensions.workspaces-bar.behavior',
+        `${Me.metadata['settings-schema']}.behavior`,
     );
     readonly shortcutsSettings = ExtensionUtils.getSettings(
-        'org.gnome.shell.extensions.workspaces-bar.shortcuts',
+        `${Me.metadata['settings-schema']}.shortcuts`,
     );
     readonly mutterSettings = new Gio.Settings({ schema: 'org.gnome.mutter' });
     readonly wmPreferencesSettings = new Gio.Settings({
@@ -166,64 +167,3 @@ class SettingsSubject<T> {
         }
     }
 }
-
-// interface SettingsDefinition {
-//     schema: string;
-//     name: string;
-//     type: 'boolean' | 'string';
-// }
-// interface BooleanSettingsDefinition extends SettingsDefinition {
-//     type: 'boolean';
-// }
-// interface StringSettingsDefinition extends SettingsDefinition {
-//     type: 'string';
-// }
-//
-// export class NewSettings {
-//     private readonly _availableSettings = {
-//         dynamicWorkspaces: {
-//             schema: 'org.gnome.mutter',
-//             name: 'dynamic-workspaces',
-//             type: 'boolean',
-//         } as BooleanSettingsDefinition,
-//     };
-//     private _gioSettings: { [key: string]: any } = {};
-
-//     readonly extensionSettings = ExtensionUtils.getSettings(
-//         'org.gnome.shell.extensions.workspaces-bar',
-//     );
-
-//     init(): void {
-//         const foo = this.get('dynamicWorkspaces');
-//     }
-//     destroy(): void {}
-//     get<T extends keyof NewSettings['_availableSettings']>(key: T) {
-//         const setting = this._availableSettings[key];
-//         return this._getValue<NewSettings['_availableSettings'][T]>(setting);
-//     }
-
-//     private _getValue<T extends BooleanSettingsDefinition>(definition: T): boolean;
-//     private _getValue<T extends StringSettingsDefinition>(definition: T): string;
-//     private _getValue(definition: SettingsDefinition): boolean | string {
-//         switch (definition.type) {
-//             case 'boolean':
-//                 return this._getGioSettings(definition.schema).get_boolean(definition.name);
-//             case 'string':
-//                 return 'foo';
-//             default:
-//                 throw new Error('unknown type ' + definition.type);
-//         }
-//     }
-
-//     private _getBoolean({ schema, name }: SettingsDefinition): boolean {
-//         const settings = new Gio.Settings({ schema });
-//         return settings.get_boolean(name);
-//     }
-
-//     private _getGioSettings(schema: string): GioType.Settings {
-//         if (!(schema in this._gioSettings)) {
-//             this._gioSettings[schema] = new Gio.Settings({ schema });
-//         }
-//         return this._gioSettings[schema];
-//     }
-// }

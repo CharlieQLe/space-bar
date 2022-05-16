@@ -66,7 +66,7 @@ export class WorkspacesBar {
     private _initButton(): void {
         this._button._delegate = this._dragHandler;
         this._button.track_hover = false;
-        this._button.style_class = 'panel-button workspaces-bar';
+        this._button.style_class = 'panel-button space-bar';
         this._ws.onUpdate(() => this._updateWorkspaces());
 
         // bar creation
@@ -142,7 +142,7 @@ export class WorkspacesBar {
     private _createLabel(workspace: WorkspaceState): St.Label {
         const label = new St.Label({
             y_align: Clutter.ActorAlign.CENTER,
-            style_class: 'workspaces-bar-workspace-label',
+            style_class: 'space-bar-workspace-label',
         });
         if (workspace.index == this._ws.currentIndex) {
             label.style_class += ' active';
