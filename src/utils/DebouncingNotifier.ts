@@ -1,18 +1,17 @@
 import { GLib } from 'imports/gi';
 
 export class DebouncingNotifier {
-    private readonly _subscribers: (() => void)[] = [];
+    private _subscribers: (() => void)[] = [];
     private _timeout: number | null = null;
 
-    constructor(private _delaySeconds: number = 0.001) {}
+    constructor(private _delayMs: number = 0) {}
 
     notify(): void {
         // console.log('notify');
         if (this._timeout) {
-            GLib.Source.remove(this._timeout);
-            this._timeout = null;
+            return;
         }
-        this._timeout = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, this._delaySeconds, () => {
+        this._timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._delayMs, () => {
             this._notify();
             this._timeout = null;
             return GLib.SOURCE_REMOVE;
@@ -21,6 +20,14 @@ export class DebouncingNotifier {
 
     subscribe(callback: () => void): void {
         this._subscribers.push(callback);
+    }
+
+    destroy(): void {
+        if (this._timeout) {
+            GLib.Source.remove(this._timeout);
+            this._timeout = null;
+        }
+        this._subscribers = [];
     }
 
     private _notify(): void {

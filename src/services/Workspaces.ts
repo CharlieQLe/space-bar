@@ -45,7 +45,6 @@ export class Workspaces {
     currentIndex = 0;
     workspaces: WorkspaceState[] = [];
 
-    private _onUpdateCallbacks: Array<(reason: updateReason) => void> = [];
     private _previousWorkspace = 0;
     private _ws_changed?: number;
     private _ws_removed?: number;
@@ -54,6 +53,7 @@ export class Workspaces {
     private _windows_changed: any;
     private _settings = Settings.getInstance();
     private _wsNames?: WorkspaceNames | null;
+    private _updateNotifier = new DebouncingNotifier();
     private _smartNamesNotifier = new DebouncingNotifier();
 
     init() {
@@ -118,11 +118,12 @@ export class Workspaces {
         if (this._windows_changed) {
             Shell.WindowTracker.get_default().disconnect(this._windows_changed);
         }
-        this._onUpdateCallbacks = [];
+        this._updateNotifier.destroy();
+        this._smartNamesNotifier.destroy();
     }
 
     onUpdate(callback: () => void) {
-        this._onUpdateCallbacks.push(callback);
+        this._updateNotifier.subscribe(callback);
     }
 
     activate(index: number, { focusWindowIfCurrentWorkspace = false } = {}) {
@@ -214,7 +215,6 @@ export class Workspaces {
     private _onWorkspaceRemoved(index: number): void {
         this._update(null);
         this._wsNames!.remove(index);
-        this._notify('number-of-workspaces-changed');
     }
 
     private _update(reason: updateReason | null): void {
@@ -236,9 +236,7 @@ export class Workspaces {
         this.workspaces = [...Array(numberOfTrackedWorkspaces)].map((_, index) =>
             this._getWorkspaceState(index),
         );
-        if (reason !== null) {
-            this._notify(reason);
-        }
+        this._updateNotifier.notify();
     }
 
     private _updateSmartWorkspaceNames(): void {
@@ -267,10 +265,6 @@ export class Workspaces {
                 this._wsNames!.rename(workspace.index, '');
             }
         }
-    }
-
-    private _notify(reason: updateReason): void {
-        this._onUpdateCallbacks.forEach((cb) => cb(reason));
     }
 
     private _getWorkspaceState(index: number): WorkspaceState {
