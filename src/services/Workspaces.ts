@@ -74,12 +74,16 @@ export class Workspaces {
             () => {
                 this._previousWorkspace = this.currentIndex;
                 this._update('active-workspace-changed');
+                this._updateSmartWorkspaceNames();
             },
         );
         this._restacked = global.display.connect('restacked', this._update.bind(this));
         this._windows_changed = Shell.WindowTracker.get_default().connect(
             'tracked-windows-changed',
-            () => this._update('windows-changed'),
+            () => {
+                this._update('windows-changed');
+                this._updateSmartWorkspaceNames();
+            },
         );
         this._settings.workspaceNames.subscribe(() => this._update('workspace-names-changed'));
         this._settings.showEmptyWorkspaces.subscribe(() =>
@@ -166,8 +170,9 @@ export class Workspaces {
     reorderWorkspace(oldIndex: number, newIndex: number): void {
         const workspace = global.workspace_manager.get_workspace_by_index(oldIndex);
         if (workspace) {
-            global.workspace_manager.reorder_workspace(workspace, newIndex);
+            // Update names first, so smart-workspace names don't get mixed up names when updating.
             this._wsNames?.moveByIndex(oldIndex, newIndex);
+            global.workspace_manager.reorder_workspace(workspace, newIndex);
         }
     }
 
@@ -226,21 +231,20 @@ export class Workspaces {
         this.workspaces = [...Array(numberOfTrackedWorkspaces)].map((_, index) =>
             this._getWorkspaceState(index),
         );
-        if (this._settings.smartWorkspaceNames.value) {
-            this._updateSmartWorkspaceNames();
-        }
         if (reason !== null) {
             this._notify(reason);
         }
     }
 
     private _updateSmartWorkspaceNames(): void {
-        for (const workspace of this.workspaces) {
-            if (workspace.hasWindows && !workspace.name) {
-                this._wsNames!.restoreSmartWorkspaceName(workspace.index);
-            }
-            if (this._isExtraDynamicWorkspace(workspace)) {
-                this._wsNames!.remove(workspace.index);
+        if (this._settings.smartWorkspaceNames.value) {
+            for (const workspace of this.workspaces) {
+                if (workspace.hasWindows && !workspace.name) {
+                    this._wsNames!.restoreSmartWorkspaceName(workspace.index);
+                }
+                if (this._isExtraDynamicWorkspace(workspace)) {
+                    this._wsNames!.remove(workspace.index);
+                }
             }
         }
     }
