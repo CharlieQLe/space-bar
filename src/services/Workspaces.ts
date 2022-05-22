@@ -1,6 +1,7 @@
 import { Shell } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import { WorkspaceNames } from 'services/WorkspaceNames';
+import { DebouncingNotifier } from 'utils/DebouncingNotifier';
 const Main = imports.ui.main;
 const AltTab = imports.ui.altTab;
 
@@ -53,6 +54,7 @@ export class Workspaces {
     private _windows_changed: any;
     private _settings = Settings.getInstance();
     private _wsNames?: WorkspaceNames | null;
+    private _smartNamesNotifier = new DebouncingNotifier();
 
     init() {
         this._wsNames = WorkspaceNames.init(this);
@@ -74,7 +76,7 @@ export class Workspaces {
             () => {
                 this._previousWorkspace = this.currentIndex;
                 this._update('active-workspace-changed');
-                this._updateSmartWorkspaceNames();
+                this._smartNamesNotifier.notify();
             },
         );
         this._restacked = global.display.connect('restacked', this._update.bind(this));
@@ -82,7 +84,7 @@ export class Workspaces {
             'tracked-windows-changed',
             () => {
                 this._update('windows-changed');
-                this._updateSmartWorkspaceNames();
+                this._smartNamesNotifier.notify();
             },
         );
         this._settings.workspaceNames.subscribe(() => this._update('workspace-names-changed'));
@@ -94,6 +96,9 @@ export class Workspaces {
             (value) => value && this._clearEmptyWorkspaceNames(),
             { emitCurrentValue: true },
         );
+        // Update smart workspaces after a small delay because workspaces can briefly get into
+        // inconsistent states while empty dynamic workspaces are being removed.
+        this._smartNamesNotifier.subscribe(() => this._updateSmartWorkspaceNames());
     }
 
     destroy() {

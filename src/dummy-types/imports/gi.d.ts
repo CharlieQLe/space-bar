@@ -7,6 +7,7 @@ export const Meta: any;
 export const Gtk: any;
 export const Clutter: any;
 export const Gdk: any;
+export const GLib: any;
 
 export namespace Adw {
     type PreferencesWindow = any;

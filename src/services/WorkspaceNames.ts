@@ -108,6 +108,7 @@ export class WorkspaceNames {
     }
 
     private _setNames(names: string[]): void {
+        // console.log('_setNames', names);
         // names = this._cleanUp(names);
         this._settings.workspaceNames.value = names;
     }

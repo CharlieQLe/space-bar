@@ -7,6 +7,7 @@ import * as Gtk40 from '@imports/Gtk-4.0';
 import * as Meta10 from '@imports/Meta-10';
 import * as Shell01 from '@imports/Shell-0.1';
 import * as St10 from '@imports/St-1.0';
+import * as GLib20 from '@imports/GLib-2.0'
 
 export { Adw1 as Adw };
 export { Gio20 as Gio };
@@ -17,3 +18,4 @@ export { Meta10 as Meta };
 export { Gtk40 as Gtk };
 export { Clutter10 as Clutter };
 export { Gdk40 as Gdk };
+export { GLib20 as GLib };
