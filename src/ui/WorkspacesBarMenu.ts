@@ -64,6 +64,9 @@ export class WorkspacesBarMenu {
         this._menu.connect('open-state-changed', () => {
             if (this._menu.isOpen) {
                 oldName = this._ws.workspaces[this._ws.currentIndex].name || '';
+                // Reset the selection before setting the text since the entry field won't let us do
+                // that when it is empty.
+                entryItem.entry.get_clutter_text().set_selection(0, 0);
                 entryItem.entry.set_text(oldName);
                 entryItem.active = true;
             } else {
