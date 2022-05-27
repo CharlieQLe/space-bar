@@ -6,15 +6,10 @@
         "lib": ["ES2021", "dom"],
         "paths": {
             "@imports/*": ["./@types/Gjs/*"],
-            "types": ["./src/types/types.d"],
-            "imports/*": ["./src/types/imports/*"]
+            "types": ["./src/types/generated/types.d"],
+            "imports/*": ["./src/types/generated/imports/*"]
         }
     },
-    "include": [
-        "src/types/types.d.ts",
-        "src/**/*.ts",
-    ],
-    "exclude": [
-        "src/type-stubs/*",
-      ]
+    "include": ["src/**/*.ts"],
+    "exclude": ["src/types/dummy/*"]
 }
