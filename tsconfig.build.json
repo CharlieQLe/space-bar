@@ -4,10 +4,10 @@
     "compilerOptions": {
         "noImplicitAny": false,
         "paths": {
-            "types": ["./src/dummy-types/types.d"],
-            "imports/*": ["./src/dummy-types/imports/*"]
+            "types": ["./src/type-stubs/types.d"],
+            "imports/*": ["./src/type-stubs/imports/*"]
         }
     },
-    "include": ["src/**/*.ts", "src/dummy-types/types.d.ts"],
+    "include": ["src/**/*.ts", "src/type-stubs/types.d.ts"],
     "exclude": ["src/types/*"]
 }

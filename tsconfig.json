@@ -15,6 +15,6 @@
         "src/**/*.ts",
     ],
     "exclude": [
-        "src/dummy-types/*",
+        "src/type-stubs/*",
       ]
 }
