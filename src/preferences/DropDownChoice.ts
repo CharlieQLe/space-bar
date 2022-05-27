@@ -1,4 +1,7 @@
-// From https://gitlab.com/rmnvgr/nightthemeswitcher-gnome-shell-extension/-/blob/main/src/preferences/DropDownChoice.js
+// Adapted from
+// https://gitlab.com/rmnvgr/nightthemeswitcher-gnome-shell-extension/-/blob/main/src/preferences/DropDownChoice.js
+
+// FIXME: There is probably some standard object we could use for this.
 
 import { GObject } from 'imports/gi';
 
@@ -26,13 +29,6 @@ export const DropDownChoice = GObject.registerClass(
                 GObject.ParamFlags.READWRITE,
                 null,
             ),
-            // enabled: GObject.ParamSpec.boolean(
-            //     'enabled',
-            //     'Enabled',
-            //     'If the choice is enabled',
-            //     GObject.ParamFlags.READWRITE,
-            //     true,
-            // ),
         },
     },
     class DropDownChoice extends GObject.Object {},

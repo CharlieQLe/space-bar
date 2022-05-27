@@ -16,7 +16,6 @@ export function addToggle({
     settings: Gio.Settings;
     shortcutLabel?: string | null;
 }): void {
-    // Create a new preferences row
     const row = new Adw.ActionRow({ title, subtitle });
     group.add(row);
 
@@ -28,14 +27,12 @@ export function addToggle({
         row.add_prefix(gtkShortcutLabel);
     }
 
-    // Create the switch and bind its value to the `show-indicator` key
     const toggle = new Gtk.Switch({
         active: settings.get_boolean(key),
         valign: Gtk.Align.CENTER,
     });
     settings.bind(key, toggle, 'active', Gio.SettingsBindFlags.DEFAULT);
 
-    // Add the switch to the row
     row.add_suffix(toggle);
     row.activatable_widget = toggle;
 }
@@ -157,7 +154,7 @@ export function addKeyboardShortcut({
             const accelerator = getAccelerator(keyval, modifier);
             if (accelerator) {
                 if (keyval === Gdk.KEY_Escape && !modifier) {
-                    // Just hide the dialog
+                    // Just close the dialog
                 } else if (keyval === Gdk.KEY_BackSpace && !modifier) {
                     shortcutLabel.hide();
                     disabledLabel.show();

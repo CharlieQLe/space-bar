@@ -7,7 +7,6 @@ export class DebouncingNotifier {
     constructor(private _delayMs: number = 0) {}
 
     notify(): void {
-        // console.log('notify');
         if (this._timeout) {
             return;
         }
@@ -31,7 +30,6 @@ export class DebouncingNotifier {
     }
 
     private _notify(): void {
-        // console.log('_notify');
         for (const subscriber of this._subscribers) {
             subscriber();
         }

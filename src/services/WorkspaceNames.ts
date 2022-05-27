@@ -1,6 +1,6 @@
+import type { Meta } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import type { Workspaces } from 'services/Workspaces';
-import type { Meta } from 'imports/gi';
 type Window = Meta.Window;
 
 export class WorkspaceNames {
@@ -108,17 +108,7 @@ export class WorkspaceNames {
     }
 
     private _setNames(names: string[]): void {
-        // console.log('_setNames', names);
-        // names = this._cleanUp(names);
         this._settings.workspaceNames.value = names;
-    }
-
-    private _cleanUp(workspaceNames: string[]): string[] {
-        return (
-            workspaceNames
-                // Filter empty and unused workspace names.
-                .filter((name, index) => index < this._ws.numberOfEnabledWorkspaces || !!name)
-        );
     }
 
     private _getEnabledWorkspaceNames(): string[] {

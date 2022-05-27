@@ -32,7 +32,6 @@ class Extension {
     }
 }
 
-// @ts-ignore
 function init() {
     return new Extension();
 }

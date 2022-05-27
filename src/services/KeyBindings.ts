@@ -1,8 +1,7 @@
-import { Meta, Shell } from 'imports/gi';
+import { Gio, Meta, Shell } from 'imports/gi';
 import { Settings } from 'services/Settings';
 import { Workspaces } from 'services/Workspaces';
 const Main = imports.ui.main;
-import { Gio } from 'imports/gi';
 
 export class KeyBindings {
     private static _instance: KeyBindings | null;

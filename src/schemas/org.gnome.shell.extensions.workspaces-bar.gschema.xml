@@ -19,7 +19,6 @@
             <default>"panel"</default>
             <summary>Switch workspaces with scroll wheel</summary>
         </key>
-    
         <key name="smart-workspace-names" type="b">
             <default>false</default>
         </key>
@@ -87,6 +86,5 @@
             <default><![CDATA[['<Super>0']]]></default>
             <summary>Keybinding to activate workspace 10.</summary>
         </key>
-
     </schema>
 </schemalist>

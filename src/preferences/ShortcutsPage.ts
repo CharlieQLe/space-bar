@@ -17,7 +17,6 @@ export class ShortcutsPage {
 
     private _initGroup(): void {
         const group = new Adw.PreferencesGroup();
-        // group.set_title('Workspaces Bar');
         group.set_description('Shortcuts might not work if they are already bound elsewhere.');
         this.page.add(group);
 
@@ -37,7 +36,6 @@ export class ShortcutsPage {
             shortcutLabel: '<Super><Shift>1...0',
             subtitle: 'With the current window',
         });
-        this.page.add(group);
 
         addKeyboardShortcut({
             settings,
