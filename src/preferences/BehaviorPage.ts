@@ -17,7 +17,7 @@ export class BehaviorPage {
 
     init() {
         this.page.set_title('Behavior');
-        this.page.set_icon_name('settings');
+        this.page.set_icon_name('preferences-system-symbolic');
         this._initGeneralGroup();
         this._initSmartWorkspaceNamesGroup();
     }
