@@ -198,7 +198,7 @@ export class Workspaces {
         if (this._isExtraDynamicWorkspace(workspace)) {
             return '+';
         }
-        return workspace.name || (workspace.index + 1).toString();
+        return workspace.name || `Workspace ${workspace.index + 1}`;
     }
 
     focusMostRecentWindowOnWorkspace(workspace: Workspace) {
